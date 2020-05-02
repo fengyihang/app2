@@ -1,0 +1,55 @@
+<template>
+  <div class="page">
+    <div class="page__bd">
+      <club-list :clubs="resourceData" :no-more-data ="noMoreData"></club-list>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    navigationBarTitleText: '俱乐部',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      "club-list": "~@/components/club-list"
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import eventHub from '@/common/eventHub'
+  import { getClubs } from '@/api/club'
+  import listRefresh from '@/mixins/list-refresh.js'
+  import syncBadge from '@/mixins/sync-badge'
+
+  wepy.page({
+    store,
+    mixins: [listRefresh, syncBadge],
+    data: {
+      longitude: 0,
+      latitude: 0
+    },
+    computed: {
+      currentCityIndex() {
+        return wx.getStorageSync('city_index')
+      }
+    },
+    async onLoad() {
+      await this.loadData()
+    },
+    methods: {
+      async fetchData() {
+        let latitude = wx.getStorageSync('latitude')
+        let longitude = wx.getStorageSync('longitude')
+        let params = {
+          page: this.page,
+          include: 'user',
+          latitude: latitude || 0,
+          longitude: longitude || 0
+        }
+        // 请求话题列表接口
+        return getClubs(params)
+      }
+    }
+  })
+  </script>

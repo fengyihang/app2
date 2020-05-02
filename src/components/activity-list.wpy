@@ -1,0 +1,72 @@
+<style lang="less">
+  .weui-media-box__info__meta {
+    margin: 0;
+    font-size: 12px;
+  }
+  .topic-info {
+    margin-top: 5px;
+  }
+  .topic-title {
+    white-space: normal;
+    font-size: 14px;
+  }
+  .avatar {
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 50px;
+    height: 50px;
+  }
+  .reply-count {
+    background-color: #d8d8d8;
+    float: right;
+  }
+</style>
+<template>
+  <div class="weui-panel weui-panel_access">
+    <div class="weui-panel__bd">
+      <div v-for="activity in activities" :key="activity.id">
+        <a url="/pages/activity/show?id={{activity.id}}" class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
+          <div class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+            <image class="avatar" :src="activity.club.avatar" />
+          </div>
+          <div class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+            <div class="weui-media-box__title topic-title">{{ activity.title }}</div>
+
+            <div class="weui-media-box__info topic-info">
+              <view class="weui-media-box__info__meta">已报名：{{ activity.joined_count }} / {{ activity.count }} • </view>
+              <div class="weui-media-box__info__meta">
+                <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
+              </div>
+            </div>
+          </div>
+          <div class="weui-badge reply-count">{{ activity.distance }}KM</div>
+        </a>
+      </div>
+      <div class="weui-loadmore weui-loadmore_line" v-if="noMoreData">
+        <div class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</div>
+      </div>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    usingComponents: {
+      "activity-datetime-diff": "~@/components/activity-datetime-diff"
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activities: Array,
+      noMoreData: Boolean
+    }
+  })
+</script>

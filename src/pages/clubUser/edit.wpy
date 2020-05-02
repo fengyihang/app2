@@ -1,0 +1,215 @@
+<style lang="less">
+  .avatar {
+    width: 80px;
+    height: 80px;
+    display: block;
+    border-radius: 50%;
+  }
+  .avatar-wrap {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .introduction {
+    height: 3.3em;
+  }
+  .error-message {
+    color: #E64340;
+  }
+</style>
+<template>
+  <div class="page">
+    <div class="page__bd">
+      <form bindsubmit="submit">
+        <div class="avatar-wrap">
+          <image class="avatar" src="{{ clubUser.user.avatar }}"/>
+        </div>
+        <!-- 填写姓名 -->
+        <div class="weui-cells__title">昵称</div>
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__bd">
+              <input class="weui-input" placeholder="请输入昵称" name="nickname" value="{{ clubUser.nickname || clubUser.user.name }}"/>
+            </div>
+            <div v-if=" errors.nickname " class="weui-cell__ft">
+              <icon type="warn" size="23" color="#E64340"></icon>
+            </div>
+          </div>
+        </div>
+        <!-- 姓名错误信息 -->
+        <div v-if=" errors.nickname " class="weui-cells__tips error-message">{{ errors.nickname[0] }}</div>
+
+        <!-- 剩余金币数 -->
+        <div class="weui-cells__title">剩余金币</div>
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__bd">
+              <input class="weui-input" placeholder="请输入金币数" value="{{ clubUser.member_remain_money }}" disabled="disabled"/>
+            </div>
+            <div v-if=" errors.member_remain_money " class="weui-cell__ft">
+              <icon type="warn" size="23" color="#E64340"></icon>
+            </div>
+          </div>
+        </div>
+        <!-- 剩余金币 错误信息 -->
+        <div v-if=" errors.member_remain_money " class="weui-cells__tips error-message">{{ errors.member_remain_money[0] }}</div>
+
+        <!-- 填写 性别 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__hd">
+              <div class="weui-label"><text class="error-message">*</text>性别</div>
+            </div>
+            <div class="weui-cell__bd">
+              <radio-group class="radio-group" bindchange="sexChange">
+                <radio class="weui-input radio" wx:for-items="{{ sex_arr }}" wx:key="name" value="{{ item.value }}"  checked="{{ item.value == sex ? true : false }}">
+                  <text>{{ item.name }}</text>
+                </radio>
+              </radio-group>
+            </div>
+            <div v-if=" errors.sex_arr " class="weui-cell__ft">
+              <icon type="warn" size="23" color="#E64340"></icon>
+            </div>
+          </div>
+        </div>
+        <!-- 填写 性别 end -->
+
+        <!-- 填写 会员状态 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell  weui-cell_switch">
+            <div class="weui-cell__bd">会员状态</div>
+            <div class="weui-cell__ft">
+              <switch name="status" checked="{{ status }}" bindchange="bindStatus" />
+            </div>
+          </div>
+        </div>
+        <div v-if=" errors.status " class="weui-cells__tips error-message">{{ errors.status[0] }}</div>
+        <!-- 填写 会员状态 end -->
+
+        <!-- 填写 VIP会员状态 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell  weui-cell_switch">
+            <div class="weui-cell__bd">VIP会员状态</div>
+            <div class="weui-cell__ft">
+              <switch name="is_member" checked="{{ is_member }}" bindchange="bindMember" />
+            </div>
+          </div>
+        </div>
+        <div v-if=" errors.is_member " class="weui-cells__tips error-message">{{ errors.is_member[0] }}</div>
+        <!-- 填写 VIP会员状态 end -->
+
+        <!-- 提交表单 -->
+        <div class="weui-btn-area">
+          <button class="weui-btn" type="primary" formType="submit">修改</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+<config>
+  {
+  navigationBarTitleText: '编辑俱乐部会员信息',
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import { mapGetters } from '@wepy/x'
+  import eventHub from '@/common/eventHub'
+  import { getClubUser, updateClubUser } from '@/api/clubUser'
+  import util from '../../utils/util'
+
+  wepy.page({
+    store,
+    data: {
+      clubUser: null,
+      platform: 'ios',
+      errors: null,
+      is_member: 0,
+      member_remain_money: 0,
+      status: 0,
+      sex: 1,
+      club_set_sex: 1,
+      sex_arr: [
+        {name: '女生', value: 2},
+        {name: '男生', value: 1}
+      ]
+    },
+    // 计算的属性
+    computed: {
+      ...mapGetters([ 'isLoggedIn' ]),
+      canShow() {
+        return wx.getStorageSync('platform') !== 'ios'
+      },
+      platform() {
+        return wx.getStorageSync('platform')
+      }
+    },
+    methods: {
+      async loadClubUser(id) {
+        const response = await getClubUser(id, {
+          include: 'user'
+        })
+        console.log(response)
+        let clubUser = this.clubUser = response.data
+        if (clubUser.is_member) {
+          this.isMember = true
+        }
+
+        this.sex = clubUser.sex
+        this.status = clubUser.status
+        this.is_member = clubUser.is_member
+        this.member_remain_money = util.formatZero(clubUser.member_remain_money)
+      },
+      // 表单提交
+      async submit (e) {
+        this.errors = null
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+          return
+        }
+        try {
+          // e.detail.value 为表单提交的数据
+          let formData = e.$wx.detail.value
+          formData.sex = this.sex
+          formData.status = formData.status ? 1 : 0
+
+          let editResponse = await updateClubUser(this.clubUser.id, formData)
+
+          if (editResponse.statusCode === 200) {
+            // this.clubUser = editResponse.data
+            util.toast('修改成功')
+
+            // 2 秒后返回上一页
+            setTimeout(function() {
+              eventHub.$emit('club-user-updated', editResponse.data)
+              wx.navigateBack()
+            }, 2000)
+          }
+          // eslint-disable-next-line no-unreachable
+        } catch (err) {
+          // 设置报错信息
+          if (err.statusCode === 422) {
+            this.errors = err.data.errors
+          }
+        }
+      },
+      sexChange: function (e) {
+        this.sex = e.$wx.detail.value
+      },
+      bindMember(e) {
+        this.is_member = e.$wx.detail.value
+      },
+      bindStatus(e) {
+        this.status = e.$wx.detail.value
+      }
+    },
+    async onLoad(options) {
+      this.loadClubUser(options.id)
+    }
+  })
+</script>

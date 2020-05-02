@@ -1,0 +1,71 @@
+<style lang="less">
+  .weui-media-box__info__meta {
+    margin: 0;
+    font-size: 14px;
+    color: #414141;
+  }
+  .topic-info {
+    margin-top: 5px;
+  }
+  .topic-title {
+    white-space: normal;
+  }
+  .avatar {
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 50px;
+    height: 50px;
+  }
+  .reply-count {
+    background-color: #d8d8d8;
+    float: right;
+  }
+</style>
+<template>
+  <div class="page__bd">
+    <withdraw-list :withdrawLogs="resourceData" :no-more-data ="noMoreData"></withdraw-list>
+  </div>
+</template>
+<config>
+  {
+    navigationBarTitleText: '提现记录',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      "withdraw-list": "~@/components/withdraw-list",
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import { mapGetters } from '@wepy/x'
+  import { getWithdrawLogs } from '@/api/withdrawLog'
+  import eventHub from '@/common/eventHub'
+  import listRefresh from '@/mixins/list-refresh.js'
+
+  wepy.page({
+    store,
+    mixins: [ listRefresh ],
+    data: {
+      clubId: 0
+    },
+    computed: {
+      // 用户信息
+      ...mapGetters(['user'])
+    },
+    onLoad(options) {
+      this.club_id = options.id
+      this.loadData()
+    },
+    methods: {
+      fetchData() {
+        return getWithdrawLogs({
+          id: this.club_id,
+          page: this.page,
+          include: 'user,club,activity'
+        })
+      }
+    }
+  })
+</script>

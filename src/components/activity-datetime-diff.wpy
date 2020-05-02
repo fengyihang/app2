@@ -1,0 +1,31 @@
+<template>
+    <span>{{ action_date_format }} ( {{ action_week_format }} ) {{ action_start_format }} ~ {{ action_end_format }}</span>
+</template>
+<script>
+  import wepy from '@wepy/core'
+  import util from '@/utils/util'
+
+  wepy.component({
+    props: {
+      // 父页面传入，需要格式化的时间
+      datetime: String,
+      action_day: String,
+      start_time: String,
+      end_time: String
+    },
+    computed: {
+      action_date_format: function() {
+        return util.dateFormat(this.action_day)
+      },
+      action_week_format: function() {
+        return util.weekFormat(this.action_day)
+      },
+      action_start_format: function() {
+        return util.hourFormat(this.start_time, 'HH:mm')
+      },
+      action_end_format: function() {
+        return util.hourFormat(this.end_time, 'HH:mm')
+      }
+    },
+  })
+</script>

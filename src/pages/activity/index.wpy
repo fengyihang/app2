@@ -1,0 +1,89 @@
+<style lang="less">
+  /*分类*/
+  .weui-flex {
+    align-items: center;
+  }
+  .weui-cells {
+    margin-top: 0;
+    opacity: 0;
+    transition: .3s;
+    &:before, &:after {
+      display: none;
+    }
+    &_show {
+      opacity: 1;
+    }
+  }
+  .weui-cell {
+    &:before {
+      right: 15px;
+    }
+  }
+</style>
+<template>
+  <div class="page">
+    <div class="page__bd">
+      <activity-list :activities="resourceData" :no-more-data ="noMoreData"></activity-list>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    navigationBarTitleText: '附近的活动',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      "activity-list": "~@/components/activity-list"
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import eventHub from '@/common/eventHub'
+  import { getActivities } from '@/api/activity'
+  import listRefresh from '@/mixins/list-refresh.js'
+  import syncBadge from '@/mixins/sync-badge'
+
+  wepy.page({
+    store,
+    mixins: [ listRefresh, syncBadge ],
+    data: {
+      city_index: '',
+      longitude: 0,
+      latitude: 0
+    },
+    computed: {
+      currentCityIndex() {
+        return wx.getStorageSync('city_index')
+      }
+    },
+    async onLoad() {
+      await this.loadData()
+
+      eventHub.$on('activity-deleted', (activity) => {
+        this.page = 1
+        this.noMoreData = false
+        this.loadData(true)
+      })
+    },
+    methods: {
+      async fetchData() {
+        // eslint-disable-next-line camelcase
+        let city_index = wx.getStorageSync('city_index')
+        let latitude = wx.getStorageSync('latitude')
+        let longitude = wx.getStorageSync('longitude')
+        let params = {
+          page: this.page,
+          include: 'user,activity-users,activity-users.user,club',
+          latitude: latitude || 0,
+          longitude: longitude || 0
+        }
+        // eslint-disable-next-line camelcase
+        params['filter[city_index]'] = city_index || '深圳市'
+
+        // 请求话题列表接口
+        return getActivities(params)
+      }
+    }
+  })
+</script>

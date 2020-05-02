@@ -1,0 +1,207 @@
+<style lang="less">
+  .good_list {
+    display: flex;
+    justify-content: space-between;
+    padding: 20rpx 0rpx;
+    border-bottom: 1px solid #efefef
+  }
+  .image_box {
+    image {
+      width: 180rpx;
+      height: 180rpx;
+    }
+  }
+  .product_name {
+    color: #414141;
+    font-size: 32rpx;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+  }
+  .product_rule {
+    font-size: 26rpx;
+    color: #757575;
+    padding-top: 16rpx;
+  }
+  .price {
+    color: #de0000;
+    font-size: 34rpx;
+    font-weight: 600;
+  }
+  .goods {
+    padding: 15rpx 12rpx;
+    .order_footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20rpx;
+    }
+    .order_state {
+      color: #ff4856;
+      font-size: 32rpx;
+    }
+    .btn_group {
+      display: flex;
+      align-items: right;
+      .btn {
+        font-size: 25rpx;
+        padding: 10rpx 10rpx;
+        text-align: center;
+        margin: 0 auto;
+        width: 100%;
+        -moz-border-radius: 15rpx;
+        /* Firefox */
+        -webkit-border-radius: 15rpx;
+        /* Safari 和 Chrome */
+        border-radius: 15rpx;
+        /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+      }
+      .btn_del {
+        color: #333;
+        border: 1px solid #ccc;
+      }
+    }
+  }
+  .product_info {
+    padding-top: 20rpx;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .cost_price {
+    padding-left: 20rpx;
+  }
+</style>
+<!--俱乐部活动列表-->
+<template>
+  <div v-for=" item in activityUsers" :key="item.id" class="weui-cells weui-cells_after-title">
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <image src="{{ item.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
+      </div>
+      <div class="weui-cell__bd">
+        {{item.user.name}}
+        <text v-if=" item.sex === 2 " class="iconfont icon-nv"></text>
+        <text wx:else class="iconfont icon-nan"></text>
+      </div>
+      <div class="weui-cell__ft" v-if=" syncPlatform !== 'ios' ">￥{{ item.money }}</div>
+      <div class="weui-cell__ft" v-if=" syncPlatform === 'ios' ">免费</div>
+      <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" syncIsClubAdmin && item.pid === 0 "></text> {{ user.remark ? user.remark : '' }}</div>
+      <div v-if=" syncIsClubAdmin && item.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
+      <div v-if=" syncIsClubAdmin && item.status === 2 " @tap="confirm" data-id="{{ item.id }}"><text class="iconfont icon-queren"></text> </div>
+      <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{item.id}}" data-pid="{{ item.pid }}" v-if=" syncIsClubAdmin && (item.status === 1 || item.status === 2 || item.status === 0) ">
+        <text class="iconfont icon-reeor"></text>
+      </div>
+      <!-- 已支付标志 -->
+      <div v-if=" platform !== 'ios' && activity_user.pay_type === 2 && activity_user.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
+    </div>
+  </div>
+</template>
+<script>
+  import wepy from '@wepy/core'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activityUsers: Array,
+      noMoreData: Boolean,
+      syncPlatform: String
+    },
+    data: {
+      errors: {}
+    },
+    methods: {
+      // 确认报名
+      async confirm(e) {
+        // 删除取消
+        let res = await wx.showModal({
+          title: '确认报名',
+          content: '您确认通过报名吗',
+          confirmText: '确定',
+          cancelText: '取消'
+        })
+
+        // 用户点击取消后返回
+        if (!res.confirm) {
+          return
+        }
+        try {
+          let id = e.$wx.currentTarget.dataset.id
+          let codeResponse = await api.authRequest({
+            url: 'activity_users/' + id + '/confirm',
+            method: 'PUT',
+          });
+
+          // 验证码错误提示
+          if (codeResponse.statusCode === 401) {
+            wepy.showModal({
+              'title': codeResponse.data.message,
+            });
+            return false;
+          }
+          let that = this;
+          // 记录 key 和 过期时间
+          if (codeResponse.statusCode === 200) {
+            this.$apply();
+            await this.$emit('refreshActivityUser');
+          }
+        } catch (err) {
+          console.log(err)
+          wepy.showModal({
+            title: '提示',
+            content: '服务器错误，请联系管理员'
+          })
+        }
+      },
+
+      // 取消报名
+      async cancelActivityUser(e){
+        // 删除取消
+        let res = await wepy.showModal({
+          title: '确认取消',
+          content: '您确认取消报名吗',
+          confirmText: '确定',
+          cancelText: '取消'
+        });
+
+        // 用户点击取消后返回
+        if (!res.confirm) {
+          return;
+        }
+        try {
+          let id = e.currentTarget.dataset.id;
+          let codeResponse = await api.authRequest({
+            url: 'activities/' + id + '/refund',
+            method: 'POST',
+            data:{ 'ids':id+'' }
+          });
+
+          // 验证码错误提示
+          if (codeResponse.statusCode === 401) {
+            wepy.showModal({
+              'title': codeResponse.data.message,
+            });
+            return false;
+          }
+          let that = this;
+          // 记录 key 和 过期时间
+          if (codeResponse.statusCode === 200) {
+            this.$apply();
+            await this.$emit('refreshActivityUser');
+          }
+        } catch (err) {
+          console.log(err)
+          wepy.showModal({
+            title: '提示',
+            content: '服务器错误，请联系管理员8'
+          })
+        }
+      }
+    }
+  })
+</script>

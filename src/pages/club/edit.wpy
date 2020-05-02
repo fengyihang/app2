@@ -1,0 +1,647 @@
+<style lang="less">
+  .avatar {
+    width: 80px;
+    height: 80px;
+    display: block;
+    border-radius: 50%;
+  }
+  .avatar-wrap {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .block {
+    background: #fff;
+  }
+  .list_item {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #efefef;
+    padding: 35rpx 20rpx;
+    .title {
+      margin-right: 20rpx;
+    }
+    .input {
+      flex: 1;
+      input {
+        color: #333;
+      }
+    }
+  }
+
+  .btn_box {
+    margin-top: 64rpx;
+    padding: 0 24rpx;
+  }
+</style>
+<template>
+  <form bindsubmit="submit">
+    <div class="weui-cells__title"><text class="error-message">*</text>俱乐部头像</div>
+    <div class="avatar-wrap">
+      <text v-if=" !club.avatar " class="iconfont icon-xiazai" @tap="updateAvatar"></text>
+      <image v-if=" club.avatar " class="avatar" src="{{ club.avatar }}" @tap="updateAvatar"/>
+    </div>
+    <div v-if=" errors.avatar_image_id " class="weui-cells__tips error-message">{{ errors.avatar_image_id[0] }}</div>
+
+    <!-- 填写姓名 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>俱乐部名称</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入俱乐部名称" name="title" value="{{ club.title }}" />
+        </div>
+        <div v-if=" errors.title " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.title " class="weui-cells__tips error-message">{{ errors.title[0] }}</div>
+
+    <!-- 填写定位城市 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>定位城市</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入定位城市" name="city_index" value="{{ club.city_index }}" disabled="disabled" />
+        </div>
+        <div v-if=" errors.city_index " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.city_index " class="weui-cells__tips error-message">{{ errors.city_index[0] }}</div>
+
+    <!-- 填写简介 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>俱乐部简介</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <textarea class="weui-textarea content" placeholder="请输入俱乐部介绍" name="desc" value="{{ club.desc }}"/>
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.desc " class="weui-cells__tips error-message">{{ errors.desc[0] }}</div>
+
+    <!-- 填写简介 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>活动特色</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <textarea class="weui-textarea content" placeholder="请输入活动特色,将会显示在发布的活动中" name="activity_desc" value="{{ club.activity_desc }}" />
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.activity_desc " class="weui-cells__tips error-message">{{ errors.activity_desc[0] }}</div>
+
+    <!-- 填写手机号 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>手机号</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入手机号" name="phone" value="{{ club.phone }}" />
+        </div>
+        <div v-if=" errors.phone " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 手机号错误信息 -->
+    <div v-if=" errors.phone " class="weui-cells__tips error-message">{{ errors.phone[0] }}</div>
+
+    <!-- 填写 显示手机号 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">显示手机号</div>
+        <div class="weui-cell__ft">
+          <switch name="is_show_phone" checked="{{ is_show_phone }}" bindchange="bindShowPhone" />
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.is_show_phone " class="weui-cells__tips error-message">{{ errors.is_show_phone[0] }}</div>
+    <!-- 填写 显示手机号 end -->
+
+    <!-- 填写微信号 -->
+    <div class="weui-cells__title">微信号</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入微信号" name="wechat" value="{{ club.wechat }}" />
+        </div>
+        <div v-if=" errors.wechat " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 微信号错误信息 -->
+    <div v-if=" errors.wechat " class="weui-cells__tips error-message">{{ errors.wechat[0] }}</div>
+
+    <!-- 填写 显示微信号 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">显示微信号</div>
+        <div class="weui-cell__ft">
+          <switch name="is_show_wechat" checked="{{ is_show_wechat }}" bindchange="bindShowWechat" />
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.is_show_wechat " class="weui-cells__tips error-message">{{ errors.is_show_wechat[0] }}</div>
+    <!-- 填写 显示微信号 end -->
+
+    <div class="weui-cells__title"><text class="error-message">*</text>所在地区</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}">
+          <view class="picker">
+            {{region[0]}}，{{region[1]}}，{{region[2]}}
+          </view>
+        </picker>
+        <div v-if=" errors.province " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 微信号错误信息 -->
+    <div v-if=" errors.province " class="weui-cells__tips error-message">{{ errors.province[0] }}</div>
+
+    <!-- 填写详细地址 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>详细地址</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入详细地址" name="address" value="{{ club.address }}" />
+        </div>
+        <div v-if=" errors.address " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 详细地址错误信息 -->
+    <div v-if=" errors.address " class="weui-cells__tips error-message">{{ errors.address[0] }}</div>
+
+    <!-- 填写 球场 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label">球场</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" name="place" placeholder="请输入球场" value="{{ club.place }}"/>
+        </div>
+        <div v-if=" errors.place " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"/>
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.place " class="weui-cells__tips error-message">{{ errors.place[0] }}</div>
+    <!-- 填写 详细地址 end -->
+
+    <!-- 填写 交通信息 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label">交通信息</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" name="traffic_info" placeholder="请输入交通信息" value="{{ club.traffic_info }}"/>
+        </div>
+        <div v-if=" errors.traffic_info " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"/>
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.traffic_info " class="weui-cells__tips error-message">{{ errors.traffic_info[0] }}</div>
+    <!-- 填写 交通信息 end -->
+
+
+    <div class="weui-cells__title"><text class="error-message">*</text>经纬度</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          {{ latitude }},{{ longitude }}
+
+        </div>
+        <div class="weui-cell__ft">
+          <div class="weui-vcode-btn" @tap="chooseMap">选择地图</div>
+        </div>
+      </div>
+    </div>
+    <!-- 详细地址错误信息 -->
+    <div v-if=" errors.latitude " class="weui-cells__tips error-message">{{ errors.latitude[0] }}</div>
+
+    <!-- 填写 支付方式 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>支付方式</div>
+        </div>
+        <div class="weui-cell__bd">
+          <radio-group class="radio-group" bindchange="payTypeChange">
+            <radio class="weui-input radio" wx:for-items="{{ pay_types }}" wx:key="name" value="{{ item.value }}" checked="{{ item.value == pay_type ? true : false }}">
+              <text>{{ item.name }}</text>
+            </radio>
+          </radio-group>
+        </div>
+        <div v-if=" errors.pay_types " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+      <div class="weui-cells__tips">选择线上支付方式，提现时，平台会收取1%的手续费。AA制的情况会平摊到每个人</div>
+    </div>
+    <!-- 填写 支付方式 end -->
+
+    <!-- 填写 收费方式 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>收费方式</div>
+        </div>
+        <div class="weui-cell__bd">
+          <radio-group class="radio-group" bindchange="feeTypeChange">
+            <radio class="weui-input radio" wx:for-items="{{ fee_types }}" wx:key="name" value="{{ item.value }}"  checked="{{ item.value == fee_type ? true : false }}">
+              <text>{{ item.name }}</text>
+            </radio>
+          </radio-group>
+        </div>
+        <div v-if=" errors.fee_types " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 填写 收费方式 end -->
+
+    <!-- 填写 费用 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>费用</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="digit" name="money" placeholder="请输入费用"  value="{{ club.money }}" />
+        </div>
+        <div v-if=" errors.money " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"/>
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.money " class="weui-cells__tips error-message">{{ errors.money[0] }}</div>
+    <!-- 填写 费用 end -->
+
+    <!-- 填写 女生优惠 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>女生优惠</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="digit" placeholder="女生优惠金额,默认为0" name="lady_discounts_money" value="{{ club.lady_discounts_money ? club.lady_discounts_money : 0 }}" />
+        </div>
+        <div v-if=" errors.lady_discounts_money " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.lady_discounts_money " class="weui-cells__tips error-message">{{ errors.lady_discounts_money[0] }}</div>
+    <!-- 填写 女生优惠 end -->
+
+    <!-- 填写 会员优惠 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>VIP会员优惠</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="digit" placeholder="会员优惠金额,默认为0" name="member_discounts_money" value="{{ club.member_discounts_money ? club.member_discounts_money : 0 }}" />
+        </div>
+        <div v-if=" errors.member_discounts_money " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.member_discounts_money " class="weui-cells__tips error-message">{{ errors.member_discounts_money[0] }}</div>
+    <!-- 填写 会员优惠 end -->
+
+    <!-- 填写 每人加收 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>每人加收</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="digit" placeholder="加收俱乐部基金,默认为0" name="extra_money" value="{{ club.extra_money ? club.extra_money : 0 }}" />
+        </div>
+        <div v-if=" errors.extra_money " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+      <div class="weui-cells__tips">每人次加收俱乐部基金</div>
+    </div>
+    <div v-if=" errors.extra_money " class="weui-cells__tips error-message">{{ errors.extra_money[0] }}</div>
+    <!-- 填写 女生优惠 end -->
+
+    <!-- 填写 每个球单价 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__hd">
+          <div class="weui-label"><text class="error-message">*</text>每个球单价</div>
+        </div>
+        <div class="weui-cell__bd">
+          <input class="weui-input" type="digit" placeholder="每个球单价,默认为0" name="ball_money" value="{{ club.ball_money || 0 }}" />
+        </div>
+        <div v-if=" errors.ball_money " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+      <div class="weui-cells__tips">每个球单价,用于AA结算</div>
+    </div>
+    <div v-if=" errors.ball_money " class="weui-cells__tips error-message">{{ errors.ball_money[0] }}</div>
+    <!-- 填写 每个球单价 end -->
+
+    <!-- 填写 同享优惠 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">同享优惠</div>
+        <div class="weui-cell__ft">
+          <switch name="is_lady_member_discounts" checked="{{ is_lady_member_discounts }}" bindchange="bindLadyMemberDiscounts" />
+        </div>
+      </div>
+      <div class="weui-cells__tips">是否同时享有会员，女生两种优惠。默认优先会员优惠。</div>
+    </div>
+    <div v-if=" errors.is_lady_member_discounts " class="weui-cells__tips error-message">{{ errors.is_lady_member_discounts[0] }}</div>
+    <!-- 填写 同享优惠 end -->
+
+    <!-- 填写 在附近显示 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">附近显示</div>
+        <div class="weui-cell__ft">
+          <switch name="is_show_near" checked="{{ is_show_near }}" bindchange="bindShowNear" />
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.is_show_near " class="weui-cells__tips error-message">{{ errors.is_show_near[0] }}</div>
+    <!-- 填写 在附近显示 end -->
+
+    <!-- 填写 会员报名 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">会员报名</div>
+        <div class="weui-cell__ft">
+          <switch name="is_must_member" checked="{{ is_must_member }}" bindchange="bindMustMember" />
+        </div>
+      </div>
+      <div class="weui-cells__tips">是否加入俱乐部才可以报名</div>
+    </div>
+    <div v-if=" errors.is_must_member " class="weui-cells__tips error-message">{{ errors.is_must_member[0] }}</div>
+    <!-- 填写 会员报名 end -->
+
+    <!-- 填写 加入验证 start -->
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">加入验证</div>
+        <div class="weui-cell__ft">
+          <switch name="is_check_join" checked="{{ is_check_join }}" bindchange="bindCheckJoin" />
+        </div>
+      </div>
+      <div class="weui-cells__tips">是否开启加入俱乐部验证</div>
+    </div>
+    <div v-if=" errors.is_check_join " class="weui-cells__tips error-message">{{ errors.is_check_join[0] }}</div>
+    <!-- 填写 加入验证 end -->
+
+    <!-- 填写 是否结算给活动发起人 start -->
+    <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+      <div class="weui-cell  weui-cell_switch">
+        <div class="weui-cell__bd">是否结算给活动发起人</div>
+        <div class="weui-cell__ft">
+          <switch name="is_clear_to_activity_creator" checked="{{ is_clear_to_activity_creator }}" bindchange="bindClearToActivityCreator" />
+        </div>
+      </div>
+      <div class="weui-cells__tips">线上收款模式, 默认结算给俱乐部创建者, 开启后, 俱乐部的管理员发起活动, 则结算给管理员</div>
+    </div>
+    <div v-if=" errors.is_clear_to_activity_creator " class="weui-cells__tips error-message">{{ errors.is_clear_to_activity_creator[0] }}</div>
+    <!-- 填写 是否结算给活动发起人 end -->
+
+    <div class="weui-btn-area">
+      <button class="weui-btn" type="primary" formType="submit">提交</button>
+    </div>
+  </form>
+</template>
+<config>
+  {
+    navigationBarTitleText: '编辑俱乐部信息',
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import { mapGetters } from '@wepy/x'
+  import eventHub from '@/common/eventHub'
+  import { getClub, updateClub } from '@/api/club'
+  import util from '../../utils/util'
+
+  wepy.page({
+    store,
+    data: {
+      latitude: '',
+      longitude: '',
+      province: '',
+      city: '',
+      area: '',
+      province_code: '',
+      city_code: '',
+      area_code: '',
+      avatarId: '',
+      club: null,
+      pay_type: 0,
+      pay_types: [
+        {name: '线下', value: 0},
+        {name: '线上', value: 1}
+      ],
+      fee_type: 1,
+      fee_types: [
+        {name: '固定', value: 1},
+        {name: 'AA制', value: 2}
+      ],
+      is_show_near: false,
+      is_show_phone: false,
+      is_show_wechat: false,
+      is_must_member: false,
+      is_check_join: false,
+      is_lady_member_discounts: false,
+      is_clear_to_activity_creator: false,
+      city_index: '',
+      ball_money: 0,
+      lady_discounts_money: 0,
+      member_discounts_money: 0,
+      extra_money: 0,
+      money: 0,
+      region: ['广东省', '深圳市', '南山区']
+    },
+    // 计算的属性
+    computed: {
+      ...mapGetters([ 'isLoggedIn' ]),
+      canShow() {
+        return wx.getStorageSync('platform') !== 'ios'
+      },
+      platform() {
+        return wx.getStorageSync('platform')
+      }
+    },
+    methods: {
+      // 获取俱乐部数据
+      async loadClub(id) {
+        const response = await getClub(id, {
+          include: 'user'
+        })
+        let club = this.club = response.data
+        this.region = [club.province, club.city, club.area]
+        this.province = club.province
+        this.city = club.city
+        this.area = club.area
+        this.longitude = club.longitude
+        this.latitude = club.latitude
+
+        this.is_show_near = club.is_show_near
+        this.is_show_phone = club.is_show_phone
+        this.is_show_wechat = club.is_show_wechat
+        this.is_must_member = club.is_must_member
+        this.is_check_join = club.is_check_join
+        this.is_lady_member_discounts = club.is_lady_member_discounts
+        this.is_clear_to_activity_creator = club.is_clear_to_activity_creator
+        this.pay_type = club.pay_type
+        this.fee_type = club.fee_type
+        this.city_index = club.city_index
+
+        club.money = util.formatZero(club.money)
+        club.total_money = util.formatZero(club.total_money)
+        club.lady_discounts_money = util.formatZero(club.lady_discounts_money)
+        club.member_discounts_money = util.formatZero(club.member_discounts_money)
+        club.extra_money = util.formatZero(club.extra_money)
+        club.ball_money = util.formatZero(club.ball_money)
+
+        this.money = club.money
+        this.lady_discounts_money = club.lady_discounts_money
+        this.member_discounts_money = club.member_discounts_money
+        this.extra_money = club.extra_money
+        this.ball_money = club.ball_money
+      },
+      // 表单提交
+      async submit (e) {
+        this.errors = null
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+          return
+        }
+        try {
+          // e.detail.value 为表单提交的数据
+          let formData = e.$wx.detail.value
+          // 当avatarId被设置过之后则增加到 avatar_image_id 中
+          formData.avatar_image_id = this.avatarId
+          formData.province = this.province
+          formData.city = this.city
+          formData.area = this.area
+          formData.latitude = this.latitude
+          formData.longitude = this.longitude
+          formData.pay_type = this.pay_type
+          formData.fee_type = this.fee_type
+          if (this.canShow) {
+            if ((this.fee_type === 1 && formData.money < this.lady_discounts_money) || (this.fee_type === 1 && formData.money < this.member_discounts_money)) {
+              util.alert('金额不能小于优惠金额')
+              return false
+            }
+            formData.money = (formData.money === '0.00' || !formData.money) ? 0 : formData.money
+            formData.lady_discounts_money = (formData.lady_discounts_money === '0.00' || !formData.lady_discounts_money) ? 0 : formData.lady_discounts_money
+            formData.member_discounts_money = (formData.member_discounts_money === '0.00' || !formData.member_discounts_money)? 0 : formData.member_discounts_money
+            formData.extra_money = (formData.extra_money === '0.00' || !formData.extra_money) ? 0 : formData.extra_money
+            formData.ball_money = (formData.ball_money === '0.00' || !formData.ball_money) ? 0 : formData.ball_money
+          } else {
+            // ios端
+            formData.money = this.money
+            formData.lady_discounts_money = this.lady_discounts_money
+            formData.member_discounts_money = this.member_discounts_money
+            formData.extra_money = this.extra_money
+            formData.ball_money = this.ball_money
+            formData.is_lady_member_discounts = this.is_lady_member_discounts
+            formData.is_clear_to_activity_creator = this.is_clear_to_activity_creator
+          }
+
+          let editResponse = await updateClub(this.club.id, formData)
+          // 请求成功，缓存数据
+          if (editResponse.statusCode === 200) {
+            this.club = editResponse.data
+            // wepy.setStorageSync('user', editResponse.data);
+            util.toast('修改成功')
+
+            // 2 秒后返回上一页
+            setTimeout(function() {
+              eventHub.$emit('club-updated', editResponse.data)
+              wx.navigateBack()
+            }, 2000)
+          }
+          // eslint-disable-next-line no-unreachable
+        } catch (err) {
+          // 设置报错信息
+          if (err.statusCode === 422) {
+            this.errors = err.data.errors
+          }
+        }
+      },
+      async chooseMap() {
+        let map = await wx.chooseLocation()
+        if (map.errMsg === 'chooseLocation:ok') {
+          this.latitude = map.latitude
+          this.longitude = map.longitude
+          console.log(this.latitude)
+        }
+        console.log(map)
+      },
+      payTypeChange: function (e) {
+        this.pay_type = e.$wx.detail.value
+      },
+      feeTypeChange: function (e) {
+        this.fee_type = e.$wx.detail.value
+      },
+      bindShowNear(e) {
+        this.is_show_near = e.$wx.detail.value
+      },
+      bindShowPhone(e) {
+        this.is_show_phone = e.$wx.detail.value
+      },
+      bindShowWechat(e) {
+        this.is_show_wechat = e.$wx.detail.value
+      },
+      bindMustMember(e) {
+        this.is_must_member = e.$wx.detail.value
+      },
+      bindCheckJoin(e) {
+        this.is_check_join = e.$wx.detail.value
+      },
+      bindLadyMemberDiscounts(e) {
+        this.is_lady_member_discounts = e.$wx.detail.value
+      },
+      bindClearToActivityCreator(e) {
+        this.is_clear_to_activity_creator = e.$wx.detail.value
+      },
+      bindRegionChange(e) {
+        let region = this.region = e.$wx.detail.value
+        this.province = region[0]
+        this.city = region[1]
+        this.area = region[2]
+      }
+
+    },
+    async onLoad(options) {
+      this.loadClub(options.id)
+    },
+    async onShow() {
+
+    }
+  })
+</script>

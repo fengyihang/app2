@@ -1,0 +1,83 @@
+<style lang="less">
+  page {
+    height: 100%;
+  }
+
+  .authorize-contianer {
+    height: 100%;
+    background: #fff;
+    text-align: center;
+    padding-top: 100rpx;
+    .authorize-icon {
+      width: 128rpx;
+      height: 128rpx;
+      display: block;
+      margin: 0 auto;
+      padding-bottom: 10rpx;
+    }
+    .auth-item {
+      padding: 5rpx 0;
+    }
+    .btn-authorize {
+      margin: 100rpx 50rpx;
+    }
+  }
+</style>
+<template>
+  <view class="authorize-contianer">
+    <image class="authorize-icon" src="./../../assets/images/authorize.png"></image>
+    <view class="auth-item">羽运动申请获取以下权限：</view>
+    <view class="auth-item">获取你的公开信息（头像、昵称等）</view>
+    <view class="btn-authorize">
+      <button open-type="getUserInfo" type="primary" lang="zh_CN" bindgetuserinfo="onGotUserInfo">授权</button>
+    </view>
+    <view class="btn-authorize" @tap="getBack">
+      <button type="default" >返回</button>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import { mapGetters } from '@wepy/x'
+  import { weappLogin } from '../../api/auth'
+
+  wepy.page({
+    store,
+    computed: {
+      ...mapGetters(['user', 'isLoggedIn'])
+    },
+    methods: {
+      getBack() {
+        wx.navigateBack({
+          delta: 1
+        })
+      },
+      async onGotUserInfo(e) {
+        if (e.$wx.detail.errMsg === 'getUserInfo:ok') {
+          // 获取配置信息
+          let res = await wx.getSetting()
+          if ((res.authSetting)['scope.userInfo']) {
+            let userInfo = wx.getStorageSync('user')
+            console.log(userInfo)
+            if (!userInfo.name) {
+              let params = await wx.getUserInfo()
+              params.pid = wx.getStorageSync('pid')
+              try {
+                await this.$store.dispatch('weappLogin', params)
+                wx.navigateBack()
+              } catch (err) {
+                wx.showModal({
+                  title: '提示',
+                  content: '系统繁忙,请稍后重试'
+                })
+              }
+            } else {
+              wx.navigateBack()
+            }
+          }
+        }
+      }
+    }
+  })
+</script>

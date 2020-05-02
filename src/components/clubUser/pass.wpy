@@ -1,0 +1,60 @@
+<style lang="less" scoped>
+
+</style>
+<template>
+  <div class="weui-cell__ft" @tap="pass" data-id="{{ clubUser.id }}" data-nickname="{{ clubUser.user.name }}" data-flag="{{ 1 }}" v-if=" canPass ">审核通过</div>
+</template>
+
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import { mapGetters } from '@wepy/x'
+  import eventHub from '@/common/eventHub'
+  import { pass } from '@/api/clubUser'
+
+  wepy.component({
+    store,
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      clubUser: Object
+    },
+    computed: {
+      ...mapGetters(['user', 'isLoggedIn']),
+      canPass: function() {
+        if (!this.clubUser || !this.isLoggedIn) {
+          return false
+        }
+        return this.clubUser.status === 0
+      }
+    },
+    methods: {
+      async pass(e) {
+        let id = e.$wx.currentTarget.dataset.id
+        let flag = e.$wx.currentTarget.dataset.flag
+        // 确认是否删除
+        let res = await wepy.wx.showModal({
+          title: '提示',
+          content: '您通过 ' + e.$wx.currentTarget.dataset.nickname + ' 的会员申请吗',
+          confirmText: '确定',
+          cancelText: '取消'
+        })
+
+        // 点击取消后返回
+        if (!res.confirm) {
+          return
+        }
+        const response = await pass(e.$wx.currentTarget.dataset.id, {id: id, flag: flag, status: 1})
+
+        wx.showToast({
+          title: '成功',
+          icon: 'success',
+          duration: 2000
+        })
+
+        eventHub.$emit('user-set-pass', this.clubUser)
+      }
+    }
+  })
+</script>

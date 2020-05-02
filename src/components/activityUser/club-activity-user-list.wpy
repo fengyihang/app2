@@ -1,0 +1,479 @@
+<style lang="less">
+  .order_item {
+    padding: 10rpx 0rpx;
+    background: #f7f7f7;
+    margin-bottom: 30rpx;
+    .title {
+      font-size: 26rpx;
+      color: #333;
+    }
+    .order_doc {
+      font-size: 26rpx;
+      color: #808080;
+    }
+    .mt10 {
+      margin-top: 10rpx;
+    }
+    .order_state {
+      color: #ff4856;
+      font-size: 32rpx;
+    }
+    .order_list_top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .order_list_footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20rpx;
+      .num {
+        color: #ff4856;
+      }
+    }
+    .order_list_top {
+      padding-bottom: 26rpx;
+      border-bottom: 1px solid #efefef
+    }
+    .list {
+      background: #fff;
+      padding: 30rpx;
+      margin-top: 15rpx;
+    }
+    .btn_group {
+      display: flex;
+      align-items: center;
+      .btn {
+        font-size: 30rpx;
+        padding: 22rpx 35rpx;
+        text-align: center;
+        margin: 0 auto;
+        width: 100%;
+        -moz-border-radius: 15rpx;
+        /* Firefox */
+        -webkit-border-radius: 15rpx;
+        /* Safari 和 Chrome */
+        border-radius: 15rpx;
+        /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+      }
+      .btn_del {
+        color: #333;
+        border: 1px solid #ccc;
+      }
+      .btn_pay {
+        background: #ff4856;
+        color: #fff;
+        margin-left: 20rpx;
+      }
+    }
+  }
+</style>
+<template>
+  <div>
+    <div class="order_item">
+        <div v-for="activity in activities " :key="activity.id" class="list">
+          <div class="item_content">
+            <div class="order_list_top">
+              <navigator class="left"  url="/pages/activity/show?id={{activity.id}}">
+                <div class="title mt10">
+                  {{ activity.title }}
+                </div>
+                <div class="title mt10">
+                  <text class="iconfont icon-shijian"></text>
+                  <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
+                </div>
+                <div v-if=" syncPlatform === 'ios' "><text class="iconfont icon-rmb"></text>费用： 免费 </div>
+                <div v-if=" syncPlatform !== 'ios' && activity.pay_type === 0 "><text class="iconfont icon-zhifu"></text>线下收款</div>
+                <div v-if=" syncPlatform !== 'ios' && activity.pay_type === 1 "><text class="iconfont icon-zhifu"></text>线上收款</div>
+                <div v-if=" syncPlatform !== 'ios' && activity.fee_type === 1 && activity.money !== '0.00'"><text class="iconfont icon-rmb"></text>费用： {{ activity.money }} 元/人</div>
+                <div v-if=" syncPlatform !== 'ios' && activity.fee_type === 1 && activity.money === '0.00'"><text class="iconfont icon-rmb"></text>费用： 免费</div>
+                <div v-if=" syncPlatform !== 'ios' && activity.fee_type === 2 "><text class="iconfont icon-rmb"></text>费用：AA制</div>
+                <div v-if=" syncPlatform !== 'ios' && activity.lady_discounts_money !== '0.00' "><text class="iconfont icon-nv1"></text>优惠：{{ activity.lady_discounts_money }}元/人</div>
+                <div v-if=" syncPlatform !== 'ios' && activity.member_discounts_money !== '0.00' "><text class="iconfont icon-huiyuan2"></text>优惠：{{ activity.member_discounts_money }}元/人</div>
+                <div v-if=" activity.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ activity.end_cancel_hours }}小时</div>
+                <div class="title"><text class="iconfont icon-Customermanagement"></text>参加人数：
+                  <text class="order_doc">{{ activity.joined_count }}/{{ activity.count }}</text>
+                </div>
+              </navigator>
+
+              <div>
+                <text class="order_state" v-if=" activity.status === 0 ">{{ '待开始' }}</text>
+                <text class="order_state" v-if=" activity.status === 1 || activity.status === 2 ">{{ '正在报名' }}</text>
+                <text class="order_state" v-if=" activity.status === 3 ">{{ '停止报名' }}</text>
+                <text class="order_state" v-if=" activity.status === 4 ">{{ '正在进行' }}</text>
+                <text class="order_state" v-if=" activity.status === 5 || activity.status === 6 || activity.status === 7 || activity.status === 8 ">{{ '已结束' }}</text>
+                <text class="order_state" v-if=" activity.status === 10 ">{{ '已取消' }}</text>
+              </div>
+            </div>
+            <div class="page">
+              <div class="order_list_center">
+                <club-activity-user-list-item :activityUsers.sync="activity.activity_users" :syncPlatform.sync="syncPlatform" :syncIsClubAdmin.sync="syncIsClubAdmin"></club-activity-user-list-item>
+              </div>
+            </div>
+
+          </div>
+          <div class="order_list_footer">
+            <div class="reveiveMoney c333" v-if=" syncPlatform !== 'ios' && activity.total_money !== '0.00' ">应付款：
+              <text class="num">￥{{ actvity.money }}</text>
+            </div>
+
+            <div class="order_state" v-if=" syncPlatform !== 'ios' && activity.status === 3 && activity.fee_type === 2 ">
+              结算
+            </div>
+            <div class="order_state" v-if=" activity.status === 1 ">
+              待开始
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 2 ">
+              待开始
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 6 ">
+              待确认
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 10 ">
+              已取消
+            </div>
+            <!--  删除订单  todo... -->
+            <div v-if=" activity.status === 0 || activity.status === 1 ">
+              <navigator url="/pages/activity/edit?id={{ activity.id }}">
+                <text class="iconfont icon-bianji">编辑</text>
+              </navigator>
+              <text class="iconfont icon-geren-copy-copy" @tap="copyLink" data-link="{{ 'https://app.xiwenkeji.com/activities/' + activity.id + '?pid=' + syncCurrentUser.id }}">复制链接</text>
+              <text class="iconfont icon-reeor" v-if=" activity.status === 0 && activity.status === 1 && activity.status === 2 && activity.status === 3 " @tap="cancelActivity" data-id="{{ activity.id }}">取消活动</text>
+            </div>
+            <div v-if=" activity.status === 1 ">
+              <text class="iconfont icon-zantingtingzhi" @tap="stopJoinActivity" data-id="{{ activity.id }}">暂停报名</text>
+            </div>
+            <div v-if=" activity.status === 3 ">
+              <text class="iconfont icon-zanting" @tap="continueActivity" data-id="{{ activity.id }}">继续报名</text>
+            </div>
+            <div v-if=" syncPlatform !== 'ios' && activity.status === 5 && activity.fee_type === 2">
+              <text class="iconfont icon-jiesuan" @tap="showCleanActivity" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-ball_money="{{ activity.ball_money }}">结算</text>
+            </div>
+            <div v-if=" syncPlatform !== 'ios' && activity.status === 6 && activity.pay_type === 1 ">
+              <text class="iconfont icon-jiesuan" @tap="withdraw" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-title="{{ activity.title }}" data-ball_money="{{ activity.ball_money }}">提现</text>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 填写aa制费用 -->
+      <modal class="modal" hidden="{{ cleanHidden }}" bindcancel="cancelCleanActivity"  bindconfirm="cleanActivity">
+        <div v-if=" errors.ball_money " class="weui-cells__tips error-message">{{ errors.ball_money[0] }}</div>
+        <div v-if=" errors.ball_count " class="weui-cells__tips error-message">{{ errors.ball_count[0] }}</div>
+        <div v-if=" errors.place_money " class="weui-cells__tips error-message">{{ errors.place_money[0] }}</div>
+        <div v-if=" errors.pay_type " class="weui-cells__tips error-message">{{ errors.pay_type[0] }}</div>
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">球</div>
+            <div class="weui-cell__ft">
+              <input type="number" bindinput="bindBallMoney" data-name="ball_money" value="{{ ball_money }}"/>/个<input bindinput="bindBallCount" data-name="ball_count" name="ball_count" value="{{ ball_count }}"/>
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__hd">
+              <div class="weui-label">场地</div>
+            </div>
+            <div class="weui-cell__bd">
+              <input bindinput="bindPlaceMoney" data-name="place_money" value="{{ place_money }}"/>
+            </div>
+          </div>
+        </div>
+      </modal>
+      <!-- 显示aa制,计算后费用 -->
+      <modal class="modal" hidden="{{ feeInfoHidden }}" bindcancel="cancelCleanInfoActivity"  bindconfirm="confirmCleanInfoActivity">
+        <div class="weui-cells weui-cells_after-title">
+          结算详细
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">总人数</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.total_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">总款</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.total_money }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">总人数</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.total_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">非会员数</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.no_member_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">男会员</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.man_member_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">男会员收款</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.man_member_price }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">女会员</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.lady_member_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">女会员收款</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.lady_member_price }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch" >
+            <div class="weui-cell__bd">男生</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.price }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch" >
+            <div class="weui-cell__bd">女生</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.lady_price }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">加收金额</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.extra_money * fee_info.total_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">非会员人数</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.no_member_count }}
+            </div>
+          </div>
+        </div>
+      </modal>
+
+      <div class="weui-loadmore weui-loadmore_line" v-if="noMoreData">
+        <div class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</div>
+      </div>
+    </div>
+</template>
+<config>
+  {
+  usingComponents: {
+    "activity-datetime-diff": "~@/components/activity-datetime-diff",
+    "club-activity-user-list-item": "~@/components/activityUser/club-activity-user-list-item",
+    "reply-delete": "~@/components/reply-delete"
+  }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import { pay } from '../../api/activityUser'
+  import util from '../../utils/util'
+  import eventHub from '@/common/eventHub'
+  import { cancelActivity, continueJoinActivity, stopJoinActivity, cleanActivity, confirmCleanActivity } from '../../api/activity'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activities: Array,
+      noMoreData: Boolean,
+      syncPlatform: String
+    },
+    data: {
+      id: 0,
+      cleanHidden: true,
+      feeInfoHidden: true,
+      ball_money: 0,
+      ball_count: 0,
+      place_money: 0,
+      total_money: 0,
+      pay_type: 0,
+      errors: {},
+      fee_info: {},
+      syncIsClubAdmin: true
+    },
+    methods: {
+      copyLink(e) {
+        let link = e.$wx.currentTarget.dataset.link
+        wx.setClipboardData({
+          data: link,
+          success(res) {
+          }
+        })
+      },
+      async stopJoinActivity(e) {
+        this.id = e.$wx.currentTarget.dataset.id
+        try {
+          // 请求接口，传入参数
+          let response = await stopJoinActivity(this.id, { id: this.id })
+          if (response.statusCode === 200) {
+            await util.success('成功')
+            eventHub.$emit('activity-reload', response.data)
+          }
+          //return await this.getActivities(true);
+        } catch (err) {
+          // 设置报错信息
+          if (err.statusCode === 422) {
+            this.errors = err.data.errors
+          }
+        }
+      },
+      async continueActivity(e) {
+        this.id = e.$wx.currentTarget.dataset.id
+        try {
+          // 请求接口，传入参数
+          let response = await continueJoinActivity(this.id)
+          if (response.statusCode === 200) {
+            await util.success('成功')
+            eventHub.$emit('activity-reload', response.data)
+          }
+        } catch (err) {
+          util.error('系统繁忙,请稍后重试')
+        }
+      },
+      async cleanActivity(e) {
+        // this.id = e.$wx.currentTarget.dataset.id
+        try {
+          // 请求接口，传入参数
+          let response = await cleanActivity(this.id, {
+            id: this.id,
+            ball_money: this.ball_money,
+            ball_count: this.ball_count,
+            place_money: this.place_money,
+            pay_type: this.pay_type
+          })
+          if (response.statusCode === 200) {
+            this.cleanHidden = true
+            this.feeInfoHidden = false
+            this.fee_info = response.data
+          }
+        } catch (err) {
+          // 设置报错信息
+          util.error('系统繁忙,请稍后重试')
+        }
+      },
+      async withdraw(e) {
+        this.id = e.$wx.currentTarget.dataset.id
+        let title = e.$wx.currentTarget.dataset.title
+        await tip.confirm('确定提现' + title + '活动吗？')
+        try {
+          // 请求接口，传入参数
+          let response = await api.authRequest({
+            url: 'activities/' + this.id + '/withdraw',
+            method: 'POST',
+            data : {
+              id : this.id,
+            }
+          });
+
+          if (response.statusCode === 401) {
+            await tip.error('该活动已经提现哦。')
+            this.$apply();
+          }
+
+          if (response.statusCode === 200) {
+            await tip.success('提现成功，一到三个工作日到账。目前支持提现到微信。');
+            this.$apply();
+          }
+          return await this.getActivities(true);
+        } catch (err) {
+          console.log(err);
+          wepy.showModal({
+            title: '提示',
+            content: '服务器错误，请联系管理员'
+          });
+        }
+      },
+      async cancelActivity(e) {
+        this.flag = 2
+        this.id = e.$wx.currentTarget.dataset.id
+        await util.confirm('确定取消活动吗？')
+        console.log(this.flag)
+        try {
+          // 请求接口，传入参数
+          let response = await cancelActivity(this.id)
+
+          if (response.statusCode === 200) {
+            await util.success('取消成功')
+            eventHub.$emit('activity-reload', response.data)
+          }
+        } catch (err) {
+          util.error('系统繁忙,请稍后重试')
+        }
+      },
+      showCleanActivity(e) {
+        this.cleanHidden = false
+        this.id = e.$wx.currentTarget.dataset.id
+        this.ball_money = e.$wx.currentTarget.dataset.ball_money
+        this.pay_type = e.$wx.currentTarget.dataset.pay_type
+      },
+      cancelCleanActivity(e) {
+        this.cleanHidden = true
+        this.id = 0
+        this.ball_money = 0
+        this.ball_count = 0
+        this.place_money = 0
+        this.total_money = 0
+        this.pay_type = 0
+      },
+      cancelCleanInfoActivity(e) {
+        this.cleanHidden = false
+        this.feeInfoHidden = true
+      },
+      async confirmCleanInfoActivity(e) {
+        let id = this.id
+        try {
+          // 请求接口，传入参数
+          let response = await confirmCleanActivity(id, {
+            id: id,
+            ball_money: this.ball_money,
+            ball_count: this.ball_count,
+            place_money: this.place_money,
+            pay_type: this.pay_type,
+            fee_info: this.fee_info
+          })
+
+          if (response.statusCode === 200) {
+            util.success('成功')
+            this.cleanHidden = true
+            this.feeInfoHidden = true
+            this.id = 0
+            this.ball_money = 0
+            this.ball_count = 0
+            this.place_money = 0
+            this.total_money = 0
+            this.pay_type = 0
+            eventHub.$emit('activity-reload', response.data)
+          }
+        } catch (err) {
+          // 设置报错信息
+          if (err.statusCode === 422) {
+            this.errors = err.data.errors
+          }
+        }
+      },
+      bindBallMoney(e) {
+        this.ball_money = e.$wx.detail.value
+      },
+      bindBallCount(e) {
+        this.ball_count = e.$wx.detail.value
+      },
+      bindPlaceMoney(e) {
+        this.place_money = e.$wx.detail.value
+      }
+    }
+  })
+</script>

@@ -1,0 +1,136 @@
+<style lang="less">
+  .page{
+    background-color: #FFFFFF;
+  }
+  .avatar {
+    width: 80px;
+    height: 80px;
+    display: block;
+    border-radius: 50%;
+  }
+  .avatar-wrap {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .topic-title {
+    padding: 10px 10px;
+  }
+  .weui-panel__hd{
+    color: #333333;
+  }
+  .weui-media-box__desc{
+    color: #666666;
+  }
+  .tap{
+    width: 40px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    .create-reply {
+      width: 40px;
+      height: 40px;
+      padding-bottom: 12px;
+    }
+    .icon-bianji1,.icon-yemian-copy-copy,.icon-jiaru{
+      font-size: 54px;
+      padding-bottom: 12px;
+    }
+  }
+
+</style>
+<template>
+  <div class="page">
+    <div class="page__bd">
+      <div class="avatar-wrap">
+        <image class="avatar" src="{{ club.avatar }}"/>
+      </div>
+      <div class="topic-title">
+        <div class="page__title">{{ club.title }}</div>
+        <div><text class="iconfont icon-dizhi"></text>地区：{{ club.province }}{{ club.city }}{{ club.area }}</div>
+        <div><text class="iconfont icon-dingwei1"></text>地址：{{ club.address }}<text class="iconfont icon-dingwei" @tap="map"></text></div>
+        <div v-if=" club.phone "><text class="iconfont icon-icon_phone"></text>手机：{{  club.phone }}</div>
+        <div v-if=" club.wechat "><text class="iconfont icon-weixin"></text>微信：{{  club.wechat }}</div>
+        <div><text class="iconfont icon-chengshi"></text>城市：{{  club.city_index }}</div>
+        <div><text class="iconfont icon-yumaoqiuchang1"></text>球场：{{ club.place ? club.place : '待定' }}</div>
+        <div><text class="iconfont icon-auto"></text>交通：{{ club.traffic_info }}</div>
+        <div><text class="iconfont icon-Customermanagement"></text>会员数：{{ club.member_count }}</div>
+        <div v-if=" platform === 'ios' "><text class="iconfont icon-rmb"></text>费用： 免费 </div>
+        <div v-if=" platform !== 'ios' && club.pay_type === 0 "><text class="iconfont icon-zhifu"></text>线下收款</div>
+        <div v-if=" platform !== 'ios' && club.pay_type === 1 "><text class="iconfont icon-zhifu"></text>线上收款</div>
+        <div v-if=" platform !== 'ios' && club.fee_type === 1 && club.money !== '0.00' "><text class="iconfont icon-rmb"></text>费用： {{ club.money }} 元/人</div>
+        <div v-if=" platform !== 'ios' && club.fee_type === 1 && club.money === '0.00' "><text class="iconfont icon-rmb"></text>费用： 免费</div>
+        <div v-if=" platform !== 'ios' && club.fee_type === 2 "><text class="iconfont icon-rmb"></text>费用：AA制</div>
+        <div v-if=" platform !== 'ios' && club.lady_discounts_money !== '0.00' "><text class="iconfont icon-nv1"></text>优惠：{{ club.lady_discounts_money }}元/人</div>
+        <div v-if=" platform !== 'ios' && club.member_discounts_money !== '0.00' "><text class="iconfont icon-huiyuan2"></text>优惠：{{ club.member_discounts_money }}元/人</div>
+        <div v-if=" platform !== 'ios' && club.extra_money !== '0.00' "><text class="iconfont icon-moneyeye"></text>加收：{{ club.extra_money }}元/人</div>
+        <div v-if=" club.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ club.end_cancel_hours }}小时</div>
+        <div ><text class="iconfont icon-tip"></text>编辑俱乐部信息，可以方便发布活动哦！</div>
+      </div>
+
+      <div class="weui-panel">
+        <div class="weui-panel__hd">俱乐部介绍</div>
+        <div class="weui-panel__bd">
+          <div class="weui-media-box weui-media-box_text">
+            <div class="weui-media-box__desc">{{ club.desc }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="weui-panel">
+        <div class="weui-panel__hd">活动特色</div>
+        <div class="weui-panel__bd">
+          <div class="weui-media-box weui-media-box_text">
+            <div class="weui-media-box__desc">{{ club.activity_desc }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tap">
+      <!-- 编辑按钮 -->
+      <navigator url="/pages/club/edit?id={{ club.id }}">
+        <div class="create-reply"><text class="iconfont icon-bianji1"></text></div>
+      </navigator>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    navigationBarTitleText: '我的俱乐部',
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import eventHub from '@/common/eventHub'
+  import { getClub } from '@/api/club'
+
+  wepy.page({
+    data: {
+      club: null
+    },
+    computed: {
+      platform() {
+        return wx.getStorageSync('platform')
+      }
+    },
+    methods: {
+      // 获取俱乐部数据
+      async loadClub(id) {
+        const response = await getClub(id, {
+          include: 'user'
+        })
+
+        this.club = response.data
+      }
+    },
+    async onLoad(options) {
+      await this.loadClub(options.id)
+
+      eventHub.$on('club-updated', (club) => {
+        this.loadClub(club.id)
+      })
+    }
+  })
+</script>

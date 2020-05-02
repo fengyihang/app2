@@ -1,0 +1,199 @@
+<style lang="less">
+  .order_item {
+    padding: 10rpx 0rpx;
+    background: #f7f7f7;
+    margin-bottom: 30rpx;
+    .title {
+      font-size: 26rpx;
+      color: #333;
+    }
+    .order_doc {
+      font-size: 26rpx;
+      color: #808080;
+    }
+    .mt10 {
+      margin-top: 10rpx;
+    }
+    .order_state {
+      color: #ff4856;
+      font-size: 32rpx;
+    }
+    .order_list_top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .order_list_footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20rpx;
+      .num {
+        color: #ff4856;
+      }
+    }
+    .order_list_top {
+      padding-bottom: 26rpx;
+      border-bottom: 1px solid #efefef
+    }
+    .list {
+      background: #fff;
+      padding: 30rpx;
+      margin-top: 15rpx;
+    }
+    .btn_group {
+      display: flex;
+      align-items: center;
+      .btn {
+        font-size: 30rpx;
+        padding: 22rpx 35rpx;
+        text-align: center;
+        margin: 0 auto;
+        width: 100%;
+        -moz-border-radius: 15rpx;
+        /* Firefox */
+        -webkit-border-radius: 15rpx;
+        /* Safari 和 Chrome */
+        border-radius: 15rpx;
+        /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+      }
+      .btn_del {
+        color: #333;
+        border: 1px solid #ccc;
+      }
+      .btn_pay {
+        background: #ff4856;
+        color: #fff;
+        margin-left: 20rpx;
+      }
+    }
+  }
+</style>
+<template>
+  <div>
+    <div class="order_item">
+        <div v-for="activity_user in activityUsers" class="list" :key="activity_user.id">
+          <navigator class="item_content" url="/pages/activity/show?id={{ activity_user.activity_id }}&pid={{ user.id }}">
+            <div class="order_list_top">
+              <div class="left">
+                <div class="title mt10">
+                  {{ activity_user.activity.title }}
+                </div>
+                <div class="title mt10">活动时间：
+                  <activity-datetime-diff :action_day="activity_user.activity.action_day" :start_time="activity_user.activity.start_time" :end_time="activity_user.activity.end_time"></activity-datetime-diff>
+                </div>
+                <div class="title">订单号：
+                  <text class="order_doc">{{ activity_user.order_no }}</text>
+                </div>
+                <div class="title mt10">报名时间：
+                  <text class="order_doc">{{ activity_user.created_at }}</text>
+                </div>
+                <div v-if=" syncPlatform === 'ios' "><text class="iconfont icon-rmb"></text>费用： 免费 </div>
+                <div v-if=" syncPlatform !== 'ios' && activity_user.pay_type === 0 "><text class="iconfont icon-zhifu"></text>线下收款</div>
+                <div v-if=" syncPlatform !== 'ios' && activity_user.pay_type === 1 "><text class="iconfont icon-zhifu"></text>线上收款</div>
+                <div v-if=" syncPlatform !== 'ios' && activity_user.fee_type === 1 && activity_user.activity.money !== '0.00'"><text class="iconfont icon-rmb"></text>费用： {{ activity_user.activity.money }} 元/人</div>
+                <div v-if=" syncPlatform !== 'ios' && activity_user.fee_type === 1 && activity_user.activity.money === '0.00'"><text class="iconfont icon-rmb"></text>费用： 免费</div>
+                <div v-if=" syncPlatform !== 'ios' && activity_user.fee_type === 2 "><text class="iconfont icon-rmb"></text>费用：AA制</div>
+              </div>
+
+              <div class="order_state" v-if=" item.auditStatus === 5 ">
+                审批中
+              </div>
+              <div class="order_state" v-else-if=" item.auditStatus === -1 "> 审批不通过 </div>
+              <div v-else>
+                <text class="defult" v-if=" item.status === 0 ">
+                  <div class="order_state">待支付</div>
+                </text>
+                <div class="order_state" v-if="item.status===0">待付款</div>
+                <div class="order_state" v-if="item.status===2 || item.status===1">待收货</div>
+                <div class="order_state" v-if="item.status===4">已完成</div>
+                <div class="order_state" v-if="item.status===3">待评论</div>
+              </div>
+            </div>
+          </navigator>
+            <div class="page">
+              <div class="order_list_center" v-if=" activity_user.user.status === 1 ">
+                <user-item :activityUser="activity_user"  :syncPlatform="syncPlatform" :user="user" :activity="activity_user.activity"></user-item>
+              </div>
+              <div class="order_list_center">
+                <user-item-list :sun_activity_users="activity_user.sun_activity_user" :syncPlatform="syncPlatform" :user="user" :activity="activity_user.activity"></user-item-list>
+              </div>
+            </div>
+
+          <div class="order_list_footer">
+            <div class="reveiveMoney c333" v-if=" syncPlatform !== 'ios' && activity_user.total_money !== '0.00' ">应付款：
+              <text class="num">￥{{ activity_user.total_money }}</text>
+            </div>
+            <div class="order_state" v-if=" syncPlatform !== 'ios' && activity_user.status === 0 ">
+              待支付
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 1 ">
+              待开始
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 2 ">
+              待开始
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 6 ">
+              待确认
+            </div>
+            <div class="order_state" v-if=" activity_user.status === 10 ">
+              已取消
+            </div>
+            <!--  删除订单  todo... -->
+            <div v-if=" activity_user.status === 100 ">
+              <div class="btn_group">
+                <div class="btn btn_del" @tap="delOrder" data-id="{{item.orderNo}}">删除订单</div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="weui-loadmore weui-loadmore_line" v-if="noMoreData">
+      <div class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</div>
+    </div>
+  </div>
+</template>
+<config>
+  {
+  usingComponents: {
+    "activity-datetime-diff": "~@/components/activity-datetime-diff",
+    "club-activity-user-list-item": "~@/components/activityUser/club-activity-user-list-item",
+    "user-item": "~@/components/activityUser/user-item",
+    "user-item-list": "~@/components/activityUser/user-item-list",
+    "reply-delete": "~@/components/reply-delete"
+  }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import { pay } from '../../api/activityUser'
+  import util from '../../utils/util'
+  import eventHub from '@/common/eventHub'
+  import { cancelActivity, continueJoinActivity, stopJoinActivity, cleanActivity, confirmCleanActivity } from '../../api/activity'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activityUsers: Array,
+      noMoreData: Boolean,
+      syncPlatform: String
+    },
+    data: {
+      id: 0,
+      cleanHidden: true,
+      feeInfoHidden: true,
+      ball_money: 0,
+      ball_count: 0,
+      place_money: 0,
+      total_money: 0,
+      pay_type: 0,
+      errors: {}
+    },
+    methods: {
+    }
+  })
+</script>

@@ -1,0 +1,410 @@
+<style lang="less">
+  .avatar {
+    width: 80px;
+    height: 80px;
+    display: block;
+    border-radius: 50%;
+  }
+  .avatar-wrap {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .block {
+    background: #fff;
+  }
+
+  .list_item {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #efefef;
+    padding: 35rpx 20rpx;
+    .title {
+      margin-right: 20rpx;
+    }
+    .input {
+      flex: 1;
+      input {
+        color: #333;
+      }
+    }
+  }
+
+  .btn_box {
+    margin-top: 64rpx;
+    padding: 0 24rpx;
+  }
+
+  .icon-xiazai{
+    font-size: 72px;
+    color: #1296db;
+  }
+</style>
+<template>
+  <form bindsubmit="submit">
+    <div class="weui-cells__title"><text class="error-message">*</text>俱乐部头像</div>
+    <div class="avatar-wrap">
+      <text v-if=" !avatar " class="iconfont icon-xiazai" @tap="updateAvatar"></text>
+      <image v-if=" avatar " class="avatar" src="{{ avatar }}" @tap="updateAvatar"/>
+    </div>
+    <div v-if=" errors.avatar_image_id " class="weui-cells__tips error-message">{{ errors.avatar_image_id[0] }}</div>
+
+    <!-- 填写姓名 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>俱乐部名称</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入俱乐部名称" bindinput="keyTitle" name="title" value="{{ user.title }}" />
+        </div>
+        <div v-if=" errors.title " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.title " class="weui-cells__tips error-message">{{ errors.title[0] }}</div>
+
+    <!-- 填写简介 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>俱乐部简介</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <textarea class="weui-textarea content" placeholder="请输入俱乐部介绍" bindinput="keyDesc" name="desc" />
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.desc " class="weui-cells__tips error-message">{{ errors.desc[0] }}</div>
+
+    <!-- 填写简介 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>活动特色</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <textarea class="weui-textarea content" placeholder="请输入活动特色,将会显示在发布的活动中" bindinput="keyActivityDesc" name="activity_desc" />
+        </div>
+      </div>
+    </div>
+    <!-- 姓名错误信息 -->
+    <div v-if=" errors.activity_desc " class="weui-cells__tips error-message">{{ errors.activity_desc[0] }}</div>
+
+    <!-- 填写手机号 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>手机号</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入手机号" name="phone" value="{{ user.phone }}" disabled="disabled" />
+        </div>
+        <div v-if=" errors.phone " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 手机号错误信息 -->
+    <div v-if=" errors.phone " class="weui-cells__tips error-message">{{ errors.phone[0] }}</div>
+
+    <!-- 填写微信号 -->
+    <div class="weui-cells__title">微信号</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入微信号" name="wechat" bindinput="keyWechat" value="{{ user.wechat }}" />
+        </div>
+        <div v-if=" errors.wechat " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 微信号错误信息 -->
+    <div v-if=" errors.wechat " class="weui-cells__tips error-message">{{ errors.wechat[0] }}</div>
+
+    <div class="weui-cells__title"><text class="error-message">*</text>所在地区</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}">
+          <view class="picker">
+            {{region[0]}}，{{region[1]}}，{{region[2]}}
+          </view>
+        </picker>
+        <div v-if=" errors.province " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 微信号错误信息 -->
+    <div v-if=" errors.province " class="weui-cells__tips error-message">{{ errors.province[0] }}</div>
+
+    <!-- 填写详细地址 -->
+    <div class="weui-cells__title"><text class="error-message">*</text>详细地址</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          <input class="weui-input" placeholder="请输入详细地址" name="address" bindinput="keyAddress" value="{{ user.address }}" />
+        </div>
+        <div v-if=" errors.address " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <!-- 详细地址错误信息 -->
+    <div v-if=" errors.address " class="weui-cells__tips error-message">{{ errors.address[0] }}</div>
+
+    <div class="weui-cells__title"><text class="error-message">*</text>经纬度</div>
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell weui-cell_input">
+        <div class="weui-cell__bd">
+          {{ latitude }},{{ longitude }}
+
+        </div>
+        <div class="weui-cell__ft">
+          <div class="weui-vcode-btn" @tap="chooseMap">选择地图</div>
+        </div>
+      </div>
+    </div>
+    <!-- 详细地址错误信息 -->
+    <div v-if=" errors.latitude " class="weui-cells__tips error-message">{{ errors.latitude[0] }}</div>
+
+    <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cell  weui-cell_switch">
+        <checkbox-group bindchange="bindAgreeChange">
+          <label class="weui-agree" for="weuiAgree">
+            <div class="weui-agree__text">
+              <checkbox class="weui-agree__checkbox" id="weuiAgree" name="is_agree" value="{{ is_agree }}" checked="{{ is_agree }}"/>
+              <div class="weui-agree__checkbox-icon">
+                <icon class="weui-agree__checkbox-icon-check" type="success_no_circle" size="12" v-if="is_agree"/>
+              </div>
+              阅读并同意<navigator url="" class="weui-agree__link">《羽运动平台协议》</navigator>
+            </div>
+          </label>
+        </checkbox-group>
+        <div v-if=" errors.is_agree " class="weui-cell__ft">
+          <icon type="warn" size="23" color="#E64340"></icon>
+        </div>
+      </div>
+    </div>
+    <div v-if=" errors.is_agree " class="weui-cells__tips error-message">{{ errors.is_agree[0] }}</div>
+
+    <div class="weui-btn-area">
+      <!--<button class="weui-btn" type="primary" formType="submit">提交</button>-->
+      <button class="weui-btn" type="primary" @tap="submit">提交</button>
+    </div>
+  </form>
+</template>
+<config>
+  {
+  navigationBarTitleText: '创建俱乐部',
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import { mapGetters } from '@wepy/x'
+  const QQMapWX = require('@/utils/qqmap-wx-jssdk.min.js')
+  import { updateAvatar } from '../../api/user'
+  import { createClub } from '../../api/club'
+  import util from '../../utils/util'
+
+  wepy.page({
+    store,
+    data: {
+      latitude: '',
+      longitude: '',
+      province: '',
+      city: '',
+      area: '',
+      city_index: '',
+      // 错误信息
+      errors: null,
+      // 头像id
+      avatarId: '',
+      avatar: '',
+      club: {},
+      is_agree: false,
+      currentUser: null,
+      title: '',
+      desc: '',
+      activity_desc: '',
+      wechat: '',
+      address: '',
+      region: ['四川省', '成都市', '武侯区']
+    },
+    // 计算的属性
+    computed: {
+      ...mapGetters([ 'user', 'isLoggedIn' ])
+    },
+    methods: {
+      async chooseMap() {
+        let map = await wx.chooseLocation()
+        if (map.errMsg === 'chooseLocation:ok') {
+          this.latitude = map.latitude
+          this.longitude = map.longitude
+        }
+      },
+      bindRegionChange(e) {
+        let region = this.region = e.$wx.detail.value
+        this.province = region[0]
+        this.city = region[1]
+        this.area = region[2]
+      },
+      keyTitle(e) {
+        this.title = e.$wx.detail.value
+      },
+      keyDesc(e) {
+        this.desc = e.$wx.detail.value
+      },
+      keyActivityDesc(e) {
+        this.activity_desc = e.$wx.detail.value
+      },
+      keyWechat(e) {
+        this.wechat = e.$wx.detail.value
+      },
+      keyAddress(e) {
+        this.address = e.$wx.detail.value
+      },
+      bindAgreeChange(e) {
+        this.is_agree = !!e.$wx.detail.value.length
+      },
+
+      async updateAvatar () {
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+          return
+        }
+        // 选择头像图片
+        let image = await wx.chooseImage({count: 1})
+        try {
+          // 获取选择的图片
+          let club = image.tempFilePaths[0]
+
+          // 调用上传图片接口
+          let imageResponse = await updateAvatar(club, 'club')
+
+          // 上传成功成功记录数据
+          if (imageResponse.statusCode === 201) {
+            // 小程序上传结果没有做 JSON.parse，需要手动处理
+            let responseData = JSON.parse(imageResponse.data)
+            this.avatar = responseData.path
+            this.avatarId = responseData.id
+          }
+        } catch (err) {
+          console.log(err)
+          util.error('系统繁忙,请稍后重试')
+        }
+      },
+      // 表单提交
+      async submit (e) {
+        this.errors = null
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+          return
+        }
+        if (!this.user.phone) {
+          wx.redirectTo({
+            url: '/pages/auth/phone'
+          })
+          return
+        }
+
+        try {
+          // e.detail.value 为表单提交的数据
+          let formData = {}
+
+          // 当avatarId被设置过之后则增加到 avatar_image_id 中
+          formData.title = this.title
+          formData.desc = this.desc
+          formData.activity_desc = this.activity_desc
+          formData.wechat = this.wechat
+          formData.address = this.address
+          formData.avatar_image_id = this.avatarId
+          formData.province = this.province
+          formData.city = this.city
+          formData.area = this.area
+          formData.latitude = this.latitude
+          formData.longitude = this.longitude
+          formData.city_index = this.city_index
+          if (this.is_agree) {
+            formData.is_agree = this.is_agree
+          }
+
+          let editResponse = await createClub(formData)
+          // 设置报错信息
+
+          // 请求成功，缓存用户数据
+          if (editResponse.statusCode === 201) {
+            this.club = editResponse.data
+            await wx.requestSubscribeMessage({
+              tmplIds: ['XphSrNLiOH20myrs_dvYQE8Ej9Emh8vpu3zo5gfUsZc'],
+              success (res) {
+                util.success('订阅成')
+              }
+            })
+            util.success('创建成功')
+            let that = this
+            // 2 秒后返回上一页
+            setTimeout(function() {
+              wx.navigateTo({
+                url: '/pages/club/show?id=' + that.club.id
+              })
+            }, 8000)
+          }
+        } catch (err) {
+          if (err.statusCode === 422) {
+            this.errors = err.data.errors
+          }
+        }
+      }
+    },
+    async onShow() {
+      let region = this.region
+      this.province = region[0]
+      this.city = region[1]
+      this.area = region[2]
+      // 未登录跳转到登录页面
+      if (!this.isLoggedIn) {
+        wx.navigateTo({
+          url: '/pages/auth/weappLogin'
+        })
+        return
+      }
+      if (!this.user.phone) {
+        wx.redirectTo({
+          url: '/pages/auth/phone'
+        })
+      }
+    },
+    async onLoad() {
+      let that = this
+      let qqmapsdk = new QQMapWX({
+        key: 'QQHBZ-MWE6D-6IF4N-HJVWM-AJZRQ-7NBP4'
+      })
+      qqmapsdk.reverseGeocoder({
+        location: {
+          latitude: wx.getStorageSync('latitude'),
+          longitude: wx.getStorageSync('longitude')
+        },
+        success: function(res) {
+          if (res.status === 0) {
+            that.city_index = res.result.address_component.city
+          }
+        },
+        fail: function(error) {
+          console.error(error)
+        },
+        complete: function(res) {
+        }
+      })
+      if (!this.user.phone) {
+        wx.redirectTo({
+          url: '/pages/auth/phone'
+        })
+      }
+    }
+  })
+</script>

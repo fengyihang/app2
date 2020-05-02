@@ -1,0 +1,251 @@
+<style lang="less">
+@import (css) './assets/style/app.wxss';
+@import (css) './assets/style/iconfont.wxss';
+.page{
+  background-color: #F8F8F8;
+  font-size: 14px;
+}
+.page__hd {
+  padding: 10px;
+}
+.page__bd {
+  padding-bottom: 40px;
+}
+.page__bd_spacing {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.page__ft{
+  padding-bottom: 10px;
+  text-align: center;
+}
+.page__title {
+  text-align: left;
+  font-size: 20px;
+  font-weight: 400;
+}
+.page__desc {
+  margin-top: 5px;
+  color: #888888;
+  text-align: left;
+  font-size: 14px;
+}
+.error-message{
+  color:red;
+}
+.iconfont {
+  font-size: 20px;
+  color: #1296db;
+  padding: 0 6px;
+}
+.icon-tip,.icon-jinggao{
+  color: #FFE114;
+}
+.icon-huiyuan2{
+  color: #FF9900;
+}
+</style>
+
+<script>
+import wepy from '@wepy/core'
+import vuex from '@wepy/x'
+import promisify from '@wepy/use-promisify'
+const QQMapWX = require('@/utils/qqmap-wx-jssdk.min.js');
+
+wepy.use(vuex)
+wepy.use(promisify)
+
+wepy.app({
+  store: require('./store').default,
+  globalData: {
+    refreshPages: [],
+    unreadCount: 0,
+    platform: '',
+    latitude: 0,
+    longitude: 0,
+    city_index: ''
+  },
+  async onLaunch(options) {
+    if (options.query.pid !== 'undefined') {
+      wx.setStorageSync('pid', options.query.pid)
+    } else {
+      let pid = wx.getStorageSync('pid')
+      if (!pid) {
+        wx.setStorageSync('pid', 0)
+      }
+    }
+    if (!wx.getStorageSync('platform')) {
+      try {
+        const res = wx.getSystemInfoSync()
+        let test = 0
+        if (test || options.query.platform) {
+          // 测试ios端
+          wx.setStorageSync('platform', 'ios')
+        } else {
+          // wx.setStorageSync('platform', res.platform)
+          wx.setStorageSync('platform', 'android')
+        }
+      } catch (e) {
+        // Do something when catch error
+      }
+    }
+    if (!wx.getStorageSync('city_index') || !wx.getStorageSync('longitude')) {
+      await wepy.wx.getLocation({
+        type: 'wgs84'
+      }).then(res => {
+        wx.setStorageSync('latitude', res.latitude)
+        wx.setStorageSync('longitude', res.longitude)
+      })
+      let qqmapsdk = new QQMapWX({
+        key: "QQHBZ-MWE6D-6IF4N-HJVWM-AJZRQ-7NBP4"
+      })
+      await qqmapsdk.reverseGeocoder({
+        location: {
+          latitude: wx.getStorageSync('latitude'),
+          longitude: wx.getStorageSync('longitude')
+        },
+        success: function(res) { // 成功后的回调
+          if (res.status === 0) {
+            wx.setStorageSync('city_index', res.result.address_component.city)
+          } else {
+            wx.setStorageSync('city_index', '深圳市')
+          }
+        },
+        fail: function(error) {
+          console.error(error)
+        },
+        complete: function(res) {
+        }
+      })
+    }
+    const updateManager = wx.getUpdateManager()
+    updateManager.onCheckForUpdate(function(res) {
+      if (res.hasUpdate) {
+        // 有新版本,清除本地缓存数据
+        wx.clearStorageSync()
+      }
+    })
+    updateManager.onUpdateReady(function() {
+      wx.showModal({
+        title: '羽运动~~又发布新版本啦!!!',
+        content: '新版本已经准备好，是否重启应用？',
+        success: function(res) {
+          if (res.confirm) {
+            // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+            updateManager.applyUpdate()
+          }
+        }
+      })
+    })
+    updateManager.onUpdateFailed(function() {
+      // 新的版本下载失败
+      wx.showModal({
+        title: '更新提示',
+        content: '新版本下载失败',
+        showCancel: false
+      })
+    })
+
+    this.$store = this.$options.store
+    this.updateUnreadCount()
+
+    setInterval(() => {
+      this.updateUnreadCount()
+    }, 60000)
+  },
+  checkRefreshPages (route, callback) {
+    let refreshIndex = this.globalData.refreshPages.indexOf(route)
+    if (refreshIndex === -1) {
+      return
+    }
+    this.globalData.refreshPages.splice(refreshIndex, 1)
+    callback && callback()
+  },
+  methods: {
+    async updateUnreadCount() {
+      await this.$store.dispatch('updateUnreadCount')
+    },
+    can(targetPerm) {
+      if (!this.$store.getters.isLoggedIn) {
+        return false
+      }
+      // 判断权限中是否有目标权限
+      if (this.$store.getters.perms.find(perm => perm.name === targetPerm)) {
+        return true
+      }
+      return false
+    }
+  }
+})
+</script>
+<config>
+{
+  pages: [
+    'pages/launch/launch',
+    'pages/topics/index',
+    'pages/topics/show',
+    'pages/topics/user-index',
+    'pages/users/me',
+    'pages/users/edit',
+    'pages/users/show',
+    'pages/auth/login',
+    'pages/auth/register',
+    'pages/replies/index',
+    'pages/replies/user-index',
+    'pages/replies/create',
+    'pages/notifications/index',
+    'pages/activity/index',
+    'pages/activity/show',
+    'pages/activity/create',
+    'pages/activity/edit',
+    'pages/auth/weappLogin',
+    'pages/club/show',
+    'pages/club/detail',
+    'pages/club/edit',
+    'pages/club/create',
+    'pages/withdraw/index',
+    'pages/clubUser/index',
+    'pages/clubUser/edit',
+    'pages/activityUser/clubIndex',
+    'pages/activityUser/userIndex',
+    'pages/club/index'
+  ],
+  window: {
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#fff',
+    navigationBarTitleText: '羽运动',
+    navigationBarTextStyle: 'black'
+  },
+  tabBar: {
+    list: [          {
+      pagePath: 'pages/club/index',
+      text: '俱乐部',
+      iconPath: 'assets/images/club.png',
+      selectedIconPath: 'assets/images/club-selected.png'
+      },
+      {
+      pagePath: 'pages/activity/index',
+      text: '活动',
+      iconPath: 'assets/images/near.png',
+      selectedIconPath: 'assets/images/near-selected.png'
+      }, {
+      pagePath: 'pages/users/me',
+      text: '我的',
+      iconPath: 'assets/images/user.png',
+      selectedIconPath: 'assets/images/user_selected.png'
+    }],
+    color: '#707070',
+    selectedColor: '#00b5ad'
+  },
+  "networkTimeout": {
+    "request": 8000,
+    "downloadFile": 8000
+  },
+  "debug": true,
+  "permission": {
+    "scope.userLocation": {
+      "desc": "为了方便您查找附近的活动，显示距离，导航到球馆，请授权！"
+    }
+  }
+}
+</config>

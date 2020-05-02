@@ -1,0 +1,110 @@
+{
+	"description": "A WePY project",
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true,
+		"coverView": true,
+		"autoAudits": false,
+		"showShadowRootInWxmlPanel": false,
+		"scopeDataCheck": false,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
+	},
+	"compileType": "miniprogram",
+	"appid": "wx5222c4b8c8916602",
+	"projectname": "yuyundong",
+	"miniprogramRoot": "weapp/",
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"list": []
+		},
+		"gamePlugin": {
+			"current": -1,
+			"list": []
+		},
+		"miniprogram": {
+			"current": -1,
+			"list": [
+				{
+					"id": 0,
+					"name": "pages/activity/show",
+					"pathName": "pages/activity/show",
+					"query": "id=38&is_share=1",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/auth/weappLogin",
+					"pathName": "pages/auth/weappLogin",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/club/edit",
+					"pathName": "pages/club/edit",
+					"query": "id=1",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/activity/create",
+					"pathName": "pages/activity/create",
+					"query": "id=1",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/club/create",
+					"pathName": "pages/club/create",
+					"query": "id=1",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/clubUser/index",
+					"pathName": "pages/clubUser/index",
+					"query": "id=1",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/clubUser/edit",
+					"pathName": "pages/clubUser/edit",
+					"query": "id=24",
+					"scene": null
+				},
+				{
+					"id": 7,
+					"name": "pages/activityUser/clubIndex",
+					"pathName": "pages/activityUser/clubIndex",
+					"query": "id=1",
+					"scene": null
+				}
+			]
+		}
+	}
+}

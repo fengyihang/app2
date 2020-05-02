@@ -1,0 +1,191 @@
+<style lang="less">
+  .good_list {
+    display: flex;
+    justify-content: space-between;
+    padding: 20rpx 0rpx;
+    border-bottom: 1px solid #efefef
+  }
+  .image_box {
+    image {
+      width: 180rpx;
+      height: 180rpx;
+    }
+  }
+  .product_name {
+    color: #414141;
+    font-size: 32rpx;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+  }
+  .product_rule {
+    font-size: 26rpx;
+    color: #757575;
+    padding-top: 16rpx;
+  }
+  .price {
+    color: #de0000;
+    font-size: 34rpx;
+    font-weight: 600;
+  }
+  .goods {
+    padding: 15rpx 12rpx;
+    .order_footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20rpx;
+    }
+    .order_state {
+      color: #ff4856;
+      font-size: 32rpx;
+    }
+    .btn_group {
+      display: flex;
+      align-items: right;
+      .btn {
+        font-size: 25rpx;
+        padding: 10rpx 10rpx;
+        text-align: center;
+        margin: 0 auto;
+        width: 100%;
+        -moz-border-radius: 15rpx;
+        /* Firefox */
+        -webkit-border-radius: 15rpx;
+        /* Safari 和 Chrome */
+        border-radius: 15rpx;
+        /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+      }
+      .btn_del {
+        color: #333;
+        border: 1px solid #ccc;
+      }
+    }
+  }
+  .product_info {
+    padding-top: 20rpx;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .cost_price {
+    padding-left: 20rpx;
+  }
+  .icon-reeor{
+    font-size: 24px;
+    color: #888888;
+  }
+  .pay{
+    width: 32px;
+    height: 32px;
+  }
+</style>
+
+<template>
+  <div class="weui-cells weui-cells_after-title">
+    <div class="weui-cell">
+      <div class="weui-cell__hd">
+        <image src="{{ activityUser.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
+      </div>
+      <div class="weui-cell__bd">{{ activityUser.user.name }}</div>
+      <div class="weui-cell__ft" v-if=" syncPlatform !== 'ios' ">￥{{ activityUser.money }}</div>
+      <div class="weui-cell__ft" v-if=" syncPlatform === 'ios' ">免费</div>
+      <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" activityUser.user_id === user.id && activityUser.fee_type === 2 && activityUser.pid === 0 "></text></div>
+      <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" (activityUser.activity.status === 1 && activityUser.user.id === user.id && (activityUser.status === 1 || activityUser.status === 0 )) ">
+        <text class="iconfont icon-reeor"></text>
+      </div>
+      <div class="weui-cell__ft" @tap="pay" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" activityUser.activity.status === 1 && activityUser.status === 0  && !activityUser.pid "><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    usingComponents: {
+      "activity-datetime-diff": "~@/components/activity-datetime-diff",
+      "reply-delete": "~@/components/reply-delete"
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import { pay } from '../../api/activityUser'
+  import eventHub from '@/common/eventHub'
+  import util from '../../utils/util'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activityUser: Array,
+      syncPlatform: String,
+      user: Object,
+      activity: Object
+    },
+    data: {
+      id: 0,
+      errors: {}
+    },
+    methods: {
+      // 支付
+      async pay(e) {
+        let id = e.$wx.currentTarget.dataset.id
+        let pid = e.$wx.currentTarget.dataset.pid
+        let activity_id = e.$wx.currentTarget.dataset.activity_id
+
+        try {
+          let codeResponse = await pay(id)
+
+          // 验证码错误提示
+          if (codeResponse.statusCode === 401) {
+            wx.showModal({
+              'title': codeResponse.data.message
+            })
+            return
+          }
+          if (codeResponse.statusCode === 200) {
+            // 关闭modal
+            this.joinModalHidden = true
+            this.man_add_count = 0
+            this.lady_add_count = 0
+            // 清空报错信息
+            this.errors = {}
+            if (this.activity.pay_type === 1) {
+              // 以下是微信支付
+              wx.requestPayment({
+                appId: codeResponse.data.appId,
+                timeStamp: codeResponse.data.timeStamp,
+                nonceStr: codeResponse.data.nonceStr,
+                package: codeResponse.data.package,
+                signType: 'MD5',
+                paySign: codeResponse.data.paySign,
+                success: function (res) {
+                  util.success('支付成功')
+                  setTimeout(() => {
+                    eventHub.$emit('activity-reload', this.activity)
+                  }, 2000)
+                },
+                fail: function (res) {
+                  wx.showToast({
+                    title: '支付失败',
+                    icon: 'warn',
+                    duration: 2000
+                  })
+                }
+              })
+            }
+          }
+        } catch (err) {
+          console.log(err)
+          wx.showModal({
+            title: '提示',
+            content: '系统繁忙,请稍后重试'
+          })
+        }
+      }
+    }
+  })
+</script>
