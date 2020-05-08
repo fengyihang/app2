@@ -37,6 +37,7 @@
   }
   .radio{
     margin-left: 20rpx;
+    display: inline;
   }
 </style>
 <template>
@@ -501,17 +502,16 @@
 
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell  weui-cell_switch">
-            <checkbox-group bindchange="bindAgreeChange">
-              <label class="weui-agree" for="weuiAgree">
-                <div class="weui-agree__text">
-                  <checkbox class="weui-agree__checkbox" id="weuiAgree" name="is_agree" value="{{ is_agree }}" checked="{{ is_agree }}"/>
-                  <div class="weui-agree__checkbox-icon">
-                    <icon class="weui-agree__checkbox-icon-check" type="success_no_circle" size="12" v-if="is_agree"/>
-                  </div>
-                  阅读并同意<navigator url="" class="weui-agree__link">《活动无责条款》</navigator>
-                </div>
-              </label>
-            </checkbox-group>
+            <div class="weui-cell__hd">
+              <checkbox-group bindchange="bindAgreeChange">
+                <label class="weui-agree">
+                  <checkbox class="weui-agree__checkbox-check" bindchange="bindAgreeChange"  name="is_agree" value="{{ is_agree }}" checked="{{ is_agree }}"/>
+
+                  <span class="weui-agree__checkbox"></span>
+                  <span class="weui-agree__text">阅读并同意<a>《活动无责条款》</a></span>
+                </label>
+              </checkbox-group>
+            </div>
             <div v-if=" errors.is_agree " class="weui-cell__ft">
               <icon type="warn" size="23" color="#E64340"></icon>
             </div>

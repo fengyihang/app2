@@ -166,18 +166,38 @@
         <div v-if=" errors.place_money " class="weui-cells__tips error-message">{{ errors.place_money[0] }}</div>
         <div v-if=" errors.pay_type " class="weui-cells__tips error-message">{{ errors.pay_type[0] }}</div>
         <div class="weui-cells weui-cells_after-title">
-          <div class="weui-cell weui-cell_switch">
-            <div class="weui-cell__bd">球</div>
+          <div class="weui-cell weui-cell_active">
+            <div class="weui-cell__bd">
+              <label class="weui-label">球单价</label>
+            </div>
+            <div class="weui-cell__bd">
+              <input type="number" bindinput="bindBallMoney" data-name="ball_money" value="{{ ball_money }}"/>
+            </div>
             <div class="weui-cell__ft">
-              <input type="number" bindinput="bindBallMoney" data-name="ball_money" value="{{ ball_money }}"/>/个<input bindinput="bindBallCount" data-name="ball_count" name="ball_count" value="{{ ball_count }}"/>
+              元/个
             </div>
           </div>
+          <div class="weui-cell weui-cell_active">
+            <div class="weui-cell__bd">
+              <label class="weui-label">用球</label>
+            </div>
+            <div class="weui-cell__bd">
+              <input bindinput="bindBallCount" data-name="ball_count" name="ball_count" value="{{ ball_count }}"/>
+            </div>
+            <div class="weui-cell__ft">
+              个
+            </div>
+          </div>
+
           <div class="weui-cell weui-cell_input">
             <div class="weui-cell__hd">
-              <div class="weui-label">场地</div>
+              <div class="weui-label">场地费用</div>
             </div>
             <div class="weui-cell__bd">
               <input bindinput="bindPlaceMoney" data-name="place_money" value="{{ place_money }}"/>
+            </div>
+            <div class="weui-cell__ft">
+              元
             </div>
           </div>
         </div>
@@ -268,19 +288,18 @@
 </template>
 <config>
   {
-  usingComponents: {
-    "activity-datetime-diff": "~@/components/activity-datetime-diff",
-    "club-activity-user-list-item": "~@/components/activityUser/club-activity-user-list-item",
-    "reply-delete": "~@/components/reply-delete"
-  }
+    usingComponents: {
+      "activity-datetime-diff": "~@/components/activity-datetime-diff",
+      "club-activity-user-list-item": "~@/components/activityUser/club-activity-user-list-item",
+      "reply-delete": "~@/components/reply-delete"
+    }
   }
 </config>
 <script>
   import wepy from '@wepy/core'
-  import { pay } from '../../api/activityUser'
   import util from '../../utils/util'
   import eventHub from '@/common/eventHub'
-  import { cancelActivity, continueJoinActivity, stopJoinActivity, cleanActivity, confirmCleanActivity } from '../../api/activity'
+  import { cancelActivity, continueJoinActivity, stopJoinActivity, cleanActivity, confirmCleanActivity, withdrawActivity } from '../../api/activity'
 
   wepy.component({
     options: {
@@ -323,7 +342,7 @@
             await util.success('成功')
             eventHub.$emit('activity-reload', response.data)
           }
-          //return await this.getActivities(true);
+          // return await this.getActivities(true);
         } catch (err) {
           // 设置报错信息
           if (err.statusCode === 422) {
@@ -368,33 +387,27 @@
       async withdraw(e) {
         this.id = e.$wx.currentTarget.dataset.id
         let title = e.$wx.currentTarget.dataset.title
-        await tip.confirm('确定提现' + title + '活动吗？')
+        await util.confirm('确定提现' + title + '活动吗？')
         try {
           // 请求接口，传入参数
-          let response = await api.authRequest({
-            url: 'activities/' + this.id + '/withdraw',
-            method: 'POST',
-            data : {
-              id : this.id,
-            }
-          });
+          let response = await withdrawActivity(this.id, { id: this.id })
 
           if (response.statusCode === 401) {
-            await tip.error('该活动已经提现哦。')
-            this.$apply();
+            await util.error('该活动已经提现哦。')
+            return
           }
 
           if (response.statusCode === 200) {
-            await tip.success('提现成功，一到三个工作日到账。目前支持提现到微信。');
-            this.$apply();
+            await util.success('提现成功，一到三个工作日到账。目前支持提现到微信。')
+            return
           }
-          return await this.getActivities(true);
+          return await this.getActivities(true)
         } catch (err) {
-          console.log(err);
-          wepy.showModal({
+          console.log(err)
+          wx.showModal({
             title: '提示',
             content: '服务器错误，请联系管理员'
-          });
+          })
         }
       },
       async cancelActivity(e) {

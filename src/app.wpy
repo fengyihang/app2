@@ -30,6 +30,12 @@
   text-align: left;
   font-size: 14px;
 }
+.weui-cells{
+  margin-top: 2px;
+}
+.weui-cell{
+  padding: 10px;
+}
 .error-message{
   color:red;
 }
@@ -89,35 +95,33 @@ wepy.app({
         // Do something when catch error
       }
     }
-    if (!wx.getStorageSync('city_index') || !wx.getStorageSync('longitude')) {
-      await wepy.wx.getLocation({
-        type: 'wgs84'
-      }).then(res => {
-        wx.setStorageSync('latitude', res.latitude)
-        wx.setStorageSync('longitude', res.longitude)
-      })
-      let qqmapsdk = new QQMapWX({
-        key: "QQHBZ-MWE6D-6IF4N-HJVWM-AJZRQ-7NBP4"
-      })
-      await qqmapsdk.reverseGeocoder({
-        location: {
-          latitude: wx.getStorageSync('latitude'),
-          longitude: wx.getStorageSync('longitude')
-        },
-        success: function(res) { // 成功后的回调
-          if (res.status === 0) {
-            wx.setStorageSync('city_index', res.result.address_component.city)
-          } else {
-            wx.setStorageSync('city_index', '深圳市')
-          }
-        },
-        fail: function(error) {
-          console.error(error)
-        },
-        complete: function(res) {
+    await wepy.wx.getLocation({
+      type: 'wgs84'
+    }).then(res => {
+      wx.setStorageSync('latitude', res.latitude)
+      wx.setStorageSync('longitude', res.longitude)
+    })
+    let qqmapsdk = new QQMapWX({
+      key: "QQHBZ-MWE6D-6IF4N-HJVWM-AJZRQ-7NBP4"
+    })
+    await qqmapsdk.reverseGeocoder({
+      location: {
+        latitude: wx.getStorageSync('latitude'),
+        longitude: wx.getStorageSync('longitude')
+      },
+      success: function(res) { // 成功后的回调
+        if (res.status === 0) {
+          wx.setStorageSync('city_index', res.result.address_component.city)
+        } else {
+          wx.setStorageSync('city_index', '深圳市')
         }
-      })
-    }
+      },
+      fail: function(error) {
+        console.error(error)
+      },
+      complete: function(res) {
+      }
+    })
     const updateManager = wx.getUpdateManager()
     updateManager.onCheckForUpdate(function(res) {
       if (res.hasUpdate) {
@@ -147,11 +151,11 @@ wepy.app({
     })
 
     this.$store = this.$options.store
-    this.updateUnreadCount()
+    // this.updateUnreadCount()
 
-    setInterval(() => {
-      this.updateUnreadCount()
-    }, 60000)
+    // setInterval(() => {
+    //   this.updateUnreadCount()
+    // }, 60000)
   },
   checkRefreshPages (route, callback) {
     let refreshIndex = this.globalData.refreshPages.indexOf(route)

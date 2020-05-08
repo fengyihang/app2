@@ -14,14 +14,12 @@
     <div class="weui-panel__bd">
       <div v-for="log in withdrawLogs" :key="log.id">
         <div class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
-          <a class="weui-media-box__hd weui-media-box__hd_in-appmsg" url="/pages/users/show?id={{ log.user_id }}">
-            <image class="replyer-avatar weui-media-box__thumb" :src="log.user.avatar" />
-          </a>
           <div class="weui-media-box__bd weui-media-box__bd_in-appmsg">
-            <div class="weui-media-box__title">{{ log.user.name }}</div>
-            <div class="weui-media-box__desc"><rich-text nodes="{{ log.id }}" bindtap="tap"></rich-text></div>
+            <div class="weui-media-box__title">{{ log.money }}元</div>
             <div class="weui-media-box__desc"><datetime-diff :datetime="log.created_at"></datetime-diff></div>
           </div>
+          <div v-if="log.status === 0 " class="weui-badge">提现中</div>
+          <div v-if="log.status === 1 " class="weui-badge">已到账</div>
         </div>
       </div>
       <div class="weui-loadmore weui-loadmore_line" v-if="noMoreData">

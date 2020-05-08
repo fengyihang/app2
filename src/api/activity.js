@@ -75,7 +75,13 @@ export function updateActivity(id, data) {
     data: data
   })
 }
-
+// 提现活动
+export function withdrawActivity(id, data) {
+  return authRequest('activities/' + id + '/withdraw', {
+    method: 'POST',
+    data: data
+  })
+}
 export function deleteActivity(id, data) {
   return authRequest('activities/' + id, {
     method: 'DELETE',

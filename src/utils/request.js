@@ -3,6 +3,7 @@ import store from '@/store'
 
 // 服务器接口地址
 const host = API_URL
+const version = API_VERSION
 
 // 普通请求
 const request = async (url, options = {}, showLoading = true) => {
@@ -13,6 +14,7 @@ const request = async (url, options = {}, showLoading = true) => {
   // 拼接请求地址
   options.url = host + url
   options.login_type = 'weapp'
+  options.version = version
 
   const response = await wepy.wx.request(options)
 

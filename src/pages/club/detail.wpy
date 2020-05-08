@@ -132,6 +132,11 @@
       }
     },
     methods: {
+      async goHome(e) {
+        wx.switchTab({
+          url: '/pages/club/index'
+        })
+      },
       // 获取俱乐部数据
       async loadClub(id) {
         const response = await getClub(id, {
@@ -175,6 +180,24 @@
             icon: 'success'
           })
           eventHub.$emit('club-updated')
+        }
+      }
+    },
+    onShareAppMessage (res) {
+      let pid = 4
+      if (this.isLoggedIn) {
+        pid = this.user.id
+      }
+      return {
+        title: this.club.title + '--羽运动',
+        path: '/pages/club/detail?is_share=1&id=' + this.club.id + '&pid=' + pid,
+        success: function(res) {
+          // 转发成功
+          console.log(res)
+        },
+        fail: function(res) {
+          // 转发失败
+          console.log(res)
         }
       }
     },

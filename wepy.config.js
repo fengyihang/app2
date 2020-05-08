@@ -35,6 +35,7 @@ module.exports = {
   plugins: [
     DefinePlugin({
       API_URL: prod ? '"https://app.xiwenkeji.com/api/v1/"' : '"http://laiyundong.test/api/v1/"',
+      API_VERSION: prod ? '"1.0.9"' : '"1.0.0"'
     }),
     PluginUglifyjs({
     // options

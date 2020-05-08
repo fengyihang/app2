@@ -220,11 +220,13 @@
       }
     },
     onShareAppMessage (res) {
+      let pid = 4
+      if (this.isLoggedIn) {
+        pid = this.user.id
+      }
       return {
-        // 标题是话题标题
         title: this.activity.title + '--羽运动',
-        // 路径为话题详情路径
-        path: '/pages/activity/show?is_share=1&id=' + this.activity.id + '&pid=' + this.currentUser.id,
+        path: '/pages/activity/show?is_share=1&id=' + this.activity.id + '&pid=' + pid,
         success: function(res) {
           // 转发成功
           console.log(res)
@@ -242,7 +244,7 @@
         })
       },
       copyWechat(e) {
-        let wechat = e.currentTarget.dataset.wechat
+        let wechat = e.$wx.currentTarget.dataset.wechat
         wx.setClipboardData({
           data: wechat,
           success(res) {
@@ -517,7 +519,7 @@
             }
             // refreshPages.push(page.route)
             await this.reload(this.activity.id)
-
+            eventHub.$emit('activity-user-pay', id)
             if (this.isLoggedIn) {
               let info = await getActivityUserInfo(this.user.id, this.activity.id, this.activity.club_id)
             }
@@ -595,8 +597,15 @@
       eventHub.$on('activity-user-cancel', (activityUser) => {
         this.activity.activity_users = this.activity.activity_users.filter((r) => r.id !== activityUser.id)
         if (activityUser.status === 0) {
+          // 未支付订单取消,则把子订单也不显示
           this.activity.activity_users = this.activity.activity_users.filter((r) => r.pid !== activityUser.id)
         }
+      })
+      // todo...
+      eventHub.$on('activity-user-pay', (id) => {
+        console.log(id)
+        console.log(this.activity.activity_users)
+        // this.activity.activity_users.
       })
     },
     async onShow() {
