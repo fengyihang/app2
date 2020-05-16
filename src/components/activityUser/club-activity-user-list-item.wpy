@@ -88,14 +88,14 @@
       </div>
       <div class="weui-cell__ft" v-if=" syncPlatform !== 'ios' ">￥{{ item.money }}</div>
       <div class="weui-cell__ft" v-if=" syncPlatform === 'ios' ">免费</div>
-      <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" syncIsClubAdmin && item.pid === 0 "></text> {{ user.remark ? user.remark : '' }}</div>
+      <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" item.pid === 0 "></text> {{ user.remark ? user.remark : '' }}</div>
       <div v-if=" syncIsClubAdmin && item.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
       <div v-if=" syncIsClubAdmin && item.status === 2 " @tap="confirm" data-id="{{ item.id }}"><text class="iconfont icon-queren"></text> </div>
-      <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{item.id}}" data-pid="{{ item.pid }}" v-if=" syncIsClubAdmin && (item.status === 1 || item.status === 2 || item.status === 0) ">
+      <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{item.id}}" data-pid="{{ item.pid }}" v-if=" (item.status === 1 || item.status === 2) &&  activity.status < 4">
         <text class="iconfont icon-reeor"></text>
       </div>
       <!-- 已支付标志 -->
-      <div v-if=" platform !== 'ios' && activity_user.pay_type === 2 && activity_user.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
+      <div v-if=" platform !== 'ios' && item.status === 1 && item.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
     </div>
   </div>
 </template>
@@ -110,7 +110,8 @@
       // 父页面传入，请求参数
       activityUsers: Array,
       noMoreData: Boolean,
-      syncPlatform: String
+      syncPlatform: String,
+      activity: Object
     },
     data: {
       errors: {}

@@ -64,3 +64,10 @@ export function updateUnionid(data) {
     data: data
   })
 }
+
+export function boundPhone(data) {
+  return authRequest('authorizations/boundPhone', {
+    method: 'PUT',
+    data: data
+  })
+}

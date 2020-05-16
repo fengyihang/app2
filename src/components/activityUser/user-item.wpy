@@ -93,7 +93,7 @@
       <div class="weui-cell__ft" v-if=" syncPlatform !== 'ios' ">￥{{ activityUser.money }}</div>
       <div class="weui-cell__ft" v-if=" syncPlatform === 'ios' ">免费</div>
       <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" activityUser.user_id === user.id && activityUser.fee_type === 2 && activityUser.pid === 0 "></text></div>
-      <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" (activityUser.activity.status === 1 && activityUser.user.id === user.id && (activityUser.status === 1 || activityUser.status === 0 )) ">
+      <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" (activityUser.activity.status === 1 && activityUser.user_id === user.id && (activityUser.status === 1 || activityUser.status === 0 )) ">
         <text class="iconfont icon-reeor"></text>
       </div>
       <div class="weui-cell__ft" @tap="pay" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" activityUser.activity.status === 1 && activityUser.status === 0  && !activityUser.pid "><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>

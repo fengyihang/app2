@@ -168,6 +168,7 @@
         let response = await getUserInfo()
         let userInfo = response.data
         this.club = userInfo.first_club
+        wx.setStorageSync('userInfo', userInfo)
       }
     },
     methods: {

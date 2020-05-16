@@ -34,6 +34,10 @@
     margin-top: 64rpx;
     padding: 0 24rpx;
   }
+  .radio{
+    margin-left: 20rpx;
+    display: inline;
+  }
 </style>
 <template>
   <form bindsubmit="submit">
@@ -442,6 +446,7 @@
   import eventHub from '@/common/eventHub'
   import { getClub, updateClub } from '@/api/club'
   import util from '../../utils/util'
+  import { updateAvatar } from '../../api/user'
 
   wepy.page({
     store,
@@ -634,8 +639,36 @@
         this.province = region[0]
         this.city = region[1]
         this.area = region[2]
-      }
+      },
+      async updateAvatar () {
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+          return
+        }
+        // 选择头像图片
+        let image = await wx.chooseImage({count: 1})
+        try {
+          // 获取选择的图片
+          let club = image.tempFilePaths[0]
 
+          // 调用上传图片接口
+          let imageResponse = await updateAvatar(club, 'club')
+
+          // 上传成功成功记录数据
+          if (imageResponse.statusCode === 201) {
+            // 小程序上传结果没有做 JSON.parse，需要手动处理
+            let responseData = JSON.parse(imageResponse.data)
+            this.avatar = responseData.path
+            this.avatarId = responseData.id
+          }
+        } catch (err) {
+          console.log(err)
+          util.error('系统繁忙,请稍后重试')
+        }
+      }
     },
     async onLoad(options) {
       this.loadClub(options.id)

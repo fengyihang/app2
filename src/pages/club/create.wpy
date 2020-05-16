@@ -94,7 +94,7 @@
     <div class="weui-cells weui-cells_after-title">
       <div class="weui-cell weui-cell_input">
         <div class="weui-cell__bd">
-          <input class="weui-input" placeholder="请输入手机号" name="phone" value="{{ user.phone }}" disabled="disabled" />
+          <input class="weui-input" placeholder="请输入手机号" name="phone" value="{{ userInfo.phone }}" disabled="disabled" />
         </div>
         <div v-if=" errors.phone " class="weui-cell__ft">
           <icon type="warn" size="23" color="#E64340"></icon>
@@ -225,7 +225,8 @@
       activity_desc: '',
       wechat: '',
       address: '',
-      region: ['四川省', '成都市', '武侯区']
+      region: ['四川省', '成都市', '武侯区'],
+      userInfo: {}
     },
     // 计算的属性
     computed: {
@@ -303,7 +304,7 @@
           })
           return
         }
-        if (!this.user.phone) {
+        if (!this.userInfo.phone) {
           wx.redirectTo({
             url: '/pages/auth/phone'
           })
@@ -350,7 +351,7 @@
               wx.navigateTo({
                 url: '/pages/club/show?id=' + that.club.id
               })
-            }, 8000)
+            }, 5000)
           }
         } catch (err) {
           if (err.statusCode === 422) {
@@ -371,7 +372,7 @@
         })
         return
       }
-      if (!this.user.phone) {
+      if (!this.userInfo.phone) {
         wx.redirectTo({
           url: '/pages/auth/phone'
         })
@@ -398,7 +399,8 @@
         complete: function(res) {
         }
       })
-      if (!this.user.phone) {
+      this.userInfo = wx.getStorageSync('userInfo')
+      if (!this.userInfo.phone) {
         wx.redirectTo({
           url: '/pages/auth/phone'
         })

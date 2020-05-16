@@ -108,7 +108,7 @@
             </div>
             <div class="page">
               <div class="order_list_center">
-                <club-activity-user-list-item :activityUsers.sync="activity.activity_users" :syncPlatform.sync="syncPlatform" :syncIsClubAdmin.sync="syncIsClubAdmin"></club-activity-user-list-item>
+                <club-activity-user-list-item :activityUsers.sync="activity.activity_users" :syncPlatform.sync="syncPlatform" :syncIsClubAdmin.sync="syncIsClubAdmin" :activity.sync="activity"></club-activity-user-list-item>
               </div>
             </div>
 
@@ -150,7 +150,7 @@
             <div v-if=" syncPlatform !== 'ios' && activity.status === 5 && activity.fee_type === 2">
               <text class="iconfont icon-jiesuan" @tap="showCleanActivity" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-ball_money="{{ activity.ball_money }}">结算</text>
             </div>
-            <div v-if=" syncPlatform !== 'ios' && activity.status === 6 && activity.pay_type === 1 ">
+            <div v-if=" syncPlatform !== 'ios' && activity.status === 7 && activity.pay_type === 1 ">
               <text class="iconfont icon-jiesuan" @tap="withdraw" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-title="{{ activity.title }}" data-ball_money="{{ activity.ball_money }}">提现</text>
             </div>
 

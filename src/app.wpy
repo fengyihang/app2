@@ -50,6 +50,9 @@
 .icon-huiyuan2{
   color: #FF9900;
 }
+  .icon-nv{
+    color: red;
+  }
 </style>
 
 <script>
@@ -194,6 +197,7 @@ wepy.app({
     'pages/users/show',
     'pages/auth/login',
     'pages/auth/register',
+    'pages/auth/phone',
     'pages/replies/index',
     'pages/replies/user-index',
     'pages/replies/create',
