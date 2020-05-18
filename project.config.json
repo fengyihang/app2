@@ -103,6 +103,13 @@
 					"pathName": "pages/activityUser/clubIndex",
 					"query": "id=1",
 					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/activity/edit",
+					"pathName": "pages/activity/edit",
+					"query": "id=51&is_share=1",
+					"scene": null
 				}
 			]
 		}

@@ -53,6 +53,9 @@
   .icon-nv{
     color: red;
   }
+.weui-cells__tips{
+  margin-top: 0;
+}
 </style>
 
 <script>

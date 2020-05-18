@@ -175,6 +175,7 @@
               <icon type="warn" size="23" color="#E64340"/>
             </div>
           </div>
+          <div class="weui-cells__tips">活动人数=正常活动人数+加场活动人数</div>
         </div>
         <div v-if=" errors.count " class="weui-cells__tips error-message">{{ errors.count[0] }}</div>
         <!-- 填写 活动人数 end -->
@@ -195,6 +196,37 @@
         </div>
         <div v-if=" errors.wait_count " class="weui-cells__tips error-message">{{ errors.wait_count[0] }}</div>
         <!-- 填写 侯补人数 end -->
+
+        <!-- 填写 是否加场 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell  weui-cell_switch">
+            <div class="weui-cell__bd">是否加场</div>
+            <div class="weui-cell__ft">
+              <switch name="is_double_place" checked="{{ is_double_place }}" bindchange="bindDoublePlace" />
+            </div>
+          </div>
+          <div class="weui-cells__tips">是否有第二场活动</div>
+        </div>
+        <div v-if=" errors.is_double_place " class="weui-cells__tips error-message">{{ errors.is_double_place[0] }}</div>
+        <!-- 填写 是否加场 end -->
+
+        <!-- 填写 加场人数 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__hd">
+              <div class="weui-label"><text class="error-message">*</text>加场人数</div>
+            </div>
+            <div class="weui-cell__bd">
+              <input class="weui-input" type="number" name="double_count" placeholder="请输入加场人数"  value="0" />
+            </div>
+            <div v-if=" errors.double_count " class="weui-cell__ft">
+              <icon type="warn" size="23" color="#E64340"/>
+            </div>
+          </div>
+          <div class="weui-cells__tips">有加场,须填写加场人数</div>
+        </div>
+        <div v-if=" errors.double_count " class="weui-cells__tips error-message">{{ errors.double_count[0] }}</div>
+        <!-- 填写 加场人数 end -->
 
         <!-- 填写 活动说明 start -->
         <div class="weui-cells__title">活动说明</div>
@@ -375,6 +407,24 @@
         </div>
         <!-- 填写 收费方式 end -->
 
+        <!-- 填写 场地费用 start -->
+        <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__hd">
+              <div class="weui-label"><text class="error-message">*</text>场地费用</div>
+            </div>
+            <div class="weui-cell__bd">
+              <input class="weui-input" type="digit" name="place_money" placeholder="请输入场地费用"  value="0" />
+            </div>
+            <div v-if=" errors.place_money " class="weui-cell__ft">
+              <icon type="warn" size="23" color="#E64340"/>
+            </div>
+          </div>
+          <div class="weui-cells__tips">场地费用,用于AA结算</div>
+        </div>
+        <div v-if=" errors.place_money " class="weui-cells__tips error-message">{{ errors.place_money[0] }}</div>
+        <!-- 填写 场地费用 end -->
+
         <!-- 填写 费用 start -->
         <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
           <div class="weui-cell weui-cell_input">
@@ -500,6 +550,19 @@
         <div v-if=" errors.is_must_member " class="weui-cells__tips error-message">{{ errors.is_must_member[0] }}</div>
         <!-- 填写 会员报名 end -->
 
+        <!-- 填写 是否验证手机号的用户 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell  weui-cell_switch">
+            <div class="weui-cell__bd">是否验证手机号的用户</div>
+            <div class="weui-cell__ft">
+              <switch name="is_must_check_phone" checked="{{ is_must_check_phone }}" bindchange="bindMustCheckPhone" />
+            </div>
+          </div>
+          <div class="weui-cells__tips">是否验证手机号的用户才可以报名活动</div>
+        </div>
+        <div v-if=" errors.is_must_check_phone " class="weui-cells__tips error-message">{{ errors.is_must_check_phone[0] }}</div>
+        <!-- 填写 是否验证手机号的用户 end -->
+
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell  weui-cell_switch">
             <div class="weui-cell__hd">
@@ -545,7 +608,7 @@
       action_day: '',
       start_time: '',
       end_time: '',
-      hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+      hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
       end_join_hours: 2,
       end_cancel_hours: 12,
       latitude: '',
@@ -579,6 +642,8 @@
       is_must_member: false,
       is_lady_member_discounts: false,
       is_clear_to_activity_creator: false,
+      is_double_place: false,
+      is_must_check_phone: false,
       club: {},
       club_id: 0
     },
@@ -641,6 +706,8 @@
           }
           formData.is_lady_member_discounts = this.is_lady_member_discounts
           formData.is_clear_to_activity_creator = this.is_clear_to_activity_creator
+          formData.is_double_place = this.is_double_place
+          formData.is_must_check_phone = this.is_must_check_phone
           if (this.is_agree) {
             formData.is_agree = this.is_agree
           }
@@ -741,6 +808,12 @@
       },
       bindShowNear(e) {
         this.is_show_near = e.$wx.detail.value
+      },
+      bindDoublePlace(e) {
+        this.is_double_place = e.$wx.detail.value
+      },
+      bindMustCheckPhone(e) {
+        this.is_must_check_phone = e.$wx.detail.value
       },
       bindShowPhone(e) {
         this.is_show_phone = e.$wx.detail.value
