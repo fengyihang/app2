@@ -89,7 +89,13 @@
       <div class="weui-cell__hd">
         <image src="{{ activityUser.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
       </div>
-      <div class="weui-cell__bd">{{ activityUser.user.name }}</div>
+      <div class="weui-cell__bd">
+        {{ activityUser.user.name }}
+        <text v-if=" activityUser.sex === 2 " class="iconfont icon-nv"></text>
+        <text v-else class="iconfont icon-nan"></text>
+        <text v-if="activityUser.is_double_place === 1 " class="iconfont icon-B"></text>
+        <text v-if="activityUser.is_double_place === 2 " class="iconfont icon-tianjia"></text>
+      </div>
       <div class="weui-cell__ft" v-if=" syncPlatform !== 'ios' ">￥{{ activityUser.money }}</div>
       <div class="weui-cell__ft" v-if=" syncPlatform === 'ios' ">免费</div>
       <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" activityUser.user_id === user.id && activityUser.fee_type === 2 && activityUser.pid === 0 "></text></div>

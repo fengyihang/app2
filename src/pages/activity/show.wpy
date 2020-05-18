@@ -23,6 +23,11 @@
     display: inline;
   }
   .tap{
+    /*display: -webkit-flex; !* Safari *!*/
+    /*display: flex;*/
+    /*flex-direction: row;*/
+    /*flex-wrap: nowrap;*/
+    /*justify-content: center;*/
     width: 64px;
     position: fixed;
     top: 30px;
@@ -56,7 +61,15 @@
     margin-top: 2px;
   }
   .page__bd {
-   padding-bottom: 10px;
+   padding-bottom: 70px;
+  }
+  .radio{
+    margin-left: 20rpx;
+    display: inline;
+    font-size: 12px;
+  }
+  .weui-label {
+    width: 60px;
   }
 
 </style>
@@ -99,7 +112,8 @@
         <div v-if=" activity.end_join_hours "><text class="iconfont icon-jinggao"></text>停止报名：活动开始前{{ activity.end_join_hours }}小时</div>
         <div v-if=" activity.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ activity.end_cancel_hours }}小时</div>
       </div>
-      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.count }}<text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
+      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.count }} <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
+      <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加场</div>
       <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell" v-for="activity_user in activity.activity_users" :key="activity_user.id">
             <div class="weui-cell__hd">
@@ -109,6 +123,8 @@
               {{ activity_user.user.name }}
               <text v-if="activity_user.sex === 2 " class="iconfont icon-nv"></text>
               <text v-else class="iconfont icon-nan"></text>
+              <text v-if="activity_user.is_double_place === 1 " class="iconfont icon-B"></text>
+              <text v-if="activity_user.is_double_place === 2 " class="iconfont icon-tianjia"></text>
               <text v-if="platform !== 'ios' && activity_user.user_id === user.id && activity_user.money !== '0.00' ">{{ activity_user.money }} 元</text>
             </div>
             <!-- 主订单标志 -->
@@ -139,7 +155,7 @@
         </div>
         <div class="weui-cell weui-cell_input">
           <div class="weui-cell__hd">
-            <div class="weui-label">男+</div>
+            <div class="weui-label">男外挂</div>
           </div>
           <div class="weui-cell__bd">
             <button @tap="man_count_sub">-</button> {{ man_add_count }} <button @tap="man_count_add">+</button>
@@ -147,10 +163,19 @@
         </div>
         <div class="weui-cell weui-cell_input">
           <div class="weui-cell__hd">
-            <div class="weui-label">女+</div>
+            <div class="weui-label">女外挂</div>
           </div>
           <div class="weui-cell__bd">
             <button @tap="lady_count_sub">-</button> {{ lady_add_count }} <button @tap="lady_count_add">+</button>
+          </div>
+        </div>
+        <div class="weui-cell weui-cell_input" v-if="activity.is_double_place">
+          <div class="weui-cell__bd">
+            <radio-group class="radio-group" bindchange="doublePlaceChange">
+              <radio class="weui-input radio" wx:for-items="{{ is_double_places }}" wx:key="name" value="{{ item.value }}" checked="{{ item.value == is_double_place ? true : false }}">
+                <text>{{ item.name }}</text>
+              </radio>
+            </radio-group>
           </div>
         </div>
       </div>
@@ -212,9 +237,14 @@
       info: {
         myself: false,
         add_count: 0
-
       },
-      errors: { message: null, captchaValue: null }
+      errors: { message: null, captchaValue: null },
+      is_double_place: 0,
+      is_double_places: [
+        {name: '正常活动', value: 0},
+        {name: '连场', value: 1},
+        {name: '只参加加场', value: 2}
+      ]
     },
     computed: {
       ...mapGetters(['user', 'isLoggedIn']),
@@ -246,6 +276,9 @@
       }
     },
     methods: {
+      doublePlaceChange: function (e) {
+        this.is_double_place = e.$wx.detail.value
+      },
       login() {
         wx.navigateTo({
           url: '/pages/auth/weappLogin'
@@ -316,6 +349,7 @@
         this.man_add_count = 0
         this.lady_add_count = 0
         this.joinModalHidden = true
+        this.is_double_place = 0
       },
       // 打开报名窗口
       startJoinActivity() {
@@ -418,7 +452,8 @@
           is_member: this.is_member,
           is_vip_member: this.is_vip_member,
           platform: this.platform,
-          total_money: total_money
+          total_money: total_money,
+          is_double_place: this.is_double_place
         }
         if (this.myself) {
           formData.myself = true
@@ -438,6 +473,7 @@
             this.joinModalHidden = true
             this.man_add_count = 0
             this.lady_add_count = 0
+            this.is_double_place = 0
             // 清空报错信息
             this.errors = {}
             if (this.activity.pay_type === 1 && this.activity.fee_type === 1 && !codeResponse.data.id) {
@@ -503,6 +539,7 @@
             this.joinModalHidden = true
             this.man_add_count = 0
             this.lady_add_count = 0
+            this.is_double_place = 0
             // 清空报错信息
             this.errors = {}
             if (this.activity.pay_type === 1) {

@@ -84,7 +84,9 @@
       <div class="weui-cell__bd">
         {{item.user.name}}
         <text v-if=" item.sex === 2 " class="iconfont icon-nv"></text>
-        <text wx:else class="iconfont icon-nan"></text>
+        <text v-else class="iconfont icon-nan"></text>
+        <text v-if="item.is_double_place === 1 " class="iconfont icon-B"></text>
+        <text v-if="item.is_double_place === 2 " class="iconfont icon-tianjia"></text>
       </div>
       <div class="weui-cell__ft" v-if=" syncPlatform !== 'ios' ">￥{{ item.money }}</div>
       <div class="weui-cell__ft" v-if=" syncPlatform === 'ios' ">免费</div>

@@ -68,6 +68,9 @@
       }
     }
   }
+  .weui-cell{
+    padding: 2px;
+  }
 </style>
 <template>
   <div>
@@ -148,7 +151,7 @@
               <text class="iconfont icon-zanting" @tap="continueActivity" data-id="{{ activity.id }}">继续报名</text>
             </div>
             <div v-if=" syncPlatform !== 'ios' && activity.status === 5 && activity.fee_type === 2">
-              <text class="iconfont icon-jiesuan" @tap="showCleanActivity" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-ball_money="{{ activity.ball_money }}">结算</text>
+              <text class="iconfont icon-jiesuan" @tap="showCleanActivity" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-ball_money="{{ activity.ball_money }}" data-place_money="{{ activity.place_money }}">结算</text>
             </div>
             <div v-if=" syncPlatform !== 'ios' && activity.status === 7 && activity.pay_type === 1 ">
               <text class="iconfont icon-jiesuan" @tap="withdraw" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-title="{{ activity.title }}" data-ball_money="{{ activity.ball_money }}">提现</text>
@@ -188,13 +191,34 @@
               个
             </div>
           </div>
-
-          <div class="weui-cell weui-cell_input">
+          <div class="weui-cell weui-cell_active">
             <div class="weui-cell__hd">
               <div class="weui-label">场地费用</div>
             </div>
             <div class="weui-cell__bd">
               <input bindinput="bindPlaceMoney" data-name="place_money" value="{{ place_money }}"/>
+            </div>
+            <div class="weui-cell__ft">
+              元
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_active">
+            <div class="weui-cell__bd">
+              <label class="weui-label">加场用球数</label>
+            </div>
+            <div class="weui-cell__bd">
+              <input bindinput="bindDoubleBallCount" data-name="double_ball_count" name="double_ball_count" value="{{ double_ball_count }}"/>
+            </div>
+            <div class="weui-cell__ft">
+              个
+            </div>
+          </div>
+          <div class="weui-cell">
+            <div class="weui-cell__hd">
+              <div class="weui-label">加场场地费用</div>
+            </div>
+            <div class="weui-cell__bd">
+              <input bindinput="bindDoublePlaceMoney" data-name="double_place_money" value="{{ double_place_money }}"/>
             </div>
             <div class="weui-cell__ft">
               元
@@ -278,6 +302,18 @@
               {{ fee_info.no_member_count }}
             </div>
           </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">加场人数</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.double_place_count }}
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_switch">
+            <div class="weui-cell__bd">加场人均</div>
+            <div class="weui-cell__ft">
+              {{ fee_info.double_price }}
+            </div>
+          </div>
         </div>
       </modal>
 
@@ -317,7 +353,9 @@
       feeInfoHidden: true,
       ball_money: 0,
       ball_count: 0,
+      double_ball_count: 0,
       place_money: 0,
+      double_place_money: 0,
       total_money: 0,
       pay_type: 0,
       errors: {},
@@ -371,7 +409,9 @@
             id: this.id,
             ball_money: this.ball_money,
             ball_count: this.ball_count,
-            place_money: this.place_money,
+            double_ball_count: this.double_ball_count,
+            place_money: this.double_place_money,
+            double_place_money: this.place_money,
             pay_type: this.pay_type
           })
           if (response.statusCode === 200) {
@@ -431,6 +471,7 @@
         this.cleanHidden = false
         this.id = e.$wx.currentTarget.dataset.id
         this.ball_money = e.$wx.currentTarget.dataset.ball_money
+        this.place_money = e.$wx.currentTarget.dataset.place_money
         this.pay_type = e.$wx.currentTarget.dataset.pay_type
       },
       cancelCleanActivity(e) {
@@ -438,7 +479,9 @@
         this.id = 0
         this.ball_money = 0
         this.ball_count = 0
+        this.double_ball_count = 0
         this.place_money = 0
+        this.double_place_money = 0
         this.total_money = 0
         this.pay_type = 0
       },
@@ -454,7 +497,9 @@
             id: id,
             ball_money: this.ball_money,
             ball_count: this.ball_count,
+            double_ball_count: this.double_ball_count,
             place_money: this.place_money,
+            double_place_money: this.double_place_money,
             pay_type: this.pay_type,
             fee_info: this.fee_info
           })
@@ -466,7 +511,9 @@
             this.id = 0
             this.ball_money = 0
             this.ball_count = 0
+            this.double_ball_count = 0
             this.place_money = 0
+            this.double_place_money = 0
             this.total_money = 0
             this.pay_type = 0
             eventHub.$emit('activity-reload', response.data)
@@ -486,6 +533,12 @@
       },
       bindPlaceMoney(e) {
         this.place_money = e.$wx.detail.value
+      },
+      bindDoubleBallCount(e) {
+        this.double_ball_count = e.$wx.detail.value
+      },
+      bindDoublePlaceMoney(e) {
+        this.double_place_money = e.$wx.detail.value
       }
     }
   })

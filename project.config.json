@@ -52,7 +52,7 @@
 					"id": 0,
 					"name": "pages/activity/show",
 					"pathName": "pages/activity/show",
-					"query": "id=38&is_share=1",
+					"query": "id=52&is_share=1",
 					"scene": null
 				},
 				{
