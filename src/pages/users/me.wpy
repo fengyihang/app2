@@ -171,6 +171,24 @@
         wx.setStorageSync('userInfo', userInfo)
       }
     },
+    onShareAppMessage (res) {
+      let pid = 4
+      if (this.isLoggedIn) {
+        pid = this.user.id
+      }
+      return {
+        title: '个人中心--羽运动',
+        path: '/pages/users/me?is_share=1&id=&pid=' + pid,
+        success: function(res) {
+          // 转发成功
+          console.log(res)
+        },
+        fail: function(res) {
+          // 转发失败
+          console.log(res)
+        }
+      }
+    },
     methods: {
       cleanStorage(e) {
         wx.removeStorageSync('platform')

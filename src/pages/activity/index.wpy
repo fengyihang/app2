@@ -43,6 +43,7 @@
   import { getActivities } from '@/api/activity'
   import listRefresh from '@/mixins/list-refresh.js'
   import syncBadge from '@/mixins/sync-badge'
+  import { mapGetters } from '@wepy/x'
 
   wepy.page({
     store,
@@ -53,6 +54,7 @@
       latitude: 0
     },
     computed: {
+      ...mapGetters(['user', 'isLoggedIn']),
       currentCityIndex() {
         return wx.getStorageSync('city_index')
       }
@@ -65,6 +67,24 @@
         this.noMoreData = false
         this.loadData(true)
       })
+    },
+    onShareAppMessage (res) {
+      let pid = 4
+      if (this.isLoggedIn) {
+        pid = this.user.id
+      }
+      return {
+        title: '附近的羽毛球活动--羽运动',
+        path: '/pages/activity/index?is_share=1&id=&pid=' + pid,
+        success: function(res) {
+          // 转发成功
+          console.log(res)
+        },
+        fail: function(res) {
+          // 转发失败
+          console.log(res)
+        }
+      }
     },
     methods: {
       async fetchData() {

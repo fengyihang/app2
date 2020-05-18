@@ -495,6 +495,7 @@
               <switch name="is_must_member" checked="{{ is_must_member }}" bindchange="bindMustMember" />
             </div>
           </div>
+          <div class="weui-cells__tips">打开这个,须加入俱乐部会员才可以报名活动</div>
         </div>
         <div v-if=" errors.is_must_member " class="weui-cells__tips error-message">{{ errors.is_must_member[0] }}</div>
         <!-- 填写 会员报名 end -->

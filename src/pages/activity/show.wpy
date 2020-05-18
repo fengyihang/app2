@@ -23,17 +23,17 @@
     display: inline;
   }
   .tap{
-    width: 40px;
+    width: 64px;
     position: fixed;
     top: 30px;
-    right: 30px;
+    right: 40px;
     .create-reply {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 74px;
       padding-bottom: 12px;
     }
-    .icon-yemian-copy-copy,.icon-jiaru,.icon-add-account{
-      font-size: 54px;
+    .icon-yemian-copy-copy,.icon-jiaru,.icon-add-account,.icon-denglu{
+      font-size: 82px;
       padding-bottom: 12px;
     }
   }
@@ -45,6 +45,9 @@
   .pay{
     width: 32px;
     height: 32px;
+  }
+  .icon-add-account{
+    color: #09BB07;
   }
   .weui-cell {
     padding: 2px 10px;
@@ -92,6 +95,7 @@
         <div v-if=" platform !== 'ios' && activity.fee_type === 2 "><text class="iconfont icon-rmb"></text>费用：AA制</div>
         <div v-if=" platform !== 'ios' && activity.lady_discounts_money !== '0.00' "><text class="iconfont icon-nv1"></text>优惠：{{ activity.lady_discounts_money }}元/人</div>
         <div v-if=" platform !== 'ios' && activity.member_discounts_money !== '0.00' "><text class="iconfont icon-huiyuan2"></text>优惠：{{ activity.member_discounts_money }}元/人</div>
+        <div v-if=" activity.is_must_member " class="weui-cell_warn"><text class="iconfont icon-huiyuan2"></text>俱乐部会员才可报名</div>
         <div v-if=" activity.end_join_hours "><text class="iconfont icon-jinggao"></text>停止报名：活动开始前{{ activity.end_join_hours }}小时</div>
         <div v-if=" activity.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ activity.end_cancel_hours }}小时</div>
       </div>
@@ -128,7 +132,7 @@
       <div v-if="isJoin" class="weui-cells__tips error-message">您本人已报名</div>
       <div class="weui-cells weui-cells_after-title">
         <div class="weui-cell weui-cell_switch">
-          <div class="weui-cell__bd">自己</div>
+          <div class="weui-cell__bd">本人报名</div>
           <div class="weui-cell__ft">
             <switch name="myself" value="{{ myself }}" checked="{{ myself }}" bindchange="bindSelf" disabled="{{ isJoin }}" />
           </div>
@@ -163,6 +167,10 @@
       <!-- 加入俱乐部 -->
       <div v-if="mustJoinClub" @tap="joinClub">
         <div class="create-reply"><text class="iconfont icon-jiaru"></text></div>
+      </div>
+      <!-- 登录 -->
+      <div v-if=" !isLoggedIn " @tap="login">
+        <div class="create-reply"><text class="iconfont icon-denglu"></text></div>
       </div>
     </div>
 
@@ -238,6 +246,11 @@
       }
     },
     methods: {
+      login() {
+        wx.navigateTo({
+          url: '/pages/auth/weappLogin'
+        })
+      },
       async goHome(e) {
         wx.switchTab({
           url: '/pages/activity/index'
@@ -594,6 +607,12 @@
       wx.setNavigationBarTitle({
         title: this.activity.title
       })
+      if (this.activity.status === 6 && !this.isLoggedIn) {
+        wx.navigateTo({
+          url: '/pages/auth/weappLogin'
+        })
+        return
+      }
       eventHub.$on('activity-user-cancel', (activityUser) => {
         this.activity.activity_users = this.activity.activity_users.filter((r) => r.id !== activityUser.id)
         if (activityUser.status === 0) {
