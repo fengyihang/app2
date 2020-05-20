@@ -1,7 +1,4 @@
 <style lang="less">
-  .page{
-    background-color: #FFFFFF;
-  }
   .avatar {
     width: 80px;
     height: 80px;

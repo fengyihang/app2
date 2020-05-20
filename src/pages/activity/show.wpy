@@ -1,6 +1,7 @@
 <style lang="less">
   .page{
     background-color: #FFFFFF;
+    margin: 0 4px;
   }
   .avatar-wrap {
     position: relative;
@@ -13,7 +14,7 @@
     border-radius: 50%;
   }
   .topic-title {
-    padding: 4px 14px;
+    padding: 4px 4px;
   }
   .weui-label{
     width:50px;
@@ -22,27 +23,24 @@
     font-size: 32px;
     display: inline;
   }
-  .tap{
-    /*display: -webkit-flex; !* Safari *!*/
-    /*display: flex;*/
-    /*flex-direction: row;*/
-    /*flex-wrap: nowrap;*/
-    /*justify-content: center;*/
-    width: 64px;
-    position: fixed;
-    top: 30px;
-    right: 40px;
-    .create-reply {
-      width: 50px;
-      height: 74px;
-      padding-bottom: 12px;
-    }
-    .icon-yemian-copy-copy,.icon-jiaru,.icon-add-account,.icon-denglu{
-      font-size: 82px;
-      padding-bottom: 12px;
-    }
+
+  .icon-yemian-copy-copy,.icon-jiaru,.icon-add-account,.icon-denglu{
+    font-size: 28px;
   }
 
+  .placeholder{
+    margin: 2px;
+    padding: 0 2px;
+    text-align: left;
+    background-color: var(--weui-BG-1);
+    height: 2.3em;
+    line-height: 2.3em;
+    font-size: 26rpx;
+    .iconfont {
+      font-size: 32rpx;
+      padding: 0 2px;
+    }
+  }
   .icon-reeor{
     font-size: 24px;
     color: #888888;
@@ -58,10 +56,11 @@
     padding: 2px 10px;
   }
   .weui-cells__title{
-    margin-top: 2px;
+    margin-top: 0;
+    padding: 0 10px;
   }
   .page__bd {
-   padding-bottom: 70px;
+   padding-bottom: 50px;
   }
   .radio{
     margin-left: 20rpx;
@@ -71,7 +70,29 @@
   .weui-label {
     width: 60px;
   }
-
+  .weui-tabbar{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+  }
+  .weui-tabbar__item{
+    padding: 0 2px;
+  }
+  .weui-tabbar__icon{
+    color: #1296db !important;
+  }
+  .activity-desc{
+    border: solid 1px #666666;
+    border-radius: 5px;
+    background-color: #B0C1F7;
+    color: #FFFFFF;
+    padding: 5px;
+    margin-bottom: 2px;
+  }
+  .icon-B,.icon-tianjia{
+    padding: 0 4px;
+  }
 </style>
 <template>
   <div class="page">
@@ -84,33 +105,108 @@
             </div>
           </navigator>
           <div class="weui-cell__bd">
-            <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
-            <div class="page__desc">{{ activity.activity_desc }}</div>
+            <div class="weui-cell_warn">
+              <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
+            </div>
+            <div class="page__desc">{{ activity.title }}</div>
           </div>
         </div>
-
       </div>
       <div class="topic-title">
-        <div class="page__title">{{ activity.title }}</div>
-        <navigator url="/pages/club/show?id={{ activity.club.id }}">
-          <div><text class="iconfont icon-julebu"></text>{{ activity.club.title }}</div>
-        </navigator>
-        <div><text class="iconfont icon-faqiren"></text>组织者：{{ activity.user.name }}<text class="iconfont icon-weixin" v-if=" activity.is_show_wechat && activity.wechat " @tap="copyWechat" data-wechat="{{ activity.wechat }}"></text></div>
-        <div><text class="iconfont icon-dingwei1"></text>地址：{{ activity.address }}<text class="iconfont icon-dingwei" @tap="map"></text></div>
-        <div><text class="iconfont icon-yumaoqiuchang1"></text>球场：{{ activity.place ? activity.place : '待定' }}</div>
-        <div v-if=" activity.traffic_info "><text class="iconfont icon-auto"></text>交通：{{ activity.traffic_info }}</div>
-        <div v-if=" platform === 'ios' "><text class="iconfont icon-rmb"></text>费用： 免费 </div>
-        <div v-if=" platform !== 'ios' && activity.pay_type === 0 "><text class="iconfont icon-zhifu"></text>线下收款</div>
-        <div v-if=" platform !== 'ios' && activity.pay_type === 1 "><text class="iconfont icon-zhifu"></text>线上收款</div>
-        <div v-if=" platform !== 'ios' && activity.fee_type === 1 && activity.money !== '0.00'"><text class="iconfont icon-rmb"></text>费用： {{ activity.money }} 元/人</div>
-        <div v-if=" platform !== 'ios' && activity.fee_type === 1 && activity.money === '0.00' "><text class="iconfont icon-rmb"></text>费用： 免费</div>
-        <div v-if=" platform !== 'ios' && activity.extra_money !== '0.00' "><text class="iconfont icon-moneyeye"></text>加收： {{ activity.extra_money }} 元/人</div>
-        <div v-if=" platform !== 'ios' && activity.fee_type === 2 "><text class="iconfont icon-rmb"></text>费用：AA制</div>
-        <div v-if=" platform !== 'ios' && activity.lady_discounts_money !== '0.00' "><text class="iconfont icon-nv1"></text>优惠：{{ activity.lady_discounts_money }}元/人</div>
-        <div v-if=" platform !== 'ios' && activity.member_discounts_money !== '0.00' "><text class="iconfont icon-huiyuan2"></text>优惠：{{ activity.member_discounts_money }}元/人</div>
-        <div v-if=" activity.is_must_member " class="weui-cell_warn"><text class="iconfont icon-huiyuan2"></text>俱乐部会员才可报名</div>
-        <div v-if=" activity.end_join_hours "><text class="iconfont icon-jinggao"></text>停止报名：活动开始前{{ activity.end_join_hours }}小时</div>
-        <div v-if=" activity.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ activity.end_cancel_hours }}小时</div>
+        <div class="page__desc activity-desc">{{ activity.activity_desc }}</div>
+        <div class="weui-flex">
+          <div class="weui-flex__item">
+            <div class="placeholder">
+              <text class="iconfont icon-dingwei1"></text>地址：{{ activity.address }}<text class="iconfont icon-dingwei" @tap="map"></text>
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex">
+          <div class="weui-flex__item">
+            <div class="placeholder">
+              <text class="iconfont icon-yumaoqiuchang1"></text>球场：{{ activity.place ? activity.place : '待定' }}
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex" v-if="activity.traffic_info">
+          <div class="weui-flex__item">
+            <div class="placeholder">
+              <text class="iconfont icon-auto"></text>交通：{{ activity.traffic_info }}
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex">
+          <div class="weui-flex__item">
+            <navigator url="/pages/club/show?id={{ activity.club.id }}">
+              <div class="placeholder"><text class="iconfont icon-julebu"></text>{{ activity.club.title }}</div>
+            </navigator>
+          </div>
+          <div class="weui-flex__item">
+            <div class="placeholder">
+              <text class="iconfont icon-faqiren"></text>组织者：{{ activity.user.name }}<text class="iconfont icon-weixin" v-if=" activity.is_show_wechat && activity.wechat " @tap="copyWechat" data-wechat="{{ activity.wechat }}"></text>
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex">
+          <div class="weui-flex__item">
+            <div class="placeholder" v-if=" platform !== 'ios' && activity.fee_type === 1 && activity.money !== '0.00'">
+              <text class="iconfont icon-rmb"></text>费用： {{ activity.money }} 元/人
+            </div>
+            <div class="placeholder" v-if=" platform === 'ios' ">
+              <text class="iconfont icon-rmb"></text>费用： 免费
+            </div>
+            <div class="placeholder" v-if=" platform !== 'ios' && activity.fee_type === 1 && activity.money === '0.00' ">
+              <text class="iconfont icon-rmb"></text>费用： 免费
+            </div>
+            <div class="placeholder" v-if=" platform !== 'ios' && activity.fee_type === 2 ">
+              <text class="iconfont icon-rmb"></text>费用：AA制
+            </div>
+          </div>
+          <div class="weui-flex__item">
+            <div class="placeholder" v-if=" platform !== 'ios' && activity.pay_type === 0 ">
+              <text class="iconfont icon-zhifu"></text>线下收款
+            </div>
+            <div class="placeholder" v-if=" platform !== 'ios' && activity.pay_type === 1 ">
+              <text class="iconfont icon-zhifu"></text>线上收款
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex" v-if=" platform !== 'ios'">
+          <div class="weui-flex__item" v-if="activity.extra_money !== '0.00' ">
+            <div class="placeholder">
+              <text class="iconfont icon-moneyeye"></text>加收： {{ activity.extra_money }} 元/人
+            </div>
+          </div>
+          <div class="weui-flex__item" v-if="activity.lady_discounts_money !== '0.00' ">
+            <div class="placeholder">
+              <text class="iconfont icon-nv1"></text>加收： {{ activity.lady_discounts_money }} 元/人
+            </div>
+          </div>
+          <div class="weui-flex__item" v-if=" activity.member_discounts_money !== '0.00' ">
+            <div class="placeholder">
+              <text class="iconfont icon-huiyuan2"></text>优惠：{{ activity.member_discounts_money }}元/人
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex">
+          <div class="weui-flex__item">
+            <div class="placeholder weui-cell_warn">
+              <text class="iconfont icon-jinggao"></text>停止报名：{{ endJoinTime }}
+            </div>
+          </div>
+          <div class="weui-flex__item">
+            <div class="placeholder weui-cell_warn">
+              <text class="iconfont icon-quxiao"></text>可取消：{{ endCancelTime }}前
+            </div>
+          </div>
+        </div>
+        <div class="weui-flex" v-if=" activity.is_must_member ">
+          <div class="weui-flex__item">
+            <div class="placeholder weui-cell_warn">
+              <text class="iconfont icon-huiyuan2"></text>俱乐部会员才可报名
+            </div>
+          </div>
+        </div>
       </div>
       <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.count }} <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
       <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加场</div>
@@ -180,25 +276,34 @@
         </div>
       </div>
     </modal>
-    <div class="tap">
+    <div class="weui-tabbar">
       <!-- 返回首页按钮 -->
-      <div v-if="is_share" @tap="goHome">
-        <div class="create-reply"><text class="iconfont icon-yemian-copy-copy"></text></div>
+      <div v-if="is_share" @tap="goHome" class="weui-tabbar__item weui-bar__item_on">
+        <div style="display: inline-block; position: relative;">
+          <text class="iconfont icon-yemian-copy-copy weui-tabbar__icon"></text>
+        </div>
+        <div class="weui-tabbar__label">返回主页</div>
       </div>
       <!-- 报名按钮 -->
-      <div v-if=" activity.status === 1 && ((is_member && activity.is_must_member) || !activity.is_must_member) " bindtap="startJoinActivity">
-        <div class="create-reply"><text class="iconfont icon-add-account"></text></div>
+      <div v-if="activity.status === 1 && ((is_member && activity.is_must_member) || !activity.is_must_member)" bindtap="startJoinActivity"  class="weui-tabbar__item">
+        <text class="iconfont icon-add-account weui-tabbar__icon"></text>
+        <div class="weui-tabbar__label">报名</div>
       </div>
       <!-- 加入俱乐部 -->
-      <div v-if="mustJoinClub" @tap="joinClub">
-        <div class="create-reply"><text class="iconfont icon-jiaru"></text></div>
+      <div v-if="mustJoinClub" @tap="joinClub" class="weui-tabbar__item">
+        <div style="display: inline-block; position: relative;">
+          <text class="iconfont icon-jiaru weui-tabbar__icon"></text>
+        </div>
+        <div class="weui-tabbar__label">加入俱乐部</div>
       </div>
       <!-- 登录 -->
-      <div v-if=" !isLoggedIn " @tap="login">
-        <div class="create-reply"><text class="iconfont icon-denglu"></text></div>
+      <div v-if=" !isLoggedIn " @tap="login" class="weui-tabbar__item">
+        <div style="display: inline-block; position: relative;">
+          <text class="iconfont icon-denglu weui-tabbar__icon"></text>
+        </div>
+        <div class="weui-tabbar__label">登录</div>
       </div>
     </div>
-
   </div>
 </template>
 <config>
@@ -255,6 +360,12 @@
       },
       isJoin() {
         return this.info.myself
+      },
+      endJoinTime() {
+        return util.dateFormat(this.activity.end_join_time,'MM-DD HH:mm')
+      },
+      endCancelTime() {
+        return util.dateFormat(this.activity.end_cancel_time,'MM-DD HH:mm')
       }
     },
     onShareAppMessage (res) {
@@ -665,8 +776,8 @@
       })
     },
     async onShow() {
-      if (this.activity.id !== 'undefined') {
-        // this.reload(this.activity.id)
+      if (typeof (this.activity.id) !== 'undefined') {
+        this.reload(this.activity.id)
       }
     },
     // 下拉刷新

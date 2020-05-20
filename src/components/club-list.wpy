@@ -34,7 +34,7 @@
 
           <div class="weui-media-box__info">
             <div class="weui-media-box__info__meta">{{ club.user.name }} • </div>
-            <div class="weui-media-box__info__meta"><datetime-diff :datetime="club.updated_at"></datetime-diff></div>
+            <div class="weui-media-box__info__meta"><datetime-diff :datetime="club.created_at"></datetime-diff></div>
           </div>
         </div>
         <div class="weui-badge reply-count">0KM</div>

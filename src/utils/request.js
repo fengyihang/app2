@@ -27,6 +27,18 @@ const request = async (url, options = {}, showLoading = true) => {
     return response
   }
   if (response.statusCode === 401) {
+    if (response.data.message === 'Unauthenticated.') {
+      wx.navigateTo({
+        url: '/pages/auth/weappLogin'
+      })
+      return
+    }
+    console.log(response.data.message)
+    if (response.data.message === '您已长时间未登录,请重新登录') {
+      wx.removeStorageSync('access_token')
+      wx.removeStorageSync('access_token_expired_at')
+      return wx.removeStorageSync('user')
+    }
     wx.showModal({
       title: '提示',
       content: response.data.message

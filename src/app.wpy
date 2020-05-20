@@ -2,7 +2,8 @@
 @import (css) './assets/style/app.wxss';
 @import (css) './assets/style/iconfont.wxss';
 .page{
-  background-color: #F8F8F8;
+  // background-color: #F8F8F8;
+  background-color: #EDEDED;
   font-size: 14px;
 }
 .page__hd {
@@ -124,6 +125,7 @@ wepy.app({
       },
       fail: function(error) {
         console.error(error)
+        wx.setStorageSync('city_index', '深圳市')
       },
       complete: function(res) {
       }
@@ -252,7 +254,7 @@ wepy.app({
     "request": 8000,
     "downloadFile": 8000
   },
-  "debug": true,
+  "debug": false,
   "permission": {
     "scope.userLocation": {
       "desc": "为了方便您查找附近的活动，显示距离，导航到球馆，请授权！"

@@ -176,7 +176,7 @@
               <icon type="warn" size="23" color="#E64340"/>
             </div>
           </div>
-          <div class="weui-cells__tips">活动人数=正常活动人数+加场活动人数</div>
+          <div class="weui-cells__tips">正常活动人数</div>
         </div>
         <div v-if=" errors.count " class="weui-cells__tips error-message">{{ errors.count[0] }}</div>
         <!-- 填写 活动人数 end -->
