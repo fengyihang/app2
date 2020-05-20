@@ -420,7 +420,7 @@
               <icon type="warn" size="23" color="#E64340"/>
             </div>
           </div>
-          <div class="weui-cells__tips">场地费用,用于AA结算</div>
+          <div class="weui-cells__tips">场地费用,用于AA结算~~(不要包括加场的场地费)</div>
         </div>
         <div v-if=" errors.place_money " class="weui-cells__tips error-message">{{ errors.place_money[0] }}</div>
         <!-- 填写 场地费用 end -->

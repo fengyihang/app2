@@ -117,7 +117,7 @@
         <div class="weui-flex">
           <div class="weui-flex__item">
             <div class="placeholder">
-              <text class="iconfont icon-dingwei1"></text>地址：{{ activity.address }}<text class="iconfont icon-dingwei" @tap="map"></text>
+              <text class="iconfont icon-dingwei1"></text>{{ activity.address }}<text class="iconfont icon-dingwei" @tap="map"></text>
             </div>
           </div>
         </div>
@@ -162,11 +162,11 @@
               <text class="iconfont icon-rmb"></text>费用：AA制
             </div>
           </div>
-          <div class="weui-flex__item">
-            <div class="placeholder" v-if=" platform !== 'ios' && activity.pay_type === 0 ">
+          <div class="weui-flex__item" v-if=" platform !== 'ios'">
+            <div class="placeholder"  v-if=" activity.pay_type === 0 ">
               <text class="iconfont icon-zhifu"></text>线下收款
             </div>
-            <div class="placeholder" v-if=" platform !== 'ios' && activity.pay_type === 1 ">
+            <div class="placeholder" v-if=" activity.pay_type === 1 ">
               <text class="iconfont icon-zhifu"></text>线上收款
             </div>
           </div>
@@ -179,7 +179,7 @@
           </div>
           <div class="weui-flex__item" v-if="activity.lady_discounts_money !== '0.00' ">
             <div class="placeholder">
-              <text class="iconfont icon-nv1"></text>加收： {{ activity.lady_discounts_money }} 元/人
+              <text class="iconfont icon-nv1"></text>优惠： {{ activity.lady_discounts_money }} 元/人
             </div>
           </div>
           <div class="weui-flex__item" v-if=" activity.member_discounts_money !== '0.00' ">
@@ -240,7 +240,7 @@
     <modal class="modal" hidden="{{ joinModalHidden }}" bindcancel="cancelJoin"  bindconfirm="joinActivity">
       <div v-if=" errors.captchaValue " class="weui-cells__tips error-message">{{ errors.captchaValue[0] }}</div>
       <div v-if=" errors.message " class="weui-cells__tips error-message">{{ errors.message[0] }}</div>
-      <div v-if="info.add_count" class="weui-cells__tips error-message">加一已报名{{ info.add_count }}人</div>
+      <div v-if="info.add_count" class="weui-cells__tips error-message">外挂已报名{{ info.add_count }}人</div>
       <div v-if="isJoin" class="weui-cells__tips error-message">您本人已报名</div>
       <div class="weui-cells weui-cells_after-title">
         <div class="weui-cell weui-cell_switch">
@@ -710,17 +710,9 @@
         try {
           let id = e.$wx.currentTarget.dataset.id
           let response = await cancelActivityUser(id, {
-            'ids': id + ''
+            'ids': id + '',
+            'flag': 0
           })
-
-          // 验证码错误提示
-          if (response.statusCode === 401) {
-            wepy.showModal({
-              'title': response.data.message
-            })
-            return false
-          }
-        // 记录 key 和 过期时间
           if (response.statusCode === 200) {
             // 关闭modal
             this.joinModalHidden = true
@@ -737,7 +729,6 @@
             eventHub.$emit('activity-user-cancel', response.data)
             // 2 秒后返回上一页
             setTimeout(function() {
-
             }, 2000)
           }
         } catch (err) {

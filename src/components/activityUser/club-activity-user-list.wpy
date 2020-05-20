@@ -174,7 +174,7 @@
               <label class="weui-label">球单价</label>
             </div>
             <div class="weui-cell__bd">
-              <input type="number" bindinput="bindBallMoney" data-name="ball_money" value="{{ ball_money }}"/>
+              <input type="digit" bindinput="bindBallMoney" data-name="ball_money" value="{{ ball_money }}"/>
             </div>
             <div class="weui-cell__ft">
               元/个
@@ -185,7 +185,7 @@
               <label class="weui-label">用球</label>
             </div>
             <div class="weui-cell__bd">
-              <input bindinput="bindBallCount" data-name="ball_count" name="ball_count" value="{{ ball_count }}"/>
+              <input type="number" bindinput="bindBallCount" data-name="ball_count" name="ball_count" value="{{ ball_count }}"/>
             </div>
             <div class="weui-cell__ft">
               个
@@ -196,7 +196,7 @@
               <div class="weui-label">场地费用</div>
             </div>
             <div class="weui-cell__bd">
-              <input bindinput="bindPlaceMoney" data-name="place_money" value="{{ place_money }}"/>
+              <input type="digit" bindinput="bindPlaceMoney" data-name="place_money" value="{{ place_money }}"/>
             </div>
             <div class="weui-cell__ft">
               元
@@ -207,7 +207,7 @@
               <label class="weui-label">加场用球数</label>
             </div>
             <div class="weui-cell__bd">
-              <input bindinput="bindDoubleBallCount" data-name="double_ball_count" name="double_ball_count" value="{{ double_ball_count }}"/>
+              <input type="number" bindinput="bindDoubleBallCount" data-name="double_ball_count" name="double_ball_count" value="{{ double_ball_count }}"/>
             </div>
             <div class="weui-cell__ft">
               个
@@ -218,7 +218,7 @@
               <div class="weui-label">加场场地费用</div>
             </div>
             <div class="weui-cell__bd">
-              <input bindinput="bindDoublePlaceMoney" data-name="double_place_money" value="{{ double_place_money }}"/>
+              <input type="digit" bindinput="bindDoublePlaceMoney" data-name="double_place_money" value="{{ double_place_money }}"/>
             </div>
             <div class="weui-cell__ft">
               元
@@ -410,8 +410,8 @@
             ball_money: this.ball_money,
             ball_count: this.ball_count,
             double_ball_count: this.double_ball_count,
-            place_money: this.double_place_money,
-            double_place_money: this.place_money,
+            place_money: this.place_money,
+            double_place_money: this.double_place_money,
             pay_type: this.pay_type
           })
           if (response.statusCode === 200) {

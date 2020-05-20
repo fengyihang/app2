@@ -25,3 +25,10 @@ export function confirm(id) {
     method: 'PUT'
   })
 }
+// 编辑报名
+export function editActivityUser(id, data) {
+  return authRequest('activity_users/' + id + '/update', {
+    method: 'PUT',
+    data: data
+  })
+}

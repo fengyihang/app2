@@ -93,16 +93,44 @@
       <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" item.pid === 0 "></text> {{ user.remark ? user.remark : '' }}</div>
       <div v-if=" syncIsClubAdmin && item.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
       <div v-if=" syncIsClubAdmin && item.status === 2 " @tap="confirm" data-id="{{ item.id }}"><text class="iconfont icon-queren"></text> </div>
+      <div v-if=" syncIsClubAdmin && (item.status === 1 || item.status === 0)" @tap="showEditActivityUser" data-id="{{ item.id }}" data-sex="{{ item.sex }}" data-is_double_place="{{ item.is_double_place }}" data-username="{{ item.user.name }}"><text class="iconfont icon-chuangzuo"></text> </div>
       <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{item.id}}" data-pid="{{ item.pid }}" v-if=" (item.status === 1 || item.status === 2) &&  activity.status < 4">
         <text class="iconfont icon-reeor"></text>
       </div>
       <!-- 已支付标志 -->
       <div v-if=" platform !== 'ios' && item.status === 1 && item.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
     </div>
+
+    <modal class="modal" hidden="{{ editHidden }}" bindcancel="cancelEditActivityUser"  bindconfirm="editActivityUser">
+      <div class="weui-cells__tips error-message">修改 {{ username }} 的报名信息</div>
+      <div class="weui-cells weui-cells_after-title">
+        <div class="weui-cell weui-cell_input">
+          <div class="weui-cell__bd">
+            <radio-group class="radio-group" bindchange="sexChange">
+              <radio class="weui-input radio" wx:for-items="{{ sexs }}" wx:key="name" value="{{ item.value }}" checked="{{ item.value == sex ? true : false }}">
+                <text>{{ item.name }}</text>
+              </radio>
+            </radio-group>
+          </div>
+        </div>
+        <div class="weui-cell weui-cell_input">
+          <div class="weui-cell__bd">
+            <radio-group class="radio-group" bindchange="doublePlaceChange">
+              <radio class="weui-input radio" wx:for-items="{{ is_double_places }}" wx:key="name" value="{{ item.value }}" checked="{{ item.value == is_double_place ? true : false }}">
+                <text>{{ item.name }}</text>
+              </radio>
+            </radio-group>
+          </div>
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 <script>
   import wepy from '@wepy/core'
+  import eventHub from '@/common/eventHub'
+  // eslint-disable-next-line standard/object-curly-even-spacing
+  import { editActivityUser, cancelActivityUser, confirm } from '../../api/activityUser'
 
   wepy.component({
     options: {
@@ -113,12 +141,64 @@
       activityUsers: Array,
       noMoreData: Boolean,
       syncPlatform: String,
-      activity: Object
+      activity: Object,
+      syncIsClubAdmin: Boolean
     },
     data: {
-      errors: {}
+      errors: {},
+      editHidden: true,
+      is_double_place: 0,
+      is_double_places: [
+        {name: '正常活动', value: 0},
+        {name: '连场', value: 1},
+        {name: '只参加加场', value: 2}
+      ],
+      sex: 1,
+      sexs: [
+        {name: '男生', value: 1},
+        {name: '女生', value: 2}
+      ],
+      username: ''
     },
     methods: {
+      sexChange: function (e) {
+        this.sex = e.$wx.detail.value
+      },
+      doublePlaceChange: function (e) {
+        this.is_double_place = e.$wx.detail.value
+      },
+      async editActivityUser(e) {
+        try {
+          let id = this.id
+          let response = await editActivityUser(id, { 'sex': this.sex, 'is_double_place': this.is_double_place })
+          if (response.statusCode === 200) {
+            this.id = 0
+            this.sex = 1
+            this.editHidden = true
+            this.is_double_place = 0
+            eventHub.$emit('activity-reload', response.data)
+          }
+        } catch (err) {
+          wx.showModal({
+            title: '提示',
+            content: '服务器错误，请联系管理员'
+          })
+        }
+      },
+      cancelEditActivityUser(e) {
+        this.id = 0
+        this.sex = 1
+        this.editHidden = true
+        this.is_double_place = 0
+      },
+      // 编辑报名信息
+      async showEditActivityUser(e) {
+        this.editHidden = false
+        this.id = e.$wx.currentTarget.dataset.id
+        this.sex = e.$wx.currentTarget.dataset.sex
+        this.is_double_place = e.$wx.currentTarget.dataset.is_double_place
+        this.username = e.$wx.currentTarget.dataset.username
+      },
       // 确认报名
       async confirm(e) {
         // 删除取消
@@ -135,71 +215,50 @@
         }
         try {
           let id = e.$wx.currentTarget.dataset.id
-          let codeResponse = await api.authRequest({
-            url: 'activity_users/' + id + '/confirm',
-            method: 'PUT',
-          });
-
-          // 验证码错误提示
-          if (codeResponse.statusCode === 401) {
-            wepy.showModal({
-              'title': codeResponse.data.message,
-            });
-            return false;
-          }
-          let that = this;
-          // 记录 key 和 过期时间
+          let codeResponse = await confirm(id)
           if (codeResponse.statusCode === 200) {
-            this.$apply();
-            await this.$emit('refreshActivityUser');
+            eventHub.$emit('activity-reload', codeResponse.data)
           }
         } catch (err) {
           console.log(err)
-          wepy.showModal({
+          wx.showModal({
             title: '提示',
-            content: '服务器错误，请联系管理员'
+            content: '系统繁忙,请稍后重试'
           })
         }
       },
 
       // 取消报名
-      async cancelActivityUser(e){
+      async cancelActivityUser(e) {
         // 删除取消
-        let res = await wepy.showModal({
+        let res = await wx.showModal({
           title: '确认取消',
           content: '您确认取消报名吗',
           confirmText: '确定',
           cancelText: '取消'
-        });
+        })
 
         // 用户点击取消后返回
         if (!res.confirm) {
-          return;
+          return
         }
         try {
-          let id = e.currentTarget.dataset.id;
-          let codeResponse = await api.authRequest({
-            url: 'activities/' + id + '/refund',
-            method: 'POST',
-            data:{ 'ids':id+'' }
-          });
+          let id = e.$wx.currentTarget.dataset.id
+          let codeResponse = await cancelActivityUser(id, { 'ids': id + '', 'flag': 1 })
 
           // 验证码错误提示
           if (codeResponse.statusCode === 401) {
-            wepy.showModal({
+            wx.showModal({
               'title': codeResponse.data.message,
-            });
-            return false;
+            })
+            return false
           }
-          let that = this;
-          // 记录 key 和 过期时间
           if (codeResponse.statusCode === 200) {
-            this.$apply();
-            await this.$emit('refreshActivityUser');
+            eventHub.$emit('activity-reload', codeResponse.data)
           }
         } catch (err) {
           console.log(err)
-          wepy.showModal({
+          wx.showModal({
             title: '提示',
             content: '服务器错误，请联系管理员8'
           })
