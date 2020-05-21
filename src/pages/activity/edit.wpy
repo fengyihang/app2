@@ -66,7 +66,7 @@
             <div class="weui-cell__bd">
               <picker class="weui-input" mode="date" name="action_day" value="{{ action_day }}" start="2020-03-01" end="2025-12-31" bindchange="bindDateChange">
                 <div class="picker">
-                  {{ action_day }}
+                  {{ action_day }} {{ week_day }}
                 </div>
               </picker>
             </div>
@@ -640,7 +640,8 @@
       activity: {},
       club_id: 0,
       is_lady_member_discounts: false,
-      platform: 'ios'
+      platform: 'ios',
+      week_day: ''
     },
     // 计算的属性
     computed: {
@@ -755,6 +756,7 @@
         this.member_discounts_money = activity.member_discounts_money
         this.extra_money = activity.extra_money
         this.ball_money = activity.ball_money
+        this.week_day = util.weekFormat(this.action_day)
       },
       async chooseMap() {
         let map = await wx.chooseLocation()
@@ -771,6 +773,7 @@
       },
       bindDateChange(e) {
         this.action_day = e.$wx.detail.value
+        this.week_day = util.weekFormat(this.action_day)
       },
       bindStartTimeChange(e) {
         this.start_time = e.$wx.detail.value

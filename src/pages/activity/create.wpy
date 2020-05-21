@@ -66,7 +66,7 @@
             <div class="weui-cell__bd">
               <picker class="weui-input" mode="date" name="action_day" value="{{ action_day }}" start="2020-03-01" end="2025-12-31" bindchange="bindDateChange">
                 <div class="picker">
-                  {{ action_day }}
+                  {{ action_day }} {{ week_day }}
                 </div>
               </picker>
             </div>
@@ -641,7 +641,8 @@
       is_double_place: false,
       is_must_check_phone: false,
       club: {},
-      club_id: 0
+      club_id: 0,
+      week_day: ''
     },
     // 计算的属性
     computed: {
@@ -662,6 +663,7 @@
       let day = action_day.getDate()
       day = day < 10 ? '0' + day : day
       this.action_day = action_day.getFullYear() + '-' + month + '-' + day
+      this.week_day = util.weekFormat(this.action_day)
       // eslint-disable-next-line camelcase
       let start_time = new Date(timestamp + 2 * 60 * 60 * 1000)
       this.start_time = (start_time.getHours() < 10 ? ('0' + start_time.getHours()) : start_time.getHours()) + ':00'
@@ -769,6 +771,7 @@
       },
       bindDateChange(e) {
         this.action_day = e.$wx.detail.value
+        this.week_day = util.weekFormat(this.action_day)
       },
       bindStartTimeChange(e) {
         this.start_time = e.$wx.detail.value
