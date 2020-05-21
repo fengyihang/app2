@@ -57,6 +57,11 @@
 .weui-cells__tips{
   margin-top: 0;
 }
+.radio{
+  margin-left: 20rpx;
+  display: inline;
+  font-size: 12px;
+}
 </style>
 
 <script>
