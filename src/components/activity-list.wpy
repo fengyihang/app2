@@ -34,7 +34,7 @@
             <div class="weui-media-box__title topic-title">{{ activity.title }}</div>
 
             <div class="weui-media-box__info topic-info">
-              <view class="weui-media-box__info__meta">已报名：{{ activity.joined_count }} / {{ activity.count }} • </view>
+              <view class="weui-media-box__info__meta">已报名：{{ activity.joined_count }} / {{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }} • <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text> </view>
               <div class="weui-media-box__info__meta">
                 <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
               </div>

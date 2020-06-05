@@ -1,4 +1,5 @@
 <style lang="less">
+  @import "../../assets/style/iconfont_editor.wxss";
   .avatar {
     width: 80px;
     height: 80px;
@@ -33,6 +34,9 @@
   .btn_box {
     margin-top: 64rpx;
     padding: 0 24rpx;
+  }
+  textarea{
+    height: 300px;
   }
 </style>
 <template>
@@ -227,12 +231,52 @@
         <!-- 填写 活动说明 start -->
         <div class="weui-cells__title">活动说明</div>
         <div class="weui-cells weui-cells_after-title">
-          <div class="weui-cell">
-            <div class="weui-cell__bd">
-              <textarea class="weui-textarea" name="activity_desc" placeholder="请输入活动说明" style="height: 3.3em" value="{{ activity.activity_desc }}"/>
-              <div class="weui-textarea-counter">0/64</div>
-            </div>
+          <div class="weui-cell weui-cell_input">
+            <radio-group class="radio-group" bindchange="activityFeatureChange">
+              <radio class="weui-input radio" wx:for-items="{{ activity.club.activity_features }}" wx:key="id" value="{{ item.id }}"  checked="{{ item.id == activity_feature_id ? true : false }}">
+                <text>{{ item.title }}</text>
+              </radio>
+            </radio-group>
           </div>
+        </div>
+        <div class="page eidt-detail-images-container" v-if="hiddenActivityFeature">
+          <scroll-view scroll-y="true" style="width:100%">
+            <div>
+              <div class="wrapper">
+                <div class="toolbar" bindtap="format">
+                  <i class="iconfont icon-charutupian" bindtap="insertImage"></i>
+                  <i class="iconfont icon-format-header-1 {{formats.header === 1 ? 'ql-active' : ''}}" data-name="header" data-value="{{1}}"></i>
+                  <i class="iconfont icon-format-header-2 {{formats.header === 2 ? 'ql-active' : ''}}" data-name="header" data-value="{{2}}"></i>
+                  <i class="iconfont icon-format-header-3 {{formats.header === 3 ? 'ql-active' : ''}}" data-name="header" data-value="{{3}}"></i>
+                  <i class="iconfont icon-format-header-4 {{formats.header === 4 ? 'ql-active' : ''}}" data-name="header" data-value="{{4}}"></i>
+                  <i class="iconfont icon-format-header-5 {{formats.header === 5 ? 'ql-active' : ''}}" data-name="header" data-value="{{4}}"></i>
+                  <i class="iconfont icon-format-header-6 {{formats.header === 6 ? 'ql-active' : ''}}" data-name="header" data-value="{{4}}"></i>
+                  <i class="iconfont icon-zitijiacu {{formats.bold ? 'ql-active' : ''}}" data-name="bold"></i>
+                  <i class="iconfont icon-zitixieti {{formats.italic ? 'ql-active' : ''}}" data-name="italic"></i>
+                  <i class="iconfont icon-zitixiahuaxian {{formats.underline ? 'ql-active' : ''}}" data-name="underline"></i>
+                  <i class="iconfont icon-zitishanchuxian {{formats.strike ? 'ql-active' : ''}}" data-name="strike"></i>
+                  <i class="iconfont icon-zuoduiqi {{formats.align === 'left' ? 'ql-active' : ''}}" data-name="align" data-value="left"></i>
+                  <i class="iconfont icon-juzhongduiqi {{formats.align === 'center' ? 'ql-active' : ''}}" data-name="align" data-value="center"></i>
+                  <i class="iconfont icon-youduiqi {{formats.align === 'right' ? 'ql-active' : ''}}" data-name="align" data-value="right"></i>
+                  <i class="iconfont icon-zuoyouduiqi {{formats.align === 'justify' ? 'ql-active' : ''}}" data-name="align" data-value="justify"></i>
+                  <i class="iconfont icon-clearedformat" bindtap="removeFormat"></i>
+                  <i class="iconfont icon-font {{formats.fontFamily ? 'ql-active' : ''}}" data-name="fontFamily" data-value="Pacifico"></i>
+                  <i class="iconfont icon-fontsize {{formats.fontSize === '24px' ? 'ql-active' : ''}}" data-name="fontSize" data-value="24px"></i>
+                  <i class="iconfont icon-text_color {{formats.color === '#0000ff' ? 'ql-active' : ''}}" data-name="color" data-value="#0000ff"></i>
+                  <i class="iconfont icon-fontbgcolor {{formats.backgroundColor === '#00ff00' ? 'ql-active' : ''}}" data-name="backgroundColor" data-value="#00ff00"></i>
+                  <i class="iconfont icon-date" bindtap="insertDate"></i>
+                  <i class="iconfont icon--checklist" data-name="list" data-value="check"></i>
+                  <i class="iconfont icon-youxupailie {{formats.list === 'ordered' ? 'ql-active' : ''}}" data-name="list" data-value="ordered"></i>
+                  <i class="iconfont icon-wuxupailie {{formats.list === 'bullet' ? 'ql-active' : ''}}" data-name="list" data-value="bullet"></i>
+                  <i class="iconfont icon-fengexian" bindtap="insertDivider"></i>
+                  <i class="iconfont icon-undo" bindtap="undo"></i>
+                  <i class="iconfont icon-redo" bindtap="redo"></i>
+                  <i class="iconfont icon-shanchu" bindtap="clear"></i>
+                </div>
+                <editor id="editor" class="ql-container" placeholder="{{placeholder}}" showImgSize showImgToolbar showImgResize bindstatuschange="onStatusChange" read-only="{{readOnly}}" bindready="onEditorReady"></editor>
+              </div>
+            </div>
+          </scroll-view>
         </div>
         <div v-if=" errors.activity_desc " class="weui-cells__tips error-message">{{ errors.activity_desc[0] }}</div>
         <!-- 填写 活动特色 end -->
@@ -587,7 +631,7 @@
 </template>
 <config>
   {
-  navigationBarTitleText: '编辑活动'
+    navigationBarTitleText: '编辑活动'
   }
 </config>
 <script>
@@ -596,10 +640,17 @@
   import { mapGetters } from '@wepy/x'
   import { getActivity, updateActivity } from '../../api/activity'
   import util from '../../utils/util'
+  import { updateAvatar } from '@/api/user'
 
   wepy.page({
     store,
     data: {
+      formats: {},
+      readOnly: false,
+      placeholder: '请输入活动说明',
+      editorCtx: {},
+      hiddenActivityFeature: false,
+      activity_feature_id: 0,
       action_day: '',
       start_time: '',
       end_time: '',
@@ -666,6 +717,15 @@
           // e.detail.value 为表单提交的数据
           let formData = e.$wx.detail.value
 
+          formData.activity_desc = null
+          formData.activity_feature_id = this.activity_feature_id
+          console.log(typeof this.activity_feature_id)
+          if (this.activity_feature_id === '1') {
+            // 获取富文本编辑器内容
+            let editor_response = await this.editorCtx.getContents()
+            formData.activity_desc = editor_response.html
+          }
+
           formData.latitude = this.latitude
           formData.longitude = this.longitude
           formData.is_show_phone = this.is_show_phone ? 1 : 0
@@ -721,7 +781,7 @@
       // 获取俱乐部数据
       async loadActivity(id) {
         const response = await getActivity(id, {
-          include: 'user,activity-users,activity-users.user,club',
+          include: 'user,activity-users,activity-users.user,club,club.activity-features',
           latitude: wx.getStorageSync('latitude'),
           longitude: wx.getStorageSync('longitude')
         })
@@ -733,6 +793,10 @@
         activity.start_time_format = util.hourFormat(activity.start_time, 'HH:mm')
         activity.end_time_format = util.hourFormat(activity.end_time, 'HH:mm')
         this.activity = activity
+        this.activity_feature_id = activity.activity_feature_id
+        if (activity.activity_desc) {
+          this.hiddenActivityFeature = true
+        }
         this.action_day = activity.action_day_format
         this.start_time = activity.start_time_format
         this.end_time = activity.end_time_format
@@ -770,6 +834,10 @@
       },
       feeTypeChange: function (e) {
         this.fee_type = e.$wx.detail.value
+      },
+      activityFeatureChange: function (e) {
+        this.activity_feature_id = e.$wx.detail.value
+        this.hiddenActivityFeature = this.activity_feature_id === '1'
       },
       bindDateChange(e) {
         this.action_day = e.$wx.detail.value
@@ -827,6 +895,96 @@
       },
       bindLadyMemberDiscounts(e) {
         this.is_lady_member_discounts = e.$wx.detail.value
+      },
+      readOnlyChange() {
+        this.readOnly = !this.readOnly
+      },
+      onEditorReady() {
+        const that = this
+        wx.createSelectorQuery().select('#editor').context(function (res) {
+          that.editorCtx = res.context
+          if (that.activity.activity_desc) {
+            // 给编辑器填充内容
+            setTimeout(function() {
+              that.editorCtx.setContents({
+                html: that.activity.activity_desc,
+                success: (res) => {
+                  console.log(res)
+                },
+                fail: (res) => {
+                  console.log(res)
+                }
+              })
+            }, 1000)
+          }
+        }).exec()
+      },
+      blur() {
+        this.editorCtx.blur()
+      },
+      format(e) {
+        let { name, value } = e.$wx.target.dataset
+        if (!name) return
+        // console.log('format', name, value)
+        this.editorCtx.format(name, value)
+      },
+      onStatusChange(e) {
+        // this.editorCtx.scrollIntoView()
+        const formats = e.$wx.detail
+        this.formats = formats
+      },
+      insertDivider() {
+        this.editorCtx.insertDivider({
+          success: function () {
+            console.log('insert divider success')
+          }
+        })
+      },
+      clear() {
+        this.editorCtx.clear({
+          success: function (res) {
+            console.log("clear success")
+          }
+        })
+      },
+      removeFormat() {
+        this.editorCtx.removeFormat()
+      },
+      insertDate() {
+        const date = new Date()
+        const formatDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+        this.editorCtx.insertText({
+          text: formatDate
+        })
+      },
+      undo(e) {
+        this.editorCtx.undo()
+      },
+      redo(e) {
+        this.editorCtx.redo()
+      },
+      async insertImage() {
+        const that = this
+        let image = await wepy.wx.chooseImage({count: 1})
+        try {
+          // 获取选择的图片
+          let avatar = image.tempFilePaths[0]
+          // 调用上传图片接口
+          let imageResponse = await updateAvatar(avatar, 'editor')
+          // 小程序上传结果没有做 JSON.parse，需要手动处理
+          let responseData = JSON.parse(imageResponse.data)
+          that.editorCtx.insertImage({
+            src: responseData.path,
+            data: {
+              id: 'abcd',
+              role: 'god'
+            },
+            width: '80%',
+            success: function () {
+              console.log('insert image success')
+            }
+          })
+        } catch (err) {}
       }
     }
   })

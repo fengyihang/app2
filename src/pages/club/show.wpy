@@ -35,7 +35,14 @@
       padding-bottom: 12px;
     }
   }
-
+  .activity-desc{
+    border: solid 1px #666666;
+    border-radius: 5px;
+    background-color: #B0C1F7;
+    color: #FFFFFF;
+    padding: 5px;
+    margin-bottom: 2px;
+  }
 </style>
 <template>
   <div class="page">
@@ -64,26 +71,17 @@
         <div v-if=" platform !== 'ios' && club.extra_money !== '0.00' "><text class="iconfont icon-moneyeye"></text>加收：{{ club.extra_money }}元/人</div>
         <div v-if=" club.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ club.end_cancel_hours }}小时</div>
         <div ><text class="iconfont icon-tip"></text>编辑俱乐部信息，可以方便发布活动哦！</div>
-      </div>
-
-      <div class="weui-panel">
-        <div class="weui-panel__hd">俱乐部介绍</div>
-        <div class="weui-panel__bd">
-          <div class="weui-media-box weui-media-box_text">
-            <div class="weui-media-box__desc">{{ club.desc }}</div>
+        <div class="weui-panel">
+          <div class="weui-panel__hd">俱乐部介绍</div>
+          <div class="weui-panel__bd">
+            <div class="page__desc activity-desc">
+              <scroll-view scroll-y="true" style="max-height: 300rpx;" bindscrolltoupper="upper" bindscrolltolower="lower" bindscroll="scroll">
+                <rich-text nodes="{{ club.desc }}"></rich-text>
+              </scroll-view>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="weui-panel">
-        <div class="weui-panel__hd">活动特色</div>
-        <div class="weui-panel__bd">
-          <div class="weui-media-box weui-media-box_text">
-            <div class="weui-media-box__desc">{{ club.activity_desc }}</div>
-          </div>
-        </div>
-      </div>
-
     </div>
     <div class="tap">
       <!-- 编辑按钮 -->
@@ -118,8 +116,14 @@
         const response = await getClub(id, {
           include: 'user'
         })
-
         this.club = response.data
+      },
+      map() {
+        wx.openLocation({
+          latitude: this.club.latitude,
+          longitude: this.club.longitude,
+          scale: 28
+        })
       }
     },
     async onLoad(options) {

@@ -49,3 +49,10 @@ export function deleteClubUser(id) {
     method: 'DELETE'
   })
 }
+// 搜索俱乐部会员
+export function searchClubUsers(id, data) {
+  return authRequest('club_users/' + id + '/search', {
+    method: 'POST',
+    data: data
+  })
+}

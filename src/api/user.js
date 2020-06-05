@@ -8,7 +8,6 @@ export function getCurrentUser(data) {
 }
 
 export function getUserInfo() {
-  console.log('user/info')
   return authRequest('user/info', {
     data: { include: 'firstClub' }
   })

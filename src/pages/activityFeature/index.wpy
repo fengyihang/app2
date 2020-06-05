@@ -1,0 +1,113 @@
+index.wpy<style lang="less">
+  /*分类*/
+  .weui-flex {
+    align-items: center;
+  }
+  .weui-cells {
+    margin-top: 0;
+    opacity: 0;
+    transition: .3s;
+    &:before, &:after {
+      display: none;
+    }
+    &_show {
+      opacity: 1;
+    }
+  }
+  .weui-cell {
+    &:before {
+      right: 15px;
+    }
+  }
+  .weui-tabbar{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+  }
+  .weui-tabbar__item{
+    padding: 0 2px;
+  }
+  .placeholder{
+    margin: 2px;
+    padding: 0 2px;
+    text-align: left;
+    background-color: var(--weui-BG-1);
+    height: 2.3em;
+    line-height: 2.3em;
+    font-size: 26rpx;
+    .iconfont {
+      font-size: 32rpx;
+      padding: 0 2px;
+    }
+  }
+</style>
+<template>
+  <div class="page">
+    <div class="page__bd">
+      <activity-feature-list :activityFeatures="resourceData" :no-more-data ="noMoreData"></activity-feature-list>
+    </div>
+
+    <div class="weui-tabbar">
+      <!-- 新增 -->
+        <div class="weui-tabbar__item weui-bar__item_on" @tap="createFeature">
+          <div style="display: inline-block; position: relative;">
+            <text class="iconfont icon-zengjia"></text>
+          </div>
+          <div class="weui-tabbar__label">新增</div>
+        </div>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    navigationBarTitleText: '俱乐部活动特色',
+    enablePullDownRefresh: true,
+    usingComponents: {
+      "activity-feature-list": "~@/components/activity-feature-list"
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  import store from '@/store'
+  import eventHub from '@/common/eventHub'
+  import listRefresh from '@/mixins/list-refresh.js'
+  import { mapGetters } from '@wepy/x'
+  import { getActivityFeatures } from '../../api/activityFeature'
+
+  wepy.page({
+    store,
+    mixins: [ listRefresh ],
+    data: {
+      clubId: 0
+    },
+    computed: {
+      ...mapGetters(['user', 'isLoggedIn']),
+    },
+    async onLoad(options) {
+      this.clubId = options.id
+      //await this.loadData()
+
+      eventHub.$on('activity-deleted', (activity) => {
+        this.page = 1
+        this.noMoreData = false
+        this.loadData(true)
+      })
+    },
+    onShow() {
+      this.loadData(true)
+    },
+    methods: {
+      createFeature() {
+        wx.navigateTo({
+          url: '/pages/activityFeature/create?id=' + this.clubId
+        })
+      },
+      async fetchData() {
+        // 请求活动特色列表接口
+        return getActivityFeatures(this.clubId)
+      }
+    }
+  })
+</script>

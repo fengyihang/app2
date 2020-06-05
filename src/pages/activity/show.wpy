@@ -57,7 +57,7 @@
   }
   .weui-cells__title{
     margin-top: 0;
-    padding: 0 10px;
+    padding: 0 10rpx;
   }
   .page__bd {
    padding-bottom: 50px;
@@ -88,13 +88,27 @@
   .icon-B,.icon-tianjia{
     padding: 0 4px;
   }
+  .searchbar-result{
+    margin-top: 0;
+    font-size: 14px;
+  }
+  .searchbar-result .weui-cell__bd{
+    padding: 2px 0 2px 20px;
+    color: var(--weui-FG-1);
+  }
+  .searchbar-result:before{
+    display: none;
+  }
+  .weui-search-bar.weui-search-bar_focusing .weui-search-bar__label{
+    // display: inline-block;
+  }
 </style>
 <template>
   <div class="page">
     <div class="page__bd">
       <div class="weui-cells weui-cells_after-title">
         <div class="weui-cell">
-          <navigator url="/pages/club/show?id={{ activity.club.id }}">
+          <navigator url="/pages/club/detail?id={{ activity.club.id }}">
             <div class="weui-cell__hd avatar-wrap">
               <image class="avatar" src="{{ activity.club.avatar }}"/>
             </div>
@@ -108,7 +122,6 @@
         </div>
       </div>
       <div class="topic-title">
-        <div class="page__desc activity-desc">{{ activity.activity_desc }}</div>
         <div class="weui-flex">
           <div class="weui-flex__item">
             <div class="placeholder">
@@ -132,7 +145,7 @@
         </div>
         <div class="weui-flex">
           <div class="weui-flex__item">
-            <navigator url="/pages/club/show?id={{ activity.club.id }}">
+            <navigator url="/pages/club/detail?id={{ activity.club.id }}">
               <div class="placeholder"><text class="iconfont icon-julebu"></text>{{ activity.club.title }}</div>
             </navigator>
           </div>
@@ -202,33 +215,46 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.count }} <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
-      <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加场</div>
-      <div class="weui-cells weui-cells_after-title">
-          <div class="weui-cell" v-for="activity_user in activity.activity_users" :key="activity_user.id">
-            <div class="weui-cell__hd">
-              <image src="{{ activity_user.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
-            </div>
-            <div class="weui-cell__bd">
-              {{ activity_user.user.name }}
-              <text v-if="activity_user.sex === 2 " class="iconfont icon-nv"></text>
-              <text v-else class="iconfont icon-nan"></text>
-              <text v-if="activity_user.is_double_place === 1 " class="iconfont icon-B"></text>
-              <text v-if="activity_user.is_double_place === 2 " class="iconfont icon-tianjia"></text>
-              <text v-if="platform !== 'ios' && activity_user.user_id === user.id && activity_user.money !== '0.00' ">{{ activity_user.money }} 元</text>
-            </div>
-            <!-- 主订单标志 -->
-            <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if="activity_user.user_id === user.id && activity_user.pid === 0"></text> {{ activity_user.remark || '' }}</div>
-            <!-- 待确认标志 -->
-            <div v-if=" activity_user.user_id === user.id && activity_user.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
-            <!-- 取消订单 -->
-            <div v-if=" activity.status === 1 && activity_user.user_id === user.id && ((activity_user.fee_type === 1 && activity_user.status === 0 && !activity_user.pid) || (activity_user.fee_type === 2 && activity_user.status === 0) || activity_user.status === 2 || activity_user.status === 1) " data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" @tap="cancelActivityUser"><text class="iconfont icon-reeor"></text></div>
-            <!-- 支付 -->
-            <div v-if=" platform !== 'ios' && activity_user.user_id === user.id && activity_user.pay_type === 1 && activity_user.status === 0 && !activity_user.pid " data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" @tap="pay"><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
-            <!-- 已支付标志 -->
-            <div v-if=" platform !== 'ios' && activity_user.user_id === user.id && activity_user.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
+        <div class="weui-flex" v-if="activity.status < 3">
+          <div class="weui-cells__title weui-cell_warn" v-if=" activity.is_double_place && (remainNormalCount > 0 ||  remainDoubleCount > 0 ||  remainOnlyDoubleCount > 0)">
+            还有:
           </div>
+          <div class="weui-cells__title weui-cell_warn" v-else>
+            可报名候补
+          </div>
+          <div class="weui-flex__item" v-if=" !activity.is_double_place && remainNormalCount > 0">
+            <div class="placeholder weui-cell_warn">
+              {{ activity.count - activity.joined_count }} 个位置
+            </div>
+          </div>
+          <div class="weui-flex__item" v-if=" activity.is_double_place && remainNormalCount > 0 ">
+            <div class="placeholder weui-cell_warn">
+              {{ remainNormalCount }} 个常规位置
+            </div>
+          </div>
+          <div class="weui-flex__item" v-if=" activity.is_double_place && remainDoubleCount > 0 ">
+            <div class="placeholder weui-cell_warn">
+              {{ remainDoubleCount }} 个连场位置
+            </div>
+          </div>
+          <div class="weui-flex__item" v-if=" activity.is_double_place && remainOnlyDoubleCount > 0 ">
+            <div class="placeholder weui-cell_warn">
+              {{ remainOnlyDoubleCount }} 个加时场位置
+            </div>
+          </div>
+        </div>
+          <scroll-view scroll-y="true" style="max-height: 300rpx;" bindscrolltoupper="upper" bindscrolltolower="lower" bindscroll="scroll">
+            <div class="page__desc activity-desc">
+              <rich-text nodes="{{activity.activity_desc ? activity.activity_desc : activity.activity_feature.content }}"></rich-text>
+            </div>
+          </scroll-view>
+      </div>
+      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }} <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
+      <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加时场</div>
+      <div class="weui-cells weui-cells_after-title">
+        <activity-user-list v-if="activity.activity_users" :activity_users="activity.activity_users" :platform="platform" :user="user" :activity="activity" :isJoinedActivity="is_joined_activity" :is_admin="is_admin"></activity-user-list>
+        <div v-if=" activity.substitute_activity_users.length " class="weui-cell_warn">候补名单:</div>
+        <activity-user-list v-if=" activity.substitute_activity_users.length " :activity_users="activity.substitute_activity_users" :platform="platform" :user="user" :activity="activity" :isJoinedActivity="is_joined_activity" :is_admin="is_admin"></activity-user-list>
       </div>
     </div>
     <!-- 报名框 -->
@@ -270,6 +296,84 @@
           </div>
         </div>
       </div>
+      <div v-if=" !activity.is_double_place " class="weui-cells__tips error-message">剩余 {{ remainNormalCount }} 个位置</div>
+      <div v-if=" activity.is_double_place && remainNormalCount > 0 " class="weui-cells__tips error-message">剩余 {{ remainNormalCount }} 个常规位置</div>
+      <div v-if=" activity.is_double_place && remainDoubleCount > 0 " class="weui-cells__tips error-message">大约剩余 {{ remainDoubleCount }} 个连场位</div>
+      <div v-if=" activity.is_double_place && remainOnlyDoubleCount > 0 " class="weui-cells__tips error-message">大约剩余 {{ remainOnlyDoubleCount }} 个加时位</div>
+    </modal>
+    <!-- 代报名框 -->
+    <modal class="modal" hidden="{{ helpModalHidden }}" bindcancel="cancelHelpJoin"  bindconfirm="joinActivity">
+      <div class="weui-search-bar {{ inputShowed ? 'weui-search-bar_focusing' : ''}}" id="searchBar">
+        <form class="weui-search-bar__form">
+          <div  class="weui-search-bar__box">
+            <i class="weui-icon-search"></i>
+            <input type="text" class="weui-search-bar__input" placeholder="搜索用户昵称" value="{{keyword}}" focus="{{inputShowed}}" bindinput="inputTyping" />
+            <span class="weui-icon-clear" v-if="keyword.length > 0" bindtap="clearInput"></span>
+          </div>
+          <label class="weui-search-bar__label" @tap="showInput">
+            <i class="weui-icon-search"></i>
+            <span class="weui-search-bar__text">搜索</span>
+          </label>
+        </form>
+<!--        <div class="weui-search-bar__cancel-btn" @tap="hideInput">取消</div>-->
+        <div class="weui-search-bar-btn" @tap="search">搜索</div>
+      </div>
+      <div class="weui-cells searchbar-result" v-if="searchUsers.length > 0">
+        <div class="weui-cell weui-cell_active weui-cell_access" v-for="searchUser in searchUsers" :key="searchUser.id">
+          <div class="weui-cell__bd weui-cell_primary" data-id="{{ searchUser.id }}" data-username="{{ searchUser.name }}" data-avatar="{{ searchUser.avatar }}" @tap="getUserInfo">
+            <div><image src="{{ searchUser.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>{{ searchUser.name }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="weui-cells searchbar-result" v-if="searchResult">
+        <div class="weui-cell weui-cell_active weui-cell_access">
+          <div class="weui-cell__bd weui-cell_warn">
+            <div>用户不存在哦</div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if=" errors.captchaValue " class="weui-cells__tips error-message">{{ errors.captchaValue[0] }}</div>
+      <div v-if=" errors.message " class="weui-cells__tips error-message">{{ errors.message[0] }}</div>
+      <div v-if="info.add_count" class="weui-cells__tips error-message">外挂已报名{{ info.add_count }}人</div>
+      <div v-if="isJoin" class="weui-cells__tips error-message">他已报名</div>
+      <div class="weui-cells weui-cells_after-title">
+        <div class="weui-cell weui-cell_switch">
+          <div class="weui-cell__bd">代 {{ username }} 报名</div>
+          <div class="weui-cell__ft">
+            <switch name="myself" value="{{ myself }}" checked="{{ myself }}" bindchange="bindSelf" disabled="{{ isJoin }}" />
+          </div>
+        </div>
+        <div class="weui-cell weui-cell_input">
+          <div class="weui-cell__hd">
+            <div class="weui-label">男外挂</div>
+          </div>
+          <div class="weui-cell__bd">
+            <button @tap="man_count_sub">-</button> {{ man_add_count }} <button @tap="man_count_add">+</button>
+          </div>
+        </div>
+        <div class="weui-cell weui-cell_input">
+          <div class="weui-cell__hd">
+            <div class="weui-label">女外挂</div>
+          </div>
+          <div class="weui-cell__bd">
+            <button @tap="lady_count_sub">-</button> {{ lady_add_count }} <button @tap="lady_count_add">+</button>
+          </div>
+        </div>
+        <div class="weui-cell weui-cell_input" v-if="activity.is_double_place">
+          <div class="weui-cell__bd">
+            <radio-group class="radio-group" bindchange="doublePlaceChange">
+              <radio class="weui-input radio" wx:for-items="{{ is_double_places }}" wx:key="name" value="{{ item.value }}" checked="{{ item.value == is_double_place ? true : false }}">
+                <text>{{ item.name }}</text>
+              </radio>
+            </radio-group>
+          </div>
+        </div>
+      </div>
+      <div v-if=" !activity.is_double_place " class="weui-cells__tips error-message">剩余 {{ remainNormalCount }} 个位置</div>
+      <div v-if=" activity.is_double_place && remainNormalCount > 0 " class="weui-cells__tips error-message">剩余 {{ remainNormalCount }} 个常规位置</div>
+      <div v-if=" activity.is_double_place && remainDoubleCount > 0 " class="weui-cells__tips error-message">大约剩余 {{ remainDoubleCount }} 个连场位</div>
+      <div v-if=" activity.is_double_place && remainOnlyDoubleCount > 0 " class="weui-cells__tips error-message">大约剩余 {{ remainOnlyDoubleCount }} 个加时位</div>
     </modal>
     <div class="weui-tabbar">
       <!-- 返回首页按钮 -->
@@ -280,9 +384,14 @@
         <div class="weui-tabbar__label">返回主页</div>
       </div>
       <!-- 报名按钮 -->
-      <div v-if="activity.status === 1 && ((is_member && activity.is_must_member) || !activity.is_must_member)" bindtap="startJoinActivity"  class="weui-tabbar__item">
+      <div v-if="activity.status === 1 && ((info.is_member && activity.is_must_member) || !activity.is_must_member)" bindtap="startJoinActivity"  class="weui-tabbar__item">
         <text class="iconfont icon-add-account weui-tabbar__icon"></text>
         <div class="weui-tabbar__label">报名</div>
+      </div>
+      <!-- 代报名按钮 -->
+      <div v-if="can_help_join" bindtap="helpJoinActivity"  class="weui-tabbar__item">
+        <text class="iconfont icon-dai weui-tabbar__icon"></text>
+        <div class="weui-tabbar__label">代报名</div>
       </div>
       <!-- 加入俱乐部 -->
       <div v-if="mustJoinClub" @tap="joinClub" class="weui-tabbar__item">
@@ -298,6 +407,15 @@
         </div>
         <div class="weui-tabbar__label">登录</div>
       </div>
+      <!-- 编辑按钮 -->
+      <div v-if="activity.status < 6 && is_admin "  class="weui-tabbar__item">
+        <navigator url="/pages/activity/edit?id={{ activity.id }}">
+          <div style="display: inline-block; position: relative;">
+            <text class="iconfont icon-bianji weui-tabbar__icon"></text>
+          </div>
+          <div class="weui-tabbar__label">编辑</div>
+        </navigator>
+      </div>
     </div>
   </div>
 </template>
@@ -306,7 +424,8 @@
     navigationBarTitleText: '活动详情',
     enablePullDownRefresh: true,
     usingComponents: {
-      "activity-datetime-diff": "~@/components/activity-datetime-diff"
+      "activity-datetime-diff": "~@/components/activity-datetime-diff",
+      "activity-user-list": "~@/components/activity/activity-user-list",
     }
   }
 </config>
@@ -319,14 +438,23 @@
   import { getActivity, getActivityUserInfo } from '../../api/activity'
   // eslint-disable-next-line no-unused-vars
   import { joinClub } from '../../api/club'
-  import { joinActivity, pay, cancelActivityUser } from '../../api/activityUser'
+  import { joinActivity, cancelActivityUser } from '../../api/activityUser'
+  import { searchClubUsers } from '../../api/clubUser'
   import util from '../../utils/util'
 
   wepy.page({
     store,
     data: {
+      user_id: 0,
+      is_help: false,
+      username: '',
       activity: {},
       joinModalHidden: true,
+      helpModalHidden: true,
+      inputShowed: false,
+      keyword: '',
+      searchUsers: [],
+      searchResult: false,
       wechatHidden: true,
       myself: false,
       man_add_count: 0,
@@ -336,15 +464,25 @@
       is_share: false,
       info: {
         myself: false,
-        add_count: 0
+        add_count: 0,
+        is_member: false,
+        sex: 1,
+        is_vip_member: false
       },
       errors: { message: null, captchaValue: null },
       is_double_place: 0,
       is_double_places: [
         {name: '正常活动', value: 0},
         {name: '连场', value: 1},
-        {name: '只参加加场', value: 2}
-      ]
+        {name: '仅加时场', value: 2}
+      ],
+      platform: 'ios',
+      sex: 1,
+      is_member: false,
+      is_vip_member: false,
+      latitude: 0,
+      longitude: 0,
+      activity_id: 0
     },
     computed: {
       ...mapGetters(['user', 'isLoggedIn']),
@@ -357,10 +495,43 @@
         return this.info.myself
       },
       endJoinTime() {
-        return util.dateFormat(this.activity.end_join_time,'MM-DD HH:mm')
+        return util.dateFormat(this.activity.end_join_time, 'MM-DD HH:mm')
       },
       endCancelTime() {
-        return util.dateFormat(this.activity.end_cancel_time,'MM-DD HH:mm')
+        return util.dateFormat(this.activity.end_cancel_time, 'MM-DD HH:mm')
+      },
+      remainNormalCount() {
+        // 常规位置剩余
+        return this.activity.count - this.activity.normal_counts - this.activity.double_counts
+      },
+      // 剩余连场书
+      remainDoubleCount() {
+        let count1 = this.activity.count - this.activity.normal_counts
+        if (count1 < 1) {
+          return 0
+        }
+        // 加场位置剩余
+        let count2 = this.activity.double_count - this.activity.only_double_counts - this.activity.double_counts
+        return count1 > count2 ? count2 : count1
+      },
+      // 剩余加场数
+      remainOnlyDoubleCount() {
+        return this.activity.double_count - this.activity.double_counts - this.activity.only_double_counts
+      },
+      // 是否参加活动
+      is_joined_activity() {
+        if (!this.isLoggedIn) {
+          return false
+        }
+        return !!(this.activity.user_id === this.user.id || this.info.myself || this.info.add_count)
+      },
+      // 是否是俱乐部管理员
+      is_admin() {
+        return this.user.id === this.activity.user_id
+      },
+      // 是否可代报名,活动发起者,线下收费且固定,AA制
+      can_help_join() {
+        return this.activity.status < 6 && this.user.id === this.activity.user_id && ((this.activity.pay_type === 0 && this.activity.fee_type === 1) || this.activity.fee_type === 2)
       }
     },
     onShareAppMessage (res) {
@@ -382,6 +553,52 @@
       }
     },
     methods: {
+      async getUserInfo(e) {
+        let id = e.$wx.currentTarget.dataset.id
+        this.username = e.$wx.currentTarget.dataset.username
+        let res = await getActivityUserInfo(id, this.activity.id, this.activity.club_id)
+        let info = this.info = res.data
+        if (info.myself) {
+          this.myself = false
+          this.is_join = 'disabled'
+        } else {
+          this.is_join = false
+        }
+        this.is_member = !!info.is_member
+        this.is_vip_member = info.is_vip_member
+        // 加一总人数
+        this.add_count = info.add_count
+        // 俱乐部设定的性别
+        this.sex = info.sex
+        this.is_help = true
+        this.user_id = id
+      },
+      // 搜索俱乐部会员
+      async search() {
+        const response = await searchClubUsers(this.activity.club_id, {
+          // include: 'user',
+          keyword: this.keyword
+        })
+        let searchUsers = this.searchUsers = response.data.data
+        if (searchUsers.length > 0) {
+          this.searchUsers = searchUsers
+        } else {
+          this.searchResult = true
+        }
+      },
+      showInput: function () {
+        this.inputShowed = true
+      },
+      hideInput: function () {
+        this.inputShowed = false
+        this.keyword = ''
+      },
+      clearInput: function () {
+        this.keyword = ''
+      },
+      inputTyping: function (e) {
+        this.keyword = e.$wx.detail.value
+      },
       doublePlaceChange: function (e) {
         this.is_double_place = e.$wx.detail.value
       },
@@ -406,7 +623,7 @@
       // 获取活动数据
       async loadActivity(id) {
         const response = await getActivity(id, {
-          include: 'user,activity-users,activity-users.user,club',
+          include: 'user,activity-users,activity-users.user,club,substitute-activity-users,substitute-activity-users.user,activity-feature',
           latitude: wx.getStorageSync('latitude'),
           longitude: wx.getStorageSync('longitude')
         })
@@ -467,6 +684,29 @@
         }
         this.joinModalHidden = false
       },
+      // 打开代报名窗口
+      helpJoinActivity() {
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+        }
+        this.helpModalHidden = false
+        this.inputShowed = true
+        this.is_help = true
+      },
+      // 点击代报名弹框的取消按钮
+      cancelHelpJoin(e) {
+        this.helpModalHidden = true
+        this.inputShowed = false
+        this.searchResult = false
+        this.is_help = false
+        this.user_id = 0
+        this.man_add_count = 0
+        this.lady_add_count = 0
+        this.is_double_place = 0
+      },
       // 打开地图
       map() {
         wx.openLocation({
@@ -498,14 +738,14 @@
       },
       man_count_add() {
         if (this.lady_add_count + this.man_add_count + this.info.add_count === 10) {
-          this.errors.message = ['加一总人数不能超过10']
+          this.errors.message = ['外挂总人数不能超过10']
           return
         }
         this.man_add_count += 1
       },
       lady_count_add() {
         if (this.lady_add_count + this.man_add_count + this.info.add_count === 10) {
-          this.errors.message = ['加一总人数不能超过10']
+          this.errors.message = ['外挂总人数不能超过10']
           return
         }
         this.lady_add_count += 1
@@ -521,6 +761,10 @@
         }
         if (!this.myself && !this.man_add_count && !this.lady_add_count) {
           this.errors.captchaValue = ['至少要报一个人哦']
+          return
+        }
+        if (this.is_help && !this.user_id) {
+          this.errors.captchaValue = ['请选择要代报名的用户']
           return
         }
         // eslint-disable-next-line camelcase
@@ -559,7 +803,9 @@
           is_vip_member: this.is_vip_member,
           platform: this.platform,
           total_money: total_money,
-          is_double_place: this.is_double_place
+          is_double_place: this.is_double_place,
+          is_help: this.is_help,
+          user_id: this.user_id
         }
         if (this.myself) {
           formData.myself = true
@@ -577,9 +823,13 @@
           if (codeResponse.statusCode === 200) {
             // 关闭modal
             this.joinModalHidden = true
+            this.helpModalHidden = true
+            this.inputShowed = false
             this.man_add_count = 0
             this.lady_add_count = 0
             this.is_double_place = 0
+            this.is_help = false
+            this.user_id = 0
             // 清空报错信息
             this.errors = {}
             if (this.activity.pay_type === 1 && this.activity.fee_type === 1 && !codeResponse.data.id) {
@@ -619,73 +869,27 @@
         await this.loadActivity(id)
         if (this.isLoggedIn) {
           let res = await getActivityUserInfo(this.user.id, id, this.activity.club_id)
-          this.info = res.data
-        }
-      },
-      // 支付
-      async pay(e) {
-        let id = e.$wx.currentTarget.dataset.id
-        let pid = e.$wx.currentTarget.dataset.pid
-        let activity_id = e.$wx.currentTarget.dataset.activity_id
-
-        try {
-          let codeResponse = await pay(id)
-
-          // 验证码错误提示
-          if (codeResponse.statusCode === 401) {
-            wx.showModal({
-              'title': codeResponse.data.message
-            })
-            return
+          let info = this.info = res.data
+          if (info.myself) {
+            this.myself = false
+            this.is_join = 'disabled'
+          } else {
+            this.is_join = false
           }
-          let that = this
-          // 记录 key 和 过期时间
-          if (codeResponse.statusCode === 200) {
-            // 关闭modal
-            this.joinModalHidden = true
-            this.man_add_count = 0
-            this.lady_add_count = 0
-            this.is_double_place = 0
-            // 清空报错信息
-            this.errors = {}
-            if (this.activity.pay_type === 1) {
-              // 以下是微信支付
-              wx.requestPayment({
-                appId: codeResponse.data.appId,
-                timeStamp: codeResponse.data.timeStamp,
-                nonceStr: codeResponse.data.nonceStr,
-                package: codeResponse.data.package,
-                signType: 'MD5',
-                paySign: codeResponse.data.paySign,
-                success: function (res) {
-                  console.log(res)
-                  console.log('支付成功')
-                  setTimeout(() => {
-                    this.reload(this.activity.id)
-                  }, 2000)
-                },
-                fail: function (res) {
-                  wx.showToast({
-                    title: '支付失败',
-                    icon: 'warn',
-                    duration: 2000
-                  })
-                }
-              })
-            }
-            // refreshPages.push(page.route)
-            await this.reload(this.activity.id)
-            eventHub.$emit('activity-user-pay', id)
-            if (this.isLoggedIn) {
-              let info = await getActivityUserInfo(this.user.id, this.activity.id, this.activity.club_id)
-            }
+          if (info.is_member) {
+            this.is_member = true
+          } else {
+            this.is_member = false
           }
-        } catch (err) {
-          console.log(err)
-          wx.showModal({
-            title: '提示',
-            content: '系统繁忙,请稍后重试'
-          })
+          if (info.is_vip_member) {
+            this.is_vip_member = true
+          } else {
+            this.is_vip_member = false
+          }
+          // 加一总人数
+          this.add_count = info.add_count
+          // 俱乐部设定的性别
+          this.sex = info.sex
         }
       },
       // 取消报名
@@ -732,6 +936,7 @@
       }
     },
     async onLoad(options) {
+      this.activity_id = options.id
       await this.reload(options.id)
       this.platform = wx.getStorageSync('platform')
       // 分享进来,显示回主页按钮
@@ -753,16 +958,22 @@
           // 未支付订单取消,则把子订单也不显示
           this.activity.activity_users = this.activity.activity_users.filter((r) => r.pid !== activityUser.id)
         }
+        this.activity.substitute_activity_users = this.activity.substitute_activity_users.filter((r) => r.id !== activityUser.id)
+        if (activityUser.status === 5) {
+          // 未支付订单取消,则把子订单也不显示
+          this.activity.substitute_activity_users = this.activity.substitute_activity_users.filter((r) => r.pid !== activityUser.id)
+        }
       })
       // todo...
       eventHub.$on('activity-user-pay', (id) => {
-        console.log(id)
-        console.log(this.activity.activity_users)
+        this.reload(this.activity.id)
+        console.log('执行到这里了')
         // this.activity.activity_users.
       })
     },
     async onShow() {
       if (typeof (this.activity.id) !== 'undefined') {
+        console.log('执行onshow方法')
         this.reload(this.activity.id)
       }
     },

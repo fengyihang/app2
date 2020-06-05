@@ -33,11 +33,10 @@
   import eventHub from '@/common/eventHub'
   import { getClubActivities } from '@/api/activity'
   import listRefresh from '@/mixins/list-refresh.js'
-  import syncBadge from '@/mixins/sync-badge'
 
   wepy.page({
     store,
-    mixins: [ listRefresh, syncBadge ],
+    mixins: [ listRefresh ],
     data: {
       winHeight: 0,
       totalCount: 0,
@@ -119,7 +118,7 @@
         let params = {
           page: this.page,
           orderStatus: this.orderStatus,
-          include: 'user,club,activity-users,activity-users.user',
+          include: 'user,club,activity-users,activity-users.user,substitute-activity-users,substitute-activity-users.user,cancel-activity-users,cancel-activity-users.user',
           latitude: latitude || 0,
           longitude: longitude || 0
         }

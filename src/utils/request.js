@@ -14,7 +14,6 @@ const request = async (url, options = {}, showLoading = true) => {
   // 拼接请求地址
   options.url = host + url
   options.login_type = 'weapp'
-  options.version = 'v1.0.13'
 
   const response = await wepy.wx.request(options)
 
@@ -55,7 +54,7 @@ const request = async (url, options = {}, showLoading = true) => {
   if (response.statusCode === 500) {
     wx.showModal({
       title: '提示',
-      content: '系统繁忙,请稍后重试'
+      content: '系统繁忙,请稍后重试00'
     })
   }
 

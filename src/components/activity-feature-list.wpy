@@ -1,0 +1,62 @@
+<style lang="less">
+  .weui-media-box__info__meta {
+    margin: 0;
+    font-size: 12px;
+  }
+  .topic-info {
+    margin-top: 5px;
+  }
+  .topic-title {
+    white-space: normal;
+    font-size: 14px;
+  }
+  .weui-cell_active{
+    background-color: #1296db;
+  }
+  .weui-cell_access{
+    background-color: #BCBAB6;
+  }
+</style>
+<template>
+  <div class="weui-panel weui-panel_access">
+    <div class="weui-panel__bd">
+      <div v-for="activityFeature in activityFeatures" :key="activityFeature.id">
+        <div  class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
+          <div class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+            <div class="weui-media-box__title topic-title">{{ activityFeature.title }}</div>
+          </div>
+          <div v-if="activityFeature.status" class="weui-badge weui-cell_active">显示</div>
+          <div v-else class="weui-badge weui-cell_access">隐藏</div>
+          <navigator url="/pages/activityFeature/edit?id={{activityFeature.id}}">
+            <text class="iconfont icon-bianji"></text>
+          </navigator>
+        </div>
+
+      </div>
+      <div class="weui-loadmore weui-loadmore_line" v-if="noMoreData">
+        <div class="weui-loadmore__tips weui-loadmore__tips_in-line">没有更多数据</div>
+      </div>
+    </div>
+  </div>
+</template>
+<config>
+  {
+    usingComponents: {
+      "activity-datetime-diff": "~@/components/activity-datetime-diff"
+    }
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activityFeatures: Array,
+      noMoreData: Boolean
+    }
+  })
+</script>

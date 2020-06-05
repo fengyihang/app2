@@ -226,7 +226,11 @@ wepy.app({
     'pages/clubUser/edit',
     'pages/activityUser/clubIndex',
     'pages/activityUser/userIndex',
-    'pages/club/index'
+    'pages/club/index',
+    'pages/activityFeature/index',
+    'pages/activityFeature/create',
+    'pages/activityFeature/edit',
+    'pages/activityFeature/new'
   ],
   window: {
     backgroundTextStyle: 'light',

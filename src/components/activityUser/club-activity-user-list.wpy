@@ -86,12 +86,6 @@
                   <text class="iconfont icon-shijian"></text>
                   <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
                 </div>
-                <div v-if=" syncPlatform === 'ios' "><text class="iconfont icon-rmb"></text>费用： 免费 </div>
-                <div v-if=" syncPlatform !== 'ios' && activity.pay_type === 0 "><text class="iconfont icon-zhifu"></text>线下收款</div>
-                <div v-if=" syncPlatform !== 'ios' && activity.pay_type === 1 "><text class="iconfont icon-zhifu"></text>线上收款</div>
-                <div v-if=" syncPlatform !== 'ios' && activity.fee_type === 1 && activity.money !== '0.00'"><text class="iconfont icon-rmb"></text>费用： {{ activity.money }} 元/人</div>
-                <div v-if=" syncPlatform !== 'ios' && activity.fee_type === 1 && activity.money === '0.00'"><text class="iconfont icon-rmb"></text>费用： 免费</div>
-                <div v-if=" syncPlatform !== 'ios' && activity.fee_type === 2 "><text class="iconfont icon-rmb"></text>费用：AA制</div>
                 <div v-if=" syncPlatform !== 'ios' && activity.lady_discounts_money !== '0.00' "><text class="iconfont icon-nv1"></text>优惠：{{ activity.lady_discounts_money }}元/人</div>
                 <div v-if=" syncPlatform !== 'ios' && activity.member_discounts_money !== '0.00' "><text class="iconfont icon-huiyuan2"></text>优惠：{{ activity.member_discounts_money }}元/人</div>
                 <div v-if=" activity.end_cancel_hours "><text class="iconfont icon-quxiao"></text>可取消：活动开始前{{ activity.end_cancel_hours }}小时</div>
@@ -112,37 +106,25 @@
             <div class="page">
               <div class="order_list_center">
                 <club-activity-user-list-item :activityUsers.sync="activity.activity_users" :syncPlatform.sync="syncPlatform" :syncIsClubAdmin.sync="syncIsClubAdmin" :activity.sync="activity"></club-activity-user-list-item>
+                <div v-if=" activity.substitute_activity_users.length " class="weui-cell_warn">候补名单:</div>
+                <club-activity-user-list-item :activityUsers.sync="activity.substitute_activity_users" :syncPlatform.sync="syncPlatform" :syncIsClubAdmin.sync="syncIsClubAdmin" :activity.sync="activity"></club-activity-user-list-item>
+                <div v-if=" activity.cancel_activity_users.length " class="weui-cell_warn">取消名单:</div>
+                <club-activity-user-list-item :activityUsers.sync="activity.cancel_activity_users" :syncPlatform.sync="syncPlatform" :syncIsClubAdmin.sync="syncIsClubAdmin" :activity.sync="activity"></club-activity-user-list-item>
               </div>
             </div>
 
           </div>
           <div class="order_list_footer">
-            <div class="reveiveMoney c333" v-if=" syncPlatform !== 'ios' && activity.total_money !== '0.00' ">应付款：
-              <text class="num">￥{{ actvity.money }}</text>
-            </div>
-
-            <div class="order_state" v-if=" syncPlatform !== 'ios' && activity.status === 3 && activity.fee_type === 2 ">
-              结算
-            </div>
-            <div class="order_state" v-if=" activity.status === 1 ">
-              待开始
-            </div>
-            <div class="order_state" v-if=" activity_user.status === 2 ">
-              待开始
-            </div>
-            <div class="order_state" v-if=" activity_user.status === 6 ">
-              待确认
-            </div>
-            <div class="order_state" v-if=" activity_user.status === 10 ">
-              已取消
-            </div>
             <!--  删除订单  todo... -->
-            <div v-if=" activity.status === 0 || activity.status === 1 ">
+            <div v-if=" activity.status < 6 ">
               <navigator url="/pages/activity/edit?id={{ activity.id }}">
                 <text class="iconfont icon-bianji">编辑</text>
               </navigator>
-              <text class="iconfont icon-geren-copy-copy" @tap="copyLink" data-link="{{ 'https://app.xiwenkeji.com/activities/' + activity.id + '?pid=' + syncCurrentUser.id }}">复制链接</text>
+<!--              <text class="iconfont icon-geren-copy-copy" @tap="copyLink" data-link="{{ 'https://app.xiwenkeji.com/activities/' + activity.id + '?pid=' + syncCurrentUser.id }}">复制链接</text>-->
               <text class="iconfont icon-reeor" v-if=" activity.status === 0 && activity.status === 1 && activity.status === 2 && activity.status === 3 " @tap="cancelActivity" data-id="{{ activity.id }}">取消活动</text>
+            </div>
+            <div>
+              <text class="iconfont icon-zhifu" @tap="copyFeeInfo" data-fee_info="{{  activity.activity_fee_info }}">复制费用信息</text>
             </div>
             <div v-if=" activity.status === 1 ">
               <text class="iconfont icon-zantingtingzhi" @tap="stopJoinActivity" data-id="{{ activity.id }}">暂停报名</text>
@@ -156,9 +138,7 @@
             <div v-if=" syncPlatform !== 'ios' && activity.status === 7 && activity.pay_type === 1 ">
               <text class="iconfont icon-jiesuan" @tap="withdraw" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-title="{{ activity.title }}" data-ball_money="{{ activity.ball_money }}">提现</text>
             </div>
-
           </div>
-
         </div>
       </div>
 
@@ -367,6 +347,14 @@
         let link = e.$wx.currentTarget.dataset.link
         wx.setClipboardData({
           data: link,
+          success(res) {
+          }
+        })
+      },
+      copyFeeInfo(e) {
+        let fee = e.$wx.currentTarget.dataset.fee_info
+        wx.setClipboardData({
+          data: fee,
           success(res) {
           }
         })

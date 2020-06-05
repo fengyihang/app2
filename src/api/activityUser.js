@@ -25,6 +25,12 @@ export function confirm(id) {
     method: 'PUT'
   })
 }
+// 线下收款确认
+export function setPaid(id) {
+  return authRequest('activity_users/' + id + '/paid', {
+    method: 'PUT'
+  })
+}
 // 编辑报名
 export function editActivityUser(id, data) {
   return authRequest('activity_users/' + id + '/update', {

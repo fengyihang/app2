@@ -1,0 +1,164 @@
+<style>
+  .icon-hou{
+    color: red;
+  }
+</style>
+<template>
+  <div class="weui-cell" v-for="activity_user in activity_users" :key="activity_user.id">
+    <div class="weui-cell__hd">
+      <image src="{{ activity_user.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
+    </div>
+    <div class="weui-cell__bd">
+      {{ activity_user.user.name }}
+      <text v-if="activity_user.sex === 2 " class="iconfont icon-nv"></text>
+      <text v-else class="iconfont icon-nan"></text>
+      <text v-if="activity_user.is_double_place === 1 " class="iconfont icon-B"></text>
+      <text v-if="activity_user.is_double_place === 2 " class="iconfont icon-tianjia"></text>
+      <text v-if="platform !== 'ios' && isJoinedActivity && activity_user.money !== '0.00' ">{{ activity_user.money }} 元</text>
+      <!-- 候补标志 -->
+      <text class="iconfont icon-hou" v-if="activity_user.status === 5"></text>
+    </div>
+    <!-- 主订单标志 -->
+   <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" is_admin && activity_user.pid === 0"></text> {{ activity_user.remark || '' }}</div>
+    <div class="weui-cell__ft">{{ activity_user.remark || '' }}</div>
+    <!-- 待确认标志 -->
+    <div v-if=" activity_user.user_id === user.id && activity_user.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
+    <!-- 取消订单 -->
+    <div v-if=" activity.status === 1 && activity_user.user_id === user.id && ((activity_user.fee_type === 1 && activity_user.status === 0 && !activity_user.pid) || (activity_user.fee_type === 2 && activity_user.status === 0) || activity_user.status === 2 || activity_user.status === 1 || activity_user.status === 5) " data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" data-status="{{ activity_user.status }}" @tap="cancelActivityUser"><text class="iconfont icon-reeor"></text></div>
+    <!-- 支付 -->
+    <div v-if=" platform !== 'ios' && activity_user.user_id === user.id && activity_user.pay_type === 1 && activity_user.status === 0 && !activity_user.pid " data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" @tap="pay"><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
+    <!-- 已支付标志 -->
+    <div v-if=" platform !== 'ios' && (activity_user.user_id === user.id || is_admin) && activity_user.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
+  </div>
+</template>
+
+<script>
+  import wepy from '@wepy/core'
+  import { cancelActivityUser, pay } from '../../api/activityUser'
+  import eventHub from '@/common/eventHub'
+  import util from '../../utils/util'
+
+  wepy.component({
+    options: {
+      styleIsolation: 'apply-shared'
+    },
+    props: {
+      // 父页面传入，请求参数
+      activity_users: Array,
+      platform: String,
+      user: Object,
+      activity: Object,
+      isJoinedActivity: Boolean,
+      is_admin: Boolean
+    },
+    data: {
+      id: 0,
+      errors: {}
+    },
+    methods: {
+      // 支付
+      async pay(e) {
+        let id = e.$wx.currentTarget.dataset.id
+        try {
+          let codeResponse = await pay(id)
+
+          // 验证码错误提示
+          if (codeResponse.statusCode === 401) {
+            wx.showModal({
+              'title': codeResponse.data.message
+            })
+            return
+          }
+          let that = this
+          if (codeResponse.statusCode === 200) {
+            // 关闭modal
+            that.joinModalHidden = true
+            that.man_add_count = 0
+            that.lady_add_count = 0
+            that.is_double_place = 0
+            // 清空报错信息
+            that.errors = {}
+            if (this.activity.pay_type === 1) {
+              // 以下是微信支付
+              await wx.requestPayment({
+                appId: codeResponse.data.appId,
+                timeStamp: codeResponse.data.timeStamp,
+                nonceStr: codeResponse.data.nonceStr,
+                package: codeResponse.data.package,
+                signType: 'MD5',
+                paySign: codeResponse.data.paySign,
+                success: function (res) {
+                  setTimeout(() => {
+                    // refreshPages.push(page.route)
+                    eventHub.$emit('activity-user-pay', id)
+                  }, 2000)
+                },
+                fail: function (res) {
+                  wx.showToast({
+                    title: '支付失败',
+                    icon: 'warn',
+                    duration: 2000
+                  })
+                }
+              })
+            }
+          }
+        } catch (err) {
+          console.log(err)
+          wx.showModal({
+            title: '提示',
+            content: '系统繁忙,请稍后重试'
+          })
+        }
+      },
+      // 取消报名
+      async cancelActivityUser(e) {
+        // 删除取消
+        let res = await wx.showModal({
+          title: '确认取消',
+          content: '您确认取消报名吗',
+          confirmText: '确定',
+          cancelText: '取消'
+        })
+
+        // 用户点击取消后返回
+        if (!res.confirm) {
+          return
+        }
+        try {
+          let id = e.$wx.currentTarget.dataset.id
+          let status = e.$wx.currentTarget.dataset.status
+          let flag = 0
+          if (status === 5) {
+            // 候补可任意时间取消
+            flag = 1
+          }
+          let response = await cancelActivityUser(id, {
+            'ids': id + '',
+            'flag': flag
+          })
+          if (response.statusCode === 200) {
+            // 关闭modal
+            this.joinModalHidden = true
+            this.man_add_count = 0
+            this.lady_add_count = 0
+            // 清空报错信息
+            this.errors = {}
+            wx.showToast({
+              title: '取消成功',
+              icon: 'success',
+              duration: 3000
+            })
+            // 将删除了的回复移除
+            eventHub.$emit('activity-user-cancel', response.data)
+            // 2 秒后返回上一页
+            setTimeout(function() {
+            }, 2000)
+          }
+        } catch (err) {
+          util.error('系统繁忙,请稍后重试')
+        }
+      }
+    }
+  })
+</script>

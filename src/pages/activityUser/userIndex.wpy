@@ -33,12 +33,11 @@
   import eventHub from '@/common/eventHub'
   import { getUserActivities } from '@/api/activity'
   import listRefresh from '@/mixins/list-refresh.js'
-  import syncBadge from '@/mixins/sync-badge'
   import { mapGetters } from '@wepy/x'
 
   wepy.page({
     store,
-    mixins: [ listRefresh, syncBadge ],
+    mixins: [ listRefresh ],
     data: {
       winHeight: 0,
       totalCount: 0,

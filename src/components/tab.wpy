@@ -70,7 +70,6 @@
   <div class="swiper-tab">
     <div v-for="item in tabList" :key="index" class="swiper-tab-list {{currentTab === index ? 'active' : ''}}" data-current="{{index}}" bindtap="swichNav">
       {{item.name? item.name:item}}
-      <div class=" {{item.dotNum>=100?'dotbig':'dot'}}" v-if="item.dotNum>0">{{item.dotNum}}</div>
     </div>
   </div>
 </template>
@@ -114,7 +113,6 @@
       }
     },
     onLoad() {
-      let that = this
     },
     watch: {
       currentTab(newValue, oldValue) {

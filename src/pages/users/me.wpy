@@ -100,6 +100,12 @@
             </view>
             <view class="weui-cell__ft weui-cell__ft_in-access"></view>
           </navigator>
+          <navigator class="weui-cell weui-cell_access" v-if=" club.id " url="/pages/activityFeature/index?id={{ club.id }}">
+            <view class="weui-cell__bd" url="">
+              <view class="weui-cell__bd"><text class="iconfont icon-icon"></text>活动特色</view>
+            </view>
+            <view class="weui-cell__ft weui-cell__ft_in-access"></view>
+          </navigator>
           <navigator class="weui-cell weui-cell_access" v-if=" !club.id " url="/pages/club/create">
             <view class="weui-cell__bd" url="">
               <view class="weui-cell__bd"><text class="iconfont icon-xinjian"></text>创建俱乐部</view>
