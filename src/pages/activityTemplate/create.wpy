@@ -35,6 +35,21 @@
     margin-top: 64rpx;
     padding: 0 24rpx;
   }
+  .weui-check__label{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .weui-cells__group_form .weui-cell{
+    padding: 2px 4px;
+  }
+  .start-picker{
+    display: inline-block;
+  }
+  .picker-last{
+    margin-left: 12px;
+  }
 </style>
 <template>
   <div class="page">
@@ -45,10 +60,10 @@
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell weui-cell_input">
             <div class="weui-cell__hd">
-              <div class="weui-label"><text class="error-message">*</text>标题</div>
+              <div class="weui-label"><text class="error-message">*</text>模板标题</div>
             </div>
             <div class="weui-cell__bd">
-              <input class="weui-input" name="title" placeholder="请输入标题" value="{{  }}"/>
+              <input class="weui-input" name="title" placeholder="请输入模板标题" value="{{  }}"/>
             </div>
             <div v-if=" errors.title " class="weui-cell__ft">
               <icon type="warn" size="23" color="#E64340"/>
@@ -58,26 +73,90 @@
         <div v-if=" errors.title " class="weui-cells__tips error-message">{{ errors.title[0] }}</div>
         <!-- 填写 标题 end -->
 
-        <!-- 填写 日期 start -->
+        <!-- 填写 活动标题 start -->
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell weui-cell_input">
             <div class="weui-cell__hd">
-              <div class="weui-label weui-"><text class="error-message">*</text>活动日期</div>
+              <div class="weui-label"><text class="error-message">*</text>活动标题</div>
             </div>
             <div class="weui-cell__bd">
-              <picker class="weui-input" mode="date" name="action_day" value="{{ action_day }}" start="2020-03-01" end="2025-12-31" bindchange="bindDateChange">
-                <div class="picker">
-                  {{ action_day }} {{ week_day }}
+              <input class="weui-input" name="pre_title" placeholder="请输入活动标题,例如:羽运动" value="{{  }}"/>
+            </div>
+            <div v-if=" errors.pre_title " class="weui-cell__ft">
+              <icon type="warn" size="23" color="#E64340"/>
+            </div>
+          </div>
+          <div class="weui-cells__group weui-cells__group_form">
+            <div class="weui-cells weui-cells_checkbox">
+              <checkbox-group bindchange="preTitleChange">
+                <div class="weui-flex">
+                  <label class="weui-cell weui-cell_active weui-check__label weui-flex__item" v-for="item in prefix_title" :key="name">
+                    <checkbox class="weui-check radio" value="{{item.name}}" checked="{{item.checked}}"/>
+                    <i class="weui-icon-checked"></i>
+                    <div class="weui-cell__bd">
+                      <div>{{item.value}}</div>
+                    </div>
+                  </label>
                 </div>
+              </checkbox-group>
+            </div>
+          </div>
+          <div class="weui-cells__tips">例子：第1期，羽运动x月x日 (周一)晚上</div>
+        </div>
+        <div v-if=" errors.pre_title " class="weui-cells__tips error-message">{{ errors.pre_title[0] }}</div>
+        <!-- 填写 活动标题 end -->
+
+        <!-- 填写 日期 start -->
+        <div class="weui-cells__title"><text class="error-message">*</text>重复每周几</div>
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell__bd">
+            <div class="weui-cells__group weui-cells__group_form">
+              <div class="weui-cells weui-cells_checkbox">
+                <checkbox-group bindchange="weekChange">
+                  <div class="weui-flex">
+                    <label class="weui-cell weui-cell_active weui-check__label weui-flex__item" v-for="item in weeks" :key="name">
+                      <div class="weui-cell__hd">
+                        <checkbox class="weui-check radio" value="{{item.name}}" checked="{{item.checked}}"/>
+                        <i class="weui-icon-checked"></i>
+                      </div>
+                      <div class="weui-cell__bd">
+                        <div>{{item.value}}</div>
+                      </div>
+                    </label>
+                  </div>
+                </checkbox-group>
+              </div>
+            </div>
+          </div>
+          <div class="weui-cells__tips">每个周几的活动</div>
+          <div v-if=" errors.week_days " class="weui-cell__ft">
+            <icon type="warn" size="23" color="#E64340"/>
+          </div>
+        </div>
+        <div v-if=" errors.week_days " class="weui-cells__tips error-message">{{ errors.week_days[0] }}</div>
+        <!-- 填写 日期 end -->
+
+        <!-- 填写 开始前多少天开始报名 start -->
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cell weui-cell_input">
+            <div class="weui-cell__hd">
+              <div class="weui-label"><text class="error-message">*</text>发布时间</div>
+            </div>
+            <div class="weui-cell__bd">
+              <picker class="start-picker" bindchange="bindStartDaysChange" name="start_days" value="{{ start_days }}" range="{{ days }}">
+                <div class="weui-input">活动开始 {{ start_days }} 天前</div>
+              </picker>
+              <picker class="start-picker picker-last" bindchange="bindStartJoinTimeChange" name="join_start_time" value="{{ join_start_time }}" start="08:00" end="22:00" mode="time">
+                <div class="weui-cell__ft">{{ join_start_time }}</div>
               </picker>
             </div>
-            <div v-if=" errors.action_day " class="weui-cell__ft">
+            <div v-if=" errors.start_days " class="weui-cell__ft">
               <icon type="warn" size="23" color="#E64340"/>
             </div>
           </div>
         </div>
-        <div v-if=" errors.action_day " class="weui-cells__tips error-message">{{ errors.action_day[0] }}</div>
-        <!-- 填写 日期 end -->
+        <div v-if=" errors.start_days " class="weui-cells__tips error-message">{{ errors.start_days[0] }}</div>
+        <!-- 填写 开始前多少天开始 end -->
 
         <!-- 填写 开始时间 start -->
         <div class="weui-cells weui-cells_after-title">
@@ -129,7 +208,7 @@
             </div>
             <div class="weui-cell__bd">
               <picker bindchange="bindEndJoinHoursChange" name="end_join_hours" value="{{ end_join_hours }}" range="{{ hours }}">
-                <div class="weui-select">开始 {{ hours[end_join_hours] }} 小时前</div>
+                <div class="weui-select">活动开始 {{ hours[end_join_hours] }} 小时前</div>
               </picker>
             </div>
             <div v-if=" errors.end_join_hours " class="weui-cell__ft">
@@ -148,7 +227,7 @@
             </div>
             <div class="weui-cell__bd">
               <picker bindchange="bindEndCancelHoursChange" name="end_cancel_hours" value="{{ end_cancel_hours }}" range="{{ hours }}">
-                <div class="weui-select">开始 {{ hours[end_cancel_hours] }} 小时前</div>
+                <div class="weui-select">活动开始 {{ hours[end_cancel_hours] }} 小时前</div>
               </picker>
             </div>
             <div v-if=" errors.end_cancel_hours " class="weui-cell__ft">
@@ -158,6 +237,22 @@
         </div>
         <div v-if=" errors.end_cancel_hours " class="weui-cells__tips error-message">{{ errors.end_cancel_hours[0] }}</div>
         <!-- 填写 开始前几个小时不允许取消 end -->
+
+        <!-- 填写 固定报名 start -->
+        <div class="weui-cells__title">固定报名<span class="weui-cell_warn" @tap="showAddActivityTemplateUser">添加</span></div>
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cells">
+            <div class="weui-cell weui-cell_active">
+              <div class="weui-cell__hd" style="position: relative; margin-right: 10px;">
+                <image src="https://wx.qlogo.cn/mmopen/vi_32/PeAABSdW7SvYQJ5ibYFgyG1hZ2VmwK6XPBfA8B51fh4GZ3c8UKtTicSm9cFRAOvEYwwBQq4rictjfTZNPibRiaLv8lQ/132" style="margin-right: 5px;vertical-align: middle;width:50px; height: 50px;"/>
+                <text class="weui-badge" style="position: absolute; top: -0.4em; right: -0.4em;">x</text>
+                <div class="weui-tabbar__label">画画</div>
+              </div>
+            </div>
+          </div>
+          <div class="weui-cells__tips">帮每次活动都报名的人</div>
+        </div>
+        <!-- 填写 固定报名 end -->
 
         <!-- 填写 活动人数 start -->
         <div class="weui-cells weui-cells_after-title">
@@ -209,7 +304,7 @@
         <!-- 填写 加场人数 end -->
 
         <!-- 填写 活动说明 start -->
-        <div class="weui-cells__title">活动说明 <span class="weui-cell_warn" v-if="club.activity_features.length < 2" @tap="goToActivityFeature">去创建活动说明模板</span></div>
+        <div class="weui-cells__title">活动说明 <span class="weui-cell_warn" v-if="club.activity_features.length < 1" @tap="goToActivityFeature">去创建活动说明模板</span></div>
 
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell weui-cell_input">
@@ -220,46 +315,7 @@
             </radio-group>
           </div>
         </div>
-        <div class="page eidt-detail-images-container" v-if="hiddenActivityFeature">
-          <scroll-view scroll-y="true" style="width:100%">
-            <div>
-              <div class="wrapper">
-                <div class="toolbar" bindtap="format">
-                  <i class="iconfont icon-charutupian" bindtap="insertImage"></i>
-                  <i class="iconfont icon-format-header-1 {{formats.header === 1 ? 'ql-active' : ''}}" data-name="header" data-value="{{1}}"></i>
-                  <i class="iconfont icon-format-header-2 {{formats.header === 2 ? 'ql-active' : ''}}" data-name="header" data-value="{{2}}"></i>
-                  <i class="iconfont icon-format-header-3 {{formats.header === 3 ? 'ql-active' : ''}}" data-name="header" data-value="{{3}}"></i>
-                  <i class="iconfont icon-format-header-4 {{formats.header === 4 ? 'ql-active' : ''}}" data-name="header" data-value="{{4}}"></i>
-                  <i class="iconfont icon-format-header-5 {{formats.header === 5 ? 'ql-active' : ''}}" data-name="header" data-value="{{4}}"></i>
-                  <i class="iconfont icon-format-header-6 {{formats.header === 6 ? 'ql-active' : ''}}" data-name="header" data-value="{{4}}"></i>
-                  <i class="iconfont icon-zitijiacu {{formats.bold ? 'ql-active' : ''}}" data-name="bold"></i>
-                  <i class="iconfont icon-zitixieti {{formats.italic ? 'ql-active' : ''}}" data-name="italic"></i>
-                  <i class="iconfont icon-zitixiahuaxian {{formats.underline ? 'ql-active' : ''}}" data-name="underline"></i>
-                  <i class="iconfont icon-zitishanchuxian {{formats.strike ? 'ql-active' : ''}}" data-name="strike"></i>
-                  <i class="iconfont icon-zuoduiqi {{formats.align === 'left' ? 'ql-active' : ''}}" data-name="align" data-value="left"></i>
-                  <i class="iconfont icon-juzhongduiqi {{formats.align === 'center' ? 'ql-active' : ''}}" data-name="align" data-value="center"></i>
-                  <i class="iconfont icon-youduiqi {{formats.align === 'right' ? 'ql-active' : ''}}" data-name="align" data-value="right"></i>
-                  <i class="iconfont icon-zuoyouduiqi {{formats.align === 'justify' ? 'ql-active' : ''}}" data-name="align" data-value="justify"></i>
-                  <i class="iconfont icon-clearedformat" bindtap="removeFormat"></i>
-                  <i class="iconfont icon-font {{formats.fontFamily ? 'ql-active' : ''}}" data-name="fontFamily" data-value="Pacifico"></i>
-                  <i class="iconfont icon-fontsize {{formats.fontSize === '24px' ? 'ql-active' : ''}}" data-name="fontSize" data-value="24px"></i>
-                  <i class="iconfont icon-text_color {{formats.color === '#0000ff' ? 'ql-active' : ''}}" data-name="color" data-value="#0000ff"></i>
-                  <i class="iconfont icon-fontbgcolor {{formats.backgroundColor === '#00ff00' ? 'ql-active' : ''}}" data-name="backgroundColor" data-value="#00ff00"></i>
-                  <i class="iconfont icon-date" bindtap="insertDate"></i>
-                  <i class="iconfont icon--checklist" data-name="list" data-value="check"></i>
-                  <i class="iconfont icon-youxupailie {{formats.list === 'ordered' ? 'ql-active' : ''}}" data-name="list" data-value="ordered"></i>
-                  <i class="iconfont icon-wuxupailie {{formats.list === 'bullet' ? 'ql-active' : ''}}" data-name="list" data-value="bullet"></i>
-                  <i class="iconfont icon-fengexian" bindtap="insertDivider"></i>
-                  <i class="iconfont icon-undo" bindtap="undo"></i>
-                  <i class="iconfont icon-redo" bindtap="redo"></i>
-                  <i class="iconfont icon-shanchu" bindtap="clear"></i>
-                </div>
-                <editor id="editor" class="ql-container" placeholder="{{placeholder}}" showImgSize showImgToolbar showImgResize bindstatuschange="onStatusChange" read-only="{{readOnly}}" bindready="onEditorReady"></editor>
-              </div>
-            </div>
-          </scroll-view>
-        </div>
-        <div v-if=" errors.activity_desc " class="weui-cells__tips error-message">{{ errors.activity_desc[0] }}</div>
+        <div v-if=" errors.activity_feature_id " class="weui-cells__tips error-message">{{ errors.activity_feature_id[0] }}</div>
         <!-- 填写 活动特色 end -->
 
         <!-- 填写 手机号 start -->
@@ -595,7 +651,7 @@
 </template>
 <config>
   {
-    navigationBarTitleText: '发布活动',
+    navigationBarTitleText: '发布周期性模板',
   }
 </config>
 <script>
@@ -603,23 +659,37 @@
   import store from '@/store'
   import { mapGetters } from '@wepy/x'
   import { getClub } from '@/api/club'
-  import { createActivity } from '../../api/activity'
-  import { updateAvatar } from '@/api/user'
+  import { createActivityTemplate } from '../../api/activityTemplate'
   import util from '../../utils/util'
 
   wepy.page({
     store,
     data: {
-      formats: {},
-      readOnly: false,
-      placeholder: '请输入活动说明',
-      editorCtx: {},
-      hiddenActivityFeature: false,
+      weeks: [
+        { name: '1', value: '周一', checked: false },
+        { name: '2', value: '周二', checked: false },
+        { name: '3', value: '周三', checked: false },
+        { name: '4', value: '周四', checked: false },
+        { name: '5', value: '周五', checked: false },
+        { name: '6', value: '周六', checked: false },
+        { name: '7', value: '周日', checked: false }
+      ],
+      week_days: [],
+      prefix_title: [
+        { name: '1', value: '期数', checked: false },
+        { name: '2', value: '周几', checked: false },
+        { name: '3', value: '上下午,晚上', checked: false }
+      ],
+      pre_title_ids: [],
+      user_ids: [],
       activity_feature_id: 0,
       action_day: '',
       start_time: '',
+      join_start_time: '12:00',
       end_time: '',
       hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+      days: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      start_days: 3,
       end_join_hours: 2,
       end_cancel_hours: 12,
       latitude: '',
@@ -662,7 +732,7 @@
     },
     // 计算的属性
     computed: {
-      ...mapGetters([ 'isLoggedIn' ]),
+      ...mapGetters([ 'user', 'isLoggedIn' ]),
       canShow() {
         return wx.getStorageSync('platform') !== 'ios'
       },
@@ -687,12 +757,12 @@
       let end_time = new Date(timestamp + 4 * 60 * 60 * 1000)
       this.end_time = (end_time.getHours() < 10 ? ('0' + end_time.getHours()) : end_time.getHours()) + ':00'
       this.club_id = options.id
-      await this.loadClub(this.club_id)
-      if (this.club.activity_features.length > 1) {
-        this.activity_feature_id = this.club.activity_features[0].id
-      }
     },
     async onShow() {
+      await this.loadClub(this.club_id)
+      if (this.club.activity_features.length > 0) {
+        this.activity_feature_id = this.club.activity_features[0].id
+      }
     },
     methods: {
       // 表单提交
@@ -704,18 +774,18 @@
 
           formData.latitude = this.latitude
           formData.longitude = this.longitude
+          formData.pre_title_ids = this.pre_title_ids
+          formData.week_days = this.week_days
+          formData.start_join_days = this.start_days
+          formData.start_join_time = this.join_start_time
           formData.address = this.address
           formData.club_id = this.club_id
+          formData.user_id = this.user.id
+          formData.user_ids = this.user_ids
           formData.city_index = this.city_index
           formData.pay_type = this.pay_type
           formData.fee_type = this.fee_type
-          formData.activity_desc = null
           formData.activity_feature_id = this.activity_feature_id
-          if (this.activity_feature_id === '1') {
-            // 获取富文本编辑器内容
-            let editor_response = await this.editorCtx.getContents()
-            formData.activity_desc = editor_response.html
-          }
           if (this.canShow) {
             formData.money = (formData.money === '0.00' || !formData.money) ? 0 : formData.money
             formData.lady_discounts_money = (formData.lady_discounts_money === '0.00' || !formData.lady_discounts_money) ? 0 : formData.lady_discounts_money
@@ -737,7 +807,7 @@
           if (this.is_agree) {
             formData.is_agree = this.is_agree
           }
-          let editResponse = await createActivity(formData)
+          let editResponse = await createActivityTemplate(formData)
           // 请求成功，缓存用户数据
           if (editResponse.statusCode === 201) {
             util.success('发布成功')
@@ -757,7 +827,8 @@
       // 获取俱乐部数据
       async loadClub(id) {
         const response = await getClub(id, {
-          include: 'user,activity-features'
+          include: 'user,activity-features',
+          hiddenTitle: true
         })
         let club = this.club = response.data
         this.region = [club.province, club.city, club.area]
@@ -787,7 +858,6 @@
       async chooseMap() {
         let map = await wx.chooseLocation()
         if (map.errMsg === 'chooseLocation:ok') {
-          console.log(map)
           this.address = map.address
           this.latitude = map.latitude
           this.longitude = map.longitude
@@ -797,6 +867,12 @@
         wx.navigateTo({
           url: '/pages/activityFeature/index?id=' + this.club_id
         })
+      },
+      weekChange: function (e) {
+        this.week_days = e.$wx.detail.value
+      },
+      preTitleChange: function (e) {
+        this.pre_title_ids = e.$wx.detail.value
       },
       payTypeChange: function (e) {
         this.pay_type = e.$wx.detail.value
@@ -808,9 +884,8 @@
         this.activity_feature_id = e.$wx.detail.value
         this.hiddenActivityFeature = this.activity_feature_id === '1'
       },
-      bindDateChange(e) {
-        this.action_day = e.$wx.detail.value
-        this.week_day = util.weekFormat(this.action_day)
+      bindStartJoinTimeChange(e) {
+        this.join_start_time = e.$wx.detail.value
       },
       bindStartTimeChange(e) {
         this.start_time = e.$wx.detail.value
@@ -826,13 +901,9 @@
       },
       bindEndTimeChange(e) {
         this.end_time = e.$wx.detail.value
-        // let new_date = this.action_day + ' ' + this.end_time;
-        // let format = new_date.replace(/-/g, '/');
-        // 同时改变开始时间
-        // let timestamp = Date.parse(new Date(format));
-        // let start_time = new Date(timestamp - 2 * 60 * 60 * 1000);
-        // let start_minutes = start_time.getMinutes() < 10 ? ('0' + start_time.getMinutes()) : start_time.getMinutes();
-        // this.start_time = (start_time.getHours() < 10 ? ('0' + start_time.getHours()) : start_time.getHours()) + ":" + start_minutes;
+      },
+      bindStartDaysChange(e) {
+        this.start_days = e.$wx.detail.value
       },
       bindEndJoinHoursChange(e) {
         this.end_join_hours = e.$wx.detail.value
@@ -863,79 +934,6 @@
       },
       bindLadyMemberDiscounts(e) {
         this.is_lady_member_discounts = e.$wx.detail.value
-      },
-      // 编辑器开始
-      readOnlyChange() {
-        this.readOnly = !this.readOnly
-      },
-      onEditorReady() {
-        const that = this
-        wx.createSelectorQuery().select('#editor').context(function (res) {
-          that.editorCtx = res.context
-        }).exec()
-      },
-      blur() {
-        this.editorCtx.blur()
-      },
-      format(e) {
-        let { name, value } = e.$wx.target.dataset
-        if (!name) return
-        this.editorCtx.format(name, value)
-      },
-      onStatusChange(e) {
-        // this.editorCtx.scrollIntoView()
-        const formats = e.$wx.detail
-        this.formats = formats
-      },
-      insertDivider() {
-        this.editorCtx.insertDivider({
-          success: function () {
-          }
-        })
-      },
-      clear() {
-        this.editorCtx.clear({
-          success: function (res) {
-          }
-        })
-      },
-      removeFormat() {
-        this.editorCtx.removeFormat()
-      },
-      insertDate() {
-        const date = new Date()
-        const formatDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-        this.editorCtx.insertText({
-          text: formatDate
-        })
-      },
-      undo(e) {
-        this.editorCtx.undo()
-      },
-      redo(e) {
-        this.editorCtx.redo()
-      },
-      async insertImage() {
-        const that = this
-        let image = await wepy.wx.chooseImage({count: 1})
-        try {
-          // 获取选择的图片
-          let avatar = image.tempFilePaths[0]
-          // 调用上传图片接口
-          let imageResponse = await updateAvatar(avatar, 'editor')
-          // 小程序上传结果没有做 JSON.parse，需要手动处理
-          let responseData = JSON.parse(imageResponse.data)
-          that.editorCtx.insertImage({
-            src: responseData.path,
-            data: {
-              id: 'abcd',
-              role: 'god'
-            },
-            width: '80%',
-            success: function () {
-            }
-          })
-        } catch (err) {}
       }
     }
   })

@@ -196,10 +196,10 @@
     <div class="weui-cells weui-cells_after-title">
       <div class="weui-cell weui-cell_input">
         <div class="weui-cell__bd">
-          <input class="weui-input" placeholder="请输入详细地址" name="address" value="{{ club.address }}" />
+          {{ address }}
         </div>
-        <div v-if=" errors.address " class="weui-cell__ft">
-          <icon type="warn" size="23" color="#E64340"></icon>
+        <div class="weui-cell__ft">
+          <div class="weui-vcode-btn" @tap="chooseMap">在地图选择地址</div>
         </div>
       </div>
     </div>
@@ -239,22 +239,6 @@
     </div>
     <div v-if=" errors.traffic_info " class="weui-cells__tips error-message">{{ errors.traffic_info[0] }}</div>
     <!-- 填写 交通信息 end -->
-
-
-    <div class="weui-cells__title"><text class="error-message">*</text>经纬度</div>
-    <div class="weui-cells weui-cells_after-title">
-      <div class="weui-cell weui-cell_input">
-        <div class="weui-cell__bd">
-          {{ latitude }},{{ longitude }}
-
-        </div>
-        <div class="weui-cell__ft">
-          <div class="weui-vcode-btn" @tap="chooseMap">选择地图</div>
-        </div>
-      </div>
-    </div>
-    <!-- 详细地址错误信息 -->
-    <div v-if=" errors.latitude " class="weui-cells__tips error-message">{{ errors.latitude[0] }}</div>
 
     <!-- 填写 支付方式 start -->
     <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
@@ -476,6 +460,7 @@
       editorCtx: {},
       latitude: '',
       longitude: '',
+      address: '',
       province: '',
       city: '',
       area: '',
@@ -534,6 +519,7 @@
         this.area = club.area
         this.longitude = club.longitude
         this.latitude = club.latitude
+        this.address = club.address
 
         this.is_show_near = club.is_show_near
         this.is_show_phone = club.is_show_phone
@@ -583,6 +569,7 @@
           formData.area = this.area
           formData.latitude = this.latitude
           formData.longitude = this.longitude
+          formData.address = this.address
           formData.pay_type = this.pay_type
           formData.fee_type = this.fee_type
           if (this.canShow) {
@@ -630,6 +617,7 @@
       async chooseMap() {
         let map = await wx.chooseLocation()
         if (map.errMsg === 'chooseLocation:ok') {
+          this.address = map.address
           this.latitude = map.latitude
           this.longitude = map.longitude
         }

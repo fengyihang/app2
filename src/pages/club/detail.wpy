@@ -55,7 +55,6 @@
       </div>
       <div class="topic-title">
         <div class="page__title">{{ club.title }}</div>
-        <div><text class="iconfont icon-dizhi"></text>地区：{{ club.province }}{{ club.city }}{{ club.area }}</div>
         <div><text class="iconfont icon-dingwei1"></text>地址：{{ club.address }}<text class="iconfont icon-dingwei" @tap="map"></text></div>
         <div wx:if="{{ club.phone }}"><text class="iconfont icon-icon_phone"></text>手机：{{  club.phone }}</div>
         <div wx:if="{{ club.wechat }}"><text class="iconfont icon-weixin"></text>微信：{{  club.wechat }}</div>

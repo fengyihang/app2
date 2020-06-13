@@ -230,7 +230,9 @@ wepy.app({
     'pages/activityFeature/index',
     'pages/activityFeature/create',
     'pages/activityFeature/edit',
-    'pages/activityFeature/new'
+    'pages/activityTemplate/index',
+    'pages/activityTemplate/create',
+    'pages/activityTemplate/edit'
   ],
   window: {
     backgroundTextStyle: 'light',

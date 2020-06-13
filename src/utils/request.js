@@ -33,7 +33,7 @@ const request = async (url, options = {}, showLoading = true) => {
       return
     }
     console.log(response.data.message)
-    if (response.data.message === '您已长时间未登录,请重新登录') {
+    if (response.data.message === '您已长时间未登录,请重新登录' || response.data.message === '登录已失效,请重新登录!') {
       wx.removeStorageSync('access_token')
       wx.removeStorageSync('access_token_expired_at')
       return wx.removeStorageSync('user')
@@ -41,6 +41,13 @@ const request = async (url, options = {}, showLoading = true) => {
     wx.showModal({
       title: '提示',
       content: response.data.message
+    })
+  }
+
+  if (response.statusCode === 422) {
+    wx.showModal({
+      title: '提示',
+      content: '提交是数据有误,请检查'
     })
   }
 

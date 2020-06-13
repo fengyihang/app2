@@ -110,7 +110,7 @@
               <div class="weui-label"><text class="error-message">*</text>结束时间</div>
             </div>
             <div class="weui-cell__bd">
-              <picker class="weui-input" mode="time" name="end_time" value="{{ end_time }}" start="08:00" end="23:59" bindchange="bindEndTimeChange">
+              <picker class="weui-input" mode="time" name="end_time" value="{{ end_time }}" start="06:00" end="23:59" bindchange="bindEndTimeChange">
                 <div class="picker">
                   {{ end_time }}
                 </div>
@@ -179,23 +179,6 @@
         </div>
         <div v-if=" errors.count " class="weui-cells__tips error-message">{{ errors.count[0] }}</div>
         <!-- 填写 活动人数 end -->
-
-        <!-- 填写 侯补人数 start -->
-        <div class="weui-cells weui-cells_after-title">
-          <div class="weui-cell weui-cell_input">
-            <div class="weui-cell__hd">
-              <div class="weui-label"><text class="error-message">*</text>侯补人数</div>
-            </div>
-            <div class="weui-cell__bd">
-              <input class="weui-input" type="number" name="wait_count" placeholder="请输入侯补人数"  value="{{ activity.wait_count }}" />
-            </div>
-            <div v-if=" errors.wait_count " class="weui-cell__ft">
-              <icon type="warn" size="23" color="#E64340"/>
-            </div>
-          </div>
-        </div>
-        <div v-if=" errors.wait_count " class="weui-cells__tips error-message">{{ errors.wait_count[0] }}</div>
-        <!-- 填写 侯补人数 end -->
 
         <!-- 填写 是否加场 start -->
         <div class="weui-cells weui-cells_after-title">
@@ -340,19 +323,18 @@
         <!-- 填写 显示微信号 end -->
 
         <!-- 填写 详细地址 start -->
+        <div class="weui-cells__title"><text class="error-message">*</text>详细地址</div>
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell weui-cell_input">
-            <div class="weui-cell__hd">
-              <div class="weui-label"><text class="error-message">*</text>详细地址</div>
-            </div>
             <div class="weui-cell__bd">
-              <input class="weui-input" name="address" placeholder="请输入详细地址" value="{{ activity.address }}"/>
+              {{ address }}
             </div>
-            <div v-if=" errors.address " class="weui-cell__ft">
-              <icon type="warn" size="23" color="#E64340"/>
+            <div class="weui-cell__ft">
+              <div class="weui-vcode-btn" @tap="chooseMap">在地图选择地址</div>
             </div>
           </div>
         </div>
+        <!-- 详细地址错误信息 -->
         <div v-if=" errors.address " class="weui-cells__tips error-message">{{ errors.address[0] }}</div>
         <!-- 填写 详细地址 end -->
 
@@ -389,22 +371,6 @@
         </div>
         <div v-if=" errors.traffic_info " class="weui-cells__tips error-message">{{ errors.traffic_info[0] }}</div>
         <!-- 填写 交通信息 end -->
-
-        <div class="weui-cells__title"><text class="error-message">*</text>经纬度</div>
-        <div class="weui-cells weui-cells_after-title">
-          <div class="weui-cell weui-cell_input">
-            <div class="weui-cell__bd">
-              {{ latitude }},{{ longitude }}
-
-            </div>
-            <div class="weui-cell__ft">
-              <div class="weui-vcode-btn" @tap="chooseMap">选择地图</div>
-            </div>
-          </div>
-        </div>
-        <!-- 详细地址错误信息 -->
-        <div v-if=" errors.address " class="weui-cells__tips error-message">{{ errors.address[0] }}</div>
-
 
         <!-- 填写 支付方式 start -->
         <div class="weui-cells weui-cells_after-title" v-if=" canShow ">
@@ -661,6 +627,7 @@
       longitude: '',
       latitude2: 0,
       longitude2: 0,
+      address: '',
       city_index: '',
       // 错误信息
       errors: null,
@@ -719,8 +686,7 @@
 
           formData.activity_desc = null
           formData.activity_feature_id = this.activity_feature_id
-          console.log(typeof this.activity_feature_id)
-          if (this.activity_feature_id === '1') {
+          if (this.activity_feature_id === '1' || this.activity_feature_id === 1) {
             // 获取富文本编辑器内容
             let editor_response = await this.editorCtx.getContents()
             formData.activity_desc = editor_response.html
@@ -728,6 +694,7 @@
 
           formData.latitude = this.latitude
           formData.longitude = this.longitude
+          formData.address = this.address
           formData.is_show_phone = this.is_show_phone ? 1 : 0
           formData.is_show_wechat = this.is_show_wechat ? 1 : 0
           formData.is_show_near = this.is_show_near ? 1 : 0
@@ -804,6 +771,7 @@
         this.is_show_wechat = activity.is_show_wechat
         this.latitude = activity.latitude
         this.longitude = activity.longitude
+        this.address = activity.address
         this.pay_type = activity.pay_type
         this.fee_type = activity.fee_type
         this.is_show_near = activity.is_show_near
@@ -825,6 +793,7 @@
       async chooseMap() {
         let map = await wx.chooseLocation()
         if (map.errMsg === 'chooseLocation:ok') {
+          this.address = map.address
           this.latitude = map.latitude
           this.longitude = map.longitude
         }

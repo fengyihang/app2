@@ -10,6 +10,7 @@
     </div>
     <div class="weui-cell__bd">
       {{ activity_user.user.name }}
+      <text v-if="activity_user.remark">({{ activity_user.remark }})</text>
       <text v-if="activity_user.sex === 2 " class="iconfont icon-nv"></text>
       <text v-else class="iconfont icon-nan"></text>
       <text v-if="activity_user.is_double_place === 1 " class="iconfont icon-B"></text>
@@ -19,8 +20,8 @@
       <text class="iconfont icon-hou" v-if="activity_user.status === 5"></text>
     </div>
     <!-- 主订单标志 -->
-   <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" is_admin && activity_user.pid === 0"></text> {{ activity_user.remark || '' }}</div>
-    <div class="weui-cell__ft">{{ activity_user.remark || '' }}</div>
+   <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" is_admin && activity_user.pid === 0"></text></div>
+
     <!-- 待确认标志 -->
     <div v-if=" activity_user.user_id === user.id && activity_user.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
     <!-- 取消订单 -->

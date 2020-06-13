@@ -5,12 +5,6 @@
     padding: 20rpx 0rpx;
     border-bottom: 1px solid #efefef
   }
-  .image_box {
-    image {
-      width: 180rpx;
-      height: 180rpx;
-    }
-  }
   .product_name {
     color: #414141;
     font-size: 32rpx;
@@ -94,7 +88,7 @@
       <div class="weui-cell__ft"><text class="iconfont icon-zhu" v-if=" item.pid === 0 "></text> {{ user.remark ? user.remark : '' }}</div>
       <div v-if=" syncIsClubAdmin && item.status === 2 "><text class="iconfont icon-daiqueren"></text> </div>
       <div v-if=" syncIsClubAdmin && item.status === 2 " @tap="confirm" data-id="{{ item.id }}" data-user_name="{{ item.user.name }}"><text class="iconfont icon-queren"></text> </div>
-      <div v-if=" syncIsClubAdmin && item.status === 0 && activity.status === 6" @tap="setPaid" data-id="{{ item.id }}" data-user_name="{{ item.user.name }}"><text class="iconfont icon-shouqianba"></text> </div>
+      <div v-if=" syncIsClubAdmin && item.status === 0 && activity.status === 6" @tap="setPaid" data-id="{{ item.id }}" data-user_name="{{ item.user.name }}"><text class="iconfont icon-shou"></text> </div>
       <div v-if=" syncIsClubAdmin && (item.status === 1 || item.status === 0 || item.status === 5 || item.status === 10) &&  activity.status < 7" @tap="showEditActivityUser" data-id="{{ item.id }}" data-sex="{{ item.sex }}" data-is_double_place="{{ item.is_double_place }}" data-username="{{ item.user.name }}" data-status="{{ item.status }}"><text class="iconfont icon-chuangzuo"></text> </div>
       <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{item.id}}" data-pid="{{ item.pid }}" data-user_name="{{ item.user.name }}" v-if=" (item.status === 1 || item.status === 2 || item.status === 5) &&  activity.status < 6">
         <text class="iconfont icon-reeor"></text>

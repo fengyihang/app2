@@ -124,8 +124,8 @@
       <div class="topic-title">
         <div class="weui-flex">
           <div class="weui-flex__item">
-            <div class="placeholder">
-              <text class="iconfont icon-dingwei1"></text>{{ activity.address }}<text class="iconfont icon-dingwei" @tap="map"></text>
+            <div class="placeholder" @tap="map">
+              <text class="iconfont icon-dingwei1"></text>{{ activity.address }}<text class="iconfont icon-dingwei"></text>
             </div>
           </div>
         </div>
@@ -216,10 +216,10 @@
           </div>
         </div>
         <div class="weui-flex" v-if="activity.status < 3">
-          <div class="weui-cells__title weui-cell_warn" v-if=" activity.is_double_place && (remainNormalCount > 0 ||  remainDoubleCount > 0 ||  remainOnlyDoubleCount > 0)">
+          <div class="placeholder weui-cell_warn" v-if=" remainNormalCount > 0 ||  remainDoubleCount > 0 ||  remainOnlyDoubleCount > 0">
             还有:
           </div>
-          <div class="weui-cells__title weui-cell_warn" v-else>
+          <div class="placeholder weui-cell_warn" v-else>
             可报名候补
           </div>
           <div class="weui-flex__item" v-if=" !activity.is_double_place && remainNormalCount > 0">
@@ -249,7 +249,7 @@
             </div>
           </scroll-view>
       </div>
-      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }} <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
+      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }} <text v-if="activity.is_double_place && activity.double_counts">连场：{{ activity.double_counts }}；</text> <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
       <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加时场</div>
       <div class="weui-cells weui-cells_after-title">
         <activity-user-list v-if="activity.activity_users" :activity_users="activity.activity_users" :platform="platform" :user="user" :activity="activity" :isJoinedActivity="is_joined_activity" :is_admin="is_admin"></activity-user-list>
@@ -510,9 +510,13 @@
         if (count1 < 1) {
           return 0
         }
+        let count2 = this.activity.count - this.activity.normal_counts - this.activity.double_counts
+        if (count2 < 1) {
+          return 0
+        }
         // 加场位置剩余
-        let count2 = this.activity.double_count - this.activity.only_double_counts - this.activity.double_counts
-        return count1 > count2 ? count2 : count1
+        let count3 = this.activity.double_count - this.activity.only_double_counts - this.activity.double_counts
+        return count1 > count3 ? count3 : count1
       },
       // 剩余加场数
       remainOnlyDoubleCount() {
@@ -553,6 +557,12 @@
       }
     },
     methods: {
+      upper(e) {
+      },
+      lower(e) {
+      },
+      scroll(e) {
+      },
       async getUserInfo(e) {
         let id = e.$wx.currentTarget.dataset.id
         this.username = e.$wx.currentTarget.dataset.username

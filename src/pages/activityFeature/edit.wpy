@@ -228,7 +228,6 @@
           let avatar = image.tempFilePaths[0]
           // 调用上传图片接口
           let imageResponse = await updateAvatar(avatar, 'editor')
-          console.log(imageResponse)
           // 小程序上传结果没有做 JSON.parse，需要手动处理
           let responseData = JSON.parse(imageResponse.data)
           that.editorCtx.insertImage({

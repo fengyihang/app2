@@ -102,7 +102,7 @@
       <div class="weui-cell__ft" @tap="cancelActivityUser" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" (activityUser.activity.status === 1 && activityUser.user_id === user.id && (activityUser.status === 1 || activityUser.status === 0 )) ">
         <text class="iconfont icon-reeor"></text>
       </div>
-      <div class="weui-cell__ft" @tap="pay" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" activityUser.activity.status === 1 && activityUser.status === 0  && !activityUser.pid "><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
+      <div class="weui-cell__ft" @tap="pay" data-id="{{ activityUser.id }}" data-pid="{{ activityUser.pid }}" v-if=" activityUser.status === 0 && activityUser.pay_type === 1 && !activityUser.pid "><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
     </div>
   </div>
 </template>

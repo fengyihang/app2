@@ -161,30 +161,16 @@
     <div class="weui-cells weui-cells_after-title">
       <div class="weui-cell weui-cell_input">
         <div class="weui-cell__bd">
-          <input class="weui-input" placeholder="请输入详细地址" name="address" bindinput="keyAddress" value="{{ user.address }}" />
+          {{ address }}
         </div>
-        <div v-if=" errors.address " class="weui-cell__ft">
-          <icon type="warn" size="23" color="#E64340"></icon>
+        <div class="weui-cell__ft">
+          <div class="weui-vcode-btn" @tap="chooseMap">在地图选择地址</div>
         </div>
       </div>
     </div>
     <!-- 详细地址错误信息 -->
     <div v-if=" errors.address " class="weui-cells__tips error-message">{{ errors.address[0] }}</div>
 
-    <div class="weui-cells__title"><text class="error-message">*</text>经纬度</div>
-    <div class="weui-cells weui-cells_after-title">
-      <div class="weui-cell weui-cell_input">
-        <div class="weui-cell__bd">
-          {{ latitude }},{{ longitude }}
-
-        </div>
-        <div class="weui-cell__ft">
-          <div class="weui-vcode-btn" @tap="chooseMap">选择地图</div>
-        </div>
-      </div>
-    </div>
-    <!-- 详细地址错误信息 -->
-    <div v-if=" errors.latitude " class="weui-cells__tips error-message">{{ errors.latitude[0] }}</div>
 
     <div class="weui-cells weui-cells_after-title">
       <div class="weui-cell  weui-cell_switch">
@@ -260,6 +246,7 @@
       async chooseMap() {
         let map = await wx.chooseLocation()
         if (map.errMsg === 'chooseLocation:ok') {
+          this.address = map.address
           this.latitude = map.latitude
           this.longitude = map.longitude
         }
@@ -273,14 +260,8 @@
       keyTitle(e) {
         this.title = e.$wx.detail.value
       },
-      keyDesc(e) {
-        this.desc = e.$wx.detail.value
-      },
       keyWechat(e) {
         this.wechat = e.$wx.detail.value
-      },
-      keyAddress(e) {
-        this.address = e.$wx.detail.value
       },
       bindAgreeChange(e) {
         this.is_agree = !!e.$wx.detail.value.length

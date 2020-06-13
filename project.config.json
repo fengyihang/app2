@@ -101,13 +101,6 @@
 					"scene": null
 				},
 				{
-					"id": 7,
-					"name": "pages/activityUser/clubIndex",
-					"pathName": "pages/activityUser/clubIndex",
-					"query": "id=1",
-					"scene": null
-				},
-				{
 					"id": 8,
 					"name": "pages/activity/edit",
 					"pathName": "pages/activity/edit",
@@ -122,24 +115,24 @@
 					"scene": null
 				},
 				{
-					"id": 10,
-					"name": "pages/activityFeature/new",
-					"pathName": "pages/activityFeature/new",
-					"query": "id=2",
+					"id": -1,
+					"name": "pages/activityTemplate/create",
+					"pathName": "pages/activityTemplate/create",
+					"query": "id=1&is_share=1",
 					"scene": null
 				},
 				{
-					"id": 11,
-					"name": "pages/activityFeature/create",
-					"pathName": "pages/activityFeature/create",
+					"id": -1,
+					"name": "pages/activityTemplate/index",
+					"pathName": "pages/activityTemplate/index",
 					"query": "id=1",
 					"scene": null
 				},
 				{
-					"id": 12,
-					"name": "pages/activityFeature/edit",
-					"pathName": "pages/activityFeature/edit",
-					"query": "id=2",
+					"id": -1,
+					"name": "pages/activityTemplate/edit",
+					"pathName": "pages/activityTemplate/edit",
+					"query": "id=1",
 					"scene": null
 				}
 			]
