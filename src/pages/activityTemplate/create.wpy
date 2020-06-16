@@ -757,12 +757,12 @@
       let end_time = new Date(timestamp + 4 * 60 * 60 * 1000)
       this.end_time = (end_time.getHours() < 10 ? ('0' + end_time.getHours()) : end_time.getHours()) + ':00'
       this.club_id = options.id
-    },
-    async onShow() {
       await this.loadClub(this.club_id)
       if (this.club.activity_features.length > 0) {
         this.activity_feature_id = this.club.activity_features[0].id
       }
+    },
+    async onShow() {
     },
     methods: {
       // 表单提交

@@ -85,7 +85,7 @@
           this.loadData(true)
         } else if (cur === 1) {
           console.log('待开始')
-          that.orderStatus = 0
+          that.orderStatus = 1
           this.loadData(true)
         } else if (cur === 2) {
           console.log('待结算')

@@ -249,7 +249,7 @@
             </div>
           </scroll-view>
       </div>
-      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text>已报:{{ activity.joined_count }}/{{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }} <text v-if="activity.is_double_place && activity.double_counts">连场：{{ activity.double_counts }}；</text> <text v-if="activity.is_double_place">加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
+      <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text><text v-if="!activity.is_double_place">已报:{{ activity.joined_count }}/{{ activity.count }}</text> <text v-if="activity.is_double_place"> 已报:{{ activity.joined_count }}/{{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }}</text>  <text v-if="activity.is_double_place && activity.count - remainNormalCount > 0"> 常规：{{ activity.count - remainNormalCount }}；</text> <text v-if="activity.is_double_place && activity.double_counts"> 连场：{{ activity.double_counts }}；</text> <text v-if="activity.is_double_place"> 加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
       <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加时场</div>
       <div class="weui-cells weui-cells_after-title">
         <activity-user-list v-if="activity.activity_users" :activity_users="activity.activity_users" :platform="platform" :user="user" :activity="activity" :isJoinedActivity="is_joined_activity" :is_admin="is_admin"></activity-user-list>
@@ -820,6 +820,7 @@
         if (this.myself) {
           formData.myself = true
         }
+        let that = this
         try {
           let codeResponse = await joinActivity(this.activity.id, formData)
           // 验证码错误提示
@@ -852,12 +853,7 @@
                 signType: 'MD5',
                 paySign: codeResponse.data.paySign,
                 success: function (res) {
-                  console.log('支付成功')
-                  setTimeout(() => {
-                    // 支付成功 关闭loadding 跳转到支付成功页面
-                    wx.hideLoading()
-                    this.reload()
-                  }, 2000)
+                  util.success('报名成功')
                 },
                 fail: function (res) {
                   wx.showToast({
@@ -865,11 +861,23 @@
                     icon: 'warn',
                     duration: 2000
                   })
+                },
+                complete(res) {
+                  that.reload(that.activity.id)
+                }
+              })
+            } else {
+              await wx.requestSubscribeMessage({
+                tmplIds: ['rwAOmb-72mJUc8QKVrbIhpowWNMJTOh_o6yRHbsWYOs'],
+                success (res) {
+                  util.success('报名成功')
+                },
+                complete (res) {
+                  // refreshPages.push(page.route)
+                  that.reload(that.activity.id)
                 }
               })
             }
-            // refreshPages.push(page.route)
-            await this.reload(this.activity.id)
           }
         } catch (err) {
           util.error('系统繁忙,请稍后重试')
