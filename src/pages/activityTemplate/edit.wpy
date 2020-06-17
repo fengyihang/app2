@@ -239,6 +239,23 @@
         <div v-if=" errors.end_cancel_hours " class="weui-cells__tips error-message">{{ errors.end_cancel_hours[0] }}</div>
         <!-- 填写 开始前几个小时不允许取消 end -->
 
+        <!-- 填写 固定报名 start -->
+        <div class="weui-cells__title">固定报名</div>
+        <div class="weui-cells weui-cells_after-title">
+          <div class="weui-cells">
+            <div class="weui-cell weui-cell_active">
+              <text class="iconfont icon-add-account" @tap="showAddActivityTemplateUser"></text>
+              <div class="weui-cell__hd" style="position: relative; margin-right: 10px;"  v-for="searchUser in users" :key="searchUser.id">
+                <image src="{{ searchUser.avatar }}" style="margin-right: 5px;vertical-align: middle;width:50px; height: 50px;"/>
+                <text class="weui-badge" style="position: absolute; top: -0.4em; right: -0.4em;" data-index="{{ index }}" data-id="{{ searchUser.id }}" data-username="{{ searchUser.name }}" data-avatar="{{ searchUser.avatar }}" @tap="delUser">x</text>
+                <div class="weui-tabbar__label">{{ searchUser.name }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="weui-cells__tips">每次活动都参加的人</div>
+        </div>
+        <!-- 填写 固定报名 end -->
+
         <!-- 填写 活动人数 start -->
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell weui-cell_input">
@@ -635,6 +652,54 @@
         </div>
       </form>
     </div>
+    <!-- 固定报名搜索框 -->
+    <modal class="modal" hidden="{{ helpModalHidden }}" bindcancel="cancelHelpJoin"  bindconfirm="cancelHelpJoin">
+      <div class="weui-cells searchbar-result" v-if="users.length > 0">
+        <div class="weui-cell weui-cell_active weui-cell_access" v-for="searchUser in users" :key="searchUser.id">
+          <div class="weui-cell__bd weui-cell_primary">
+            <div class="weui-cell weui-cell_active weui-cell_vcode">
+              <div class="weui-cell__hd">
+                <image src="{{ searchUser.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>{{ searchUser.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="weui-search-bar {{ inputShowed ? 'weui-search-bar_focusing' : ''}}" id="searchBar">
+        <form class="weui-search-bar__form">
+          <div  class="weui-search-bar__box">
+            <i class="weui-icon-search"></i>
+            <input type="text" class="weui-search-bar__input" placeholder="搜索用户昵称" value="{{keyword}}" focus="{{inputShowed}}" bindinput="inputTyping" />
+            <span class="weui-icon-clear" v-if="keyword.length > 0" bindtap="clearInput"></span>
+          </div>
+          <label class="weui-search-bar__label" @tap="showInput">
+            <i class="weui-icon-search"></i>
+            <span class="weui-search-bar__text">搜索</span>
+          </label>
+        </form>
+        <!--        <div class="weui-search-bar__cancel-btn" @tap="hideInput">取消</div>-->
+        <div class="weui-search-bar-btn" @tap="search">搜索</div>
+      </div>
+      <div class="weui-cells searchbar-result" v-if="searchUsers.length > 0">
+        <div class="weui-cell weui-cell_active weui-cell_access" v-for="searchUser in searchUsers" :key="searchUser.id">
+          <div class="weui-cell__bd weui-cell_primary">
+            <div class="weui-cell weui-cell_active weui-cell_vcode">
+              <div class="weui-cell__hd">
+                <image src="{{ searchUser.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>{{ searchUser.name }}
+              </div>
+              <div class="weui-btn weui-btn_mini weui-btn_primary" data-index="{{ index }}" data-id="{{ searchUser.id }}" data-username="{{ searchUser.name }}" data-avatar="{{ searchUser.avatar }}" @tap="addUserToUsers">添加</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="weui-cells searchbar-result" v-if="searchResult">
+        <div class="weui-cell weui-cell_active weui-cell_access">
+          <div class="weui-cell__bd weui-cell_warn">
+            <div>用户不存在哦</div>
+          </div>
+        </div>
+      </div>
+    </modal>
   </div>
 </template>
 <config>
@@ -648,10 +713,16 @@
   import { mapGetters } from '@wepy/x'
   import util from '../../utils/util'
   import { getActivityTemplate, updateActivityTemplate } from '../../api/activityTemplate'
+  import { searchClubUsers } from '../../api/clubUser'
 
   wepy.page({
     store,
     data: {
+      helpModalHidden: true,
+      inputShowed: false,
+      keyword: '',
+      searchUsers: [],
+      searchResult: false,
       weeks: [
         { name: '1', value: '周一', checked: false },
         { name: '2', value: '周二', checked: false },
@@ -668,7 +739,10 @@
         { name: '3', value: '上下午,晚上', checked: false }
       ],
       pre_title_ids: [],
+      users: [],
       user_ids: [],
+      old_user_ids: [],
+      new_user_ids: [],
       hiddenSearchUser: false,
       activity_feature_id: 0,
       action_day: '',
@@ -753,6 +827,8 @@
           formData.start_join_time = this.join_start_time
           formData.address = this.address
           formData.user_ids = this.user_ids
+          formData.old_user_ids = this.old_user_ids
+          formData.new_user_ids = this.new_user_ids
           formData.is_show_phone = this.is_show_phone ? 1 : 0
           formData.is_show_wechat = this.is_show_wechat ? 1 : 0
           formData.is_show_near = this.is_show_near ? 1 : 0
@@ -807,7 +883,7 @@
       // 获取活动模板数据
       async loadActivityTemplate(id) {
         const response = await getActivityTemplate(id, {
-          include: 'user,club'
+          include: 'activityTemplateUser,activityTemplateUser.user'
         })
         let activityTemplate = response.data
 
@@ -830,6 +906,7 @@
         this.week_days = activityTemplate.week_days.split(',')
         this.city_index = activityTemplate.city_index
         this.status = activityTemplate.status
+        this.club_id = activityTemplate.club_id
         this.start_days = activityTemplate.start_join_days
         this.join_start_time = activityTemplate.start_join_time
         this.address = activityTemplate.address
@@ -867,6 +944,15 @@
             this.weeks[j].checked = true
           }
         }
+        for (let i = 0; activityTemplate.activity_template_user.length > i; i++) {
+          this.users.push({
+            'id': activityTemplate.activity_template_user[i].user.id,
+            'name': activityTemplate.activity_template_user[i].user.name,
+            'avatar': activityTemplate.activity_template_user[i].user.avatar
+          })
+          this.user_ids.push(activityTemplate.activity_template_user[i].user.id)
+          this.old_user_ids.push(activityTemplate.activity_template_user[i].user.id)
+        }
       },
       async chooseMap() {
         let map = await wx.chooseLocation()
@@ -875,6 +961,88 @@
           this.latitude = map.latitude
           this.longitude = map.longitude
         }
+      },
+      // 打开代报名窗口
+      showAddActivityTemplateUser() {
+        // 未登录跳转到登录页面
+        if (!this.isLoggedIn) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+        }
+        this.helpModalHidden = false
+        this.inputShowed = true
+        this.is_help = true
+      },
+      // 点击报名弹框的取消按钮
+      cancelHelpJoin(e) {
+        this.helpModalHidden = true
+        this.inputShowed = false
+        this.searchResult = false
+        this.is_help = false
+      },
+      addUserToUsers(e) {
+        let index = e.$wx.target.dataset.index
+        // eslint-disable-next-line camelcase
+        let user_id = e.$wx.target.dataset.id
+        let name = e.$wx.target.dataset.username
+        let avatar = e.$wx.target.dataset.avatar
+        if (!this.user_ids.includes(user_id)) {
+          let user = {
+            'user_id': user_id,
+            'name': name,
+            'avatar': avatar
+          }
+          this.users.push(user)
+          this.user_ids.push(user_id)
+          this.new_user_ids.push(user_id)
+        }
+        this.searchUsers.splice(index, 1)
+      },
+      delUser(e) {
+        let index = e.$wx.target.dataset.index
+        // eslint-disable-next-line camelcase
+        let user_id = e.$wx.target.dataset.id
+        this.users.splice(index, 1)
+        console.log(this.user_ids)
+        for (let i = 0; i < this.user_ids.length; i++) {
+          // eslint-disable-next-line camelcase
+          if (this.user_ids[i] === user_id) {
+            this.user_ids.splice(i, 1)
+          }
+        }
+        for (let j = 0; j < this.new_user_ids.length; j++) {
+          // eslint-disable-next-line camelcase
+          if (this.new_user_ids[j] === user_id) {
+            this.new_user_ids.splice(j, 1)
+          }
+        }
+      },
+      // 搜索俱乐部会员
+      async search() {
+        const response = await searchClubUsers(this.club_id, {
+          // include: 'user',
+          keyword: this.keyword
+        })
+        let searchUsers = this.searchUsers = response.data.data
+        if (searchUsers.length > 0) {
+          this.searchUsers = searchUsers
+        } else {
+          this.searchResult = true
+        }
+      },
+      showInput: function () {
+        this.inputShowed = true
+      },
+      hideInput: function () {
+        this.inputShowed = false
+        this.keyword = ''
+      },
+      clearInput: function () {
+        this.keyword = ''
+      },
+      inputTyping: function (e) {
+        this.keyword = e.$wx.detail.value
       },
       weekChange: function (e) {
         this.week_days = e.$wx.detail.value

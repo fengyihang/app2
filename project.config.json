@@ -19,6 +19,7 @@
 			"disablePlugins": [],
 			"outputPath": ""
 		},
+		"useIsolateContext": true,
 		"useCompilerModule": false,
 		"userConfirmedUseCompilerModuleSwitch": false
 	},
@@ -129,10 +130,10 @@
 					"scene": null
 				},
 				{
-					"id": -1,
+					"id": 11,
 					"name": "pages/activityTemplate/edit",
 					"pathName": "pages/activityTemplate/edit",
-					"query": "id=1",
+					"query": "id=9",
 					"scene": null
 				}
 			]

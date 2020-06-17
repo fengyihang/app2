@@ -1,19 +1,7 @@
 <style lang="less">
-  .swiper-tab-pd {
-    padding: 0 30rpx;
-    background: #fff;
-  }
-  .swiper-tab-order.active {
-    color: #ff4856;
-    border-bottom: 5rpx solid #ff4856;
-  }
 </style>
 <template>
-  <!--tab模块-->
-  <div class="swiper-tab-pd">
-    <tab @currentTab.user="getCurrentTab" :tabList.sync="tabList" :currentTab.sync="currentTab"></tab>
-  </div>
-  <scroll-div scroll-y="true" class="swiper-item-box" style="height:{{winHeight - 31}}px" bindscrolltolower="onReachBottom">
+  <scroll-div scroll-y="true" class="swiper-item-box" bindscrolltolower="onReachBottom">
     <user-activity-user-list :activityUsers.sync="resourceData" :syncPlatform="platform" :user="user"></user-activity-user-list>
   </scroll-div>
 </template>
@@ -22,7 +10,6 @@
     navigationBarTitleText: '我参加的活动',
     enablePullDownRefresh: true,
     usingComponents: {
-      "tab": "~@/components/tab",
       "user-activity-user-list": "~@/components/activityUser/user-activity-user-list"
     }
   }
@@ -39,11 +26,7 @@
     store,
     mixins: [ listRefresh ],
     data: {
-      winHeight: 0,
       totalCount: 0,
-      tabList: ['全部', '待开始', '正在进行', '已结束', '待支付'],
-      orderStatus: 'a',
-      currentTab: 0,
       page: 1,
       userId: 0,
       platform: 'ios',
@@ -58,9 +41,6 @@
     async onLoad(options) {
       this.userId = this.user.id
       this.platform = wx.getStorageSync('platform')
-      if (this.platform === 'ios') {
-        this.tabList = ['全部', '待开始', '正在进行', '已结束']
-      }
       await this.loadData()
       eventHub.$on('activity-reload', (activity) => {
         this.page = 1
@@ -74,39 +54,6 @@
       })
     },
     methods: {
-      getCurrentTab(cur, evt) {
-        let that = this
-        that.currentTab = cur
-        this.page = 1
-        if (cur === 0) {
-          console.log('所有订单类型')
-          that.orderStatus = 'a'
-          this.loadData(true)
-        } else if (cur === 1) {
-          console.log('待开始')
-          that.orderStatus = 0
-          this.loadData(true)
-        } else if (cur === 2) {
-          console.log('待结算')
-          that.orderStatus = 2
-          this.loadData(true)
-        } else if (cur === 3) {
-          console.log('已完成订单类型')
-          that.orderStatus = 4
-          this.loadData(true)
-        } else if (cur === 4) {
-          console.log('待支付')
-          that.orderStatus = 4
-          this.loadData(true)
-        }
-      },
-      /**
-       * 滑动切换tab
-       */
-      bindChange(e) {
-        this.currentTab = e.$wx.detail.current
-        console.log('change tab....' + e.detailcurrent)
-      },
       async fetchData() {
         // eslint-disable-next-line camelcase
         let params = {
