@@ -45,9 +45,13 @@ const request = async (url, options = {}, showLoading = true) => {
   }
 
   if (response.statusCode === 422) {
+    let message = ''
+    for (let i in response.data.errors) {
+      message = message + response.data.errors[i]
+    }
     wx.showModal({
-      title: '提示',
-      content: '提交是数据有误,请检查'
+      title: '提交是数据有误,请检查',
+      content: message
     })
   }
 
