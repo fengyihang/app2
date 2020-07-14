@@ -735,8 +735,9 @@
       week_days: [],
       prefix_title: [
         { name: '1', value: '期数', checked: false },
-        { name: '2', value: '周几', checked: false },
-        { name: '3', value: '上下午,晚上', checked: false }
+        { name: '2', value: '月日', checked: false },
+        { name: '3', value: '周几', checked: false },
+        { name: '4', value: '上下午,晚上', checked: false }
       ],
       pre_title_ids: [],
       users: [],

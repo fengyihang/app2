@@ -126,7 +126,7 @@
             <div>
               <text class="iconfont icon-zhifu" @tap="copyFeeInfo" data-fee_info="{{  activity.activity_fee_info }}">复制费用信息</text>
             </div>
-            <div v-if=" activity.status === 1 ">
+            <div v-if=" activity.status === 1 || activity.status === 0 ">
               <text class="iconfont icon-zantingtingzhi" @tap="stopJoinActivity" data-id="{{ activity.id }}">暂停报名</text>
             </div>
             <div v-if=" activity.status === 3 ">

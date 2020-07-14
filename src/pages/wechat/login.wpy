@@ -1,0 +1,22 @@
+<style lang="less">
+</style>
+<template>
+  <web-view src="https://app.xiwenkeji.com/wechat/user"></web-view>
+</template>
+<config>
+  {
+    navigationBarTitleText: '授权公众账号信息',
+  }
+</config>
+<script>
+  import wepy from '@wepy/core'
+  wepy.page({
+    data: {
+      club: null
+    },
+    async onShow() {
+    },
+    methods: {
+    }
+  })
+</script>

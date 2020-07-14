@@ -27,7 +27,7 @@
     <!-- 取消订单 -->
     <div v-if=" activity.status === 1 && activity_user.user_id === user.id && ((activity_user.fee_type === 1 && activity_user.status === 0 && !activity_user.pid) || (activity_user.fee_type === 2 && activity_user.status === 0) || activity_user.status === 2 || activity_user.status === 1 || activity_user.status === 5) " data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" data-status="{{ activity_user.status }}" @tap="cancelActivityUser"><text class="iconfont icon-reeor"></text></div>
     <!-- 支付 -->
-    <div v-if=" platform !== 'ios' && activity_user.user_id === user.id && activity_user.pay_type === 1 && activity_user.status === 0 && !activity_user.pid " data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" @tap="pay"><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
+    <div v-if=" platform !== 'ios' && activity_user.user_id === user.id && activity_user.pay_type === 1 && activity_user.status === 0 && (!activity_user.pid || (activity_user.money && activity_user.fee_type === 2))" data-activity_id="{{ activity.id }}" data-id="{{ activity_user.id }}" data-pid="{{ activity_user.pid }}" @tap="pay"><image src="/assets/images/pay.svg" model="widthFix" class="pay"></image></div>
     <!-- 已支付标志 -->
     <div v-if=" platform !== 'ios' && (activity_user.user_id === user.id || is_admin) && activity_user.pay_at "><text class="iconfont icon-yizhifu"></text> </div>
   </div>
@@ -106,10 +106,6 @@
           }
         } catch (err) {
           console.log(err)
-          wx.showModal({
-            title: '提示',
-            content: '系统繁忙,请稍后重试'
-          })
         }
       },
       // 取消报名
@@ -157,7 +153,6 @@
             }, 2000)
           }
         } catch (err) {
-          util.error('系统繁忙,请稍后重试')
         }
       }
     }

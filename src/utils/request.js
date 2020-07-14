@@ -32,16 +32,48 @@ const request = async (url, options = {}, showLoading = true) => {
       })
       return
     }
-    console.log(response.data.message)
-    if (response.data.message === '您已长时间未登录,请重新登录' || response.data.message === '登录已失效,请重新登录!') {
-      wx.removeStorageSync('access_token')
-      wx.removeStorageSync('access_token_expired_at')
-      return wx.removeStorageSync('user')
-    }
     wx.showModal({
       title: '提示',
       content: response.data.message
     })
+  }
+
+  if (response.statusCode === 402) {
+    wx.removeStorageSync('access_token')
+    wx.removeStorageSync('access_token_expired_at')
+    wx.removeStorageSync('user')
+    wx.showModal({
+      title: '提示',
+      content: response.data.message,
+      success (res) {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+        } else if (res.cancel) {
+        }
+      }
+    })
+    return
+  }
+
+  if (response.statusCode === 403) {
+    wx.removeStorageSync('access_token')
+    wx.removeStorageSync('access_token_expired_at')
+    wx.removeStorageSync('user')
+    wx.showModal({
+      title: '提示',
+      content: response.data.message,
+      success (res) {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/auth/weappLogin'
+          })
+        } else if (res.cancel) {
+        }
+      }
+    })
+    return
   }
 
   if (response.statusCode === 422) {

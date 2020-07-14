@@ -186,10 +186,6 @@
           }
         } catch (err) {
           console.log(err)
-          wx.showModal({
-            title: '提示',
-            content: '系统繁忙,请稍后重试'
-          })
         }
       }
     }

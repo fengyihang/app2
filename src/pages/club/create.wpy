@@ -101,6 +101,7 @@
               <i class="iconfont icon-undo" bindtap="undo"></i>
               <i class="iconfont icon-redo" bindtap="redo"></i>
               <i class="iconfont icon-shanchu" bindtap="clear"></i>
+              <i class="iconfont icon-huanhang" bindtap="huanhang"></i>
             </div>
             <editor id="editor" class="ql-container" placeholder="{{placeholder}}" showImgSize showImgToolbar showImgResize bindstatuschange="onStatusChange" read-only="{{readOnly}}" bindready="onEditorReady"></editor>
           </div>
@@ -398,6 +399,9 @@
             console.log("clear success")
           }
         })
+      },
+      huanhang() {
+        this.editorCtx.insertText({ text: '\n' })
       },
       removeFormat() {
         this.editorCtx.removeFormat()

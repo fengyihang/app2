@@ -39,6 +39,22 @@
       <!-- 姓名错误信息 -->
       <div v-if="errors.name" class="weui-cells__tips error-message">{{ errors.name[0] }}</div>
 
+      <!-- 填写真实姓名 -->
+      <div class="weui-cells__title" :class="{'weui-cell_warn': errors.true_name}">真实姓名</div>
+      <div class="weui-cells weui-cells_after-title">
+        <div class="weui-cell weui-cell_input" :class="{'weui-cell_warn': errors.true_name}">
+          <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="请输入姓名" name="true_name" v-model="form.true_name" />
+          </div>
+          <div v-if="errors.true_name" class="weui-cell__ft">
+            <icon type="warn" size="23" color="#E64340"></icon>
+          </div>
+        </div>
+        <div class="weui-cells__tips">发布活动请填写跟微信绑定的真实姓名，否则会无法提现。</div>
+      </div>
+      <!-- 真实姓名错误信息 -->
+      <div v-if="errors.true_name" class="weui-cells__tips error-message">{{ errors.true_name[0] }}</div>
+
       <!-- 填写简介 -->
       <div class="weui-cells__title" :class="{'weui-cell_warn': errors.introduction}">个人简介</div>
       <div class="weui-cells weui-cells_after-title" :class="{'weui-cell_warn': errors.introduction}">

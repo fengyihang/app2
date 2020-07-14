@@ -68,6 +68,7 @@
 import wepy from '@wepy/core'
 import vuex from '@wepy/x'
 import promisify from '@wepy/use-promisify'
+import util from './utils/util'
 const QQMapWX = require('@/utils/qqmap-wx-jssdk.min.js');
 
 wepy.use(vuex)
@@ -92,9 +93,16 @@ wepy.app({
         wx.setStorageSync('pid', 0)
       }
     }
+    let res = wx.getSystemInfoSync()
+    if (util.compareVersion(res.SDKVersion, '2.10.2') < 0) {
+      wx.showModal({
+        title: '微信版本太低了',
+        content: '升级到更高的版本才可以使用羽运动哦'
+      })
+      return
+    }
     if (!wx.getStorageSync('platform')) {
       try {
-        const res = wx.getSystemInfoSync()
         let test = 0
         if (test || options.query.platform) {
           // 测试ios端
@@ -232,7 +240,8 @@ wepy.app({
     'pages/activityFeature/edit',
     'pages/activityTemplate/index',
     'pages/activityTemplate/create',
-    'pages/activityTemplate/edit'
+    'pages/activityTemplate/edit',
+    'pages/wechat/login'
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -46,8 +46,8 @@
     color: #888888;
   }
   .pay{
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
   }
   .icon-add-account{
     color: #09BB07;
@@ -102,6 +102,14 @@
   .weui-search-bar.weui-search-bar_focusing .weui-search-bar__label{
     // display: inline-block;
   }
+  .myself-name{
+    font-size: 28px;
+    text-align: center;
+  }
+  .weui-cells__center{
+    width: 40%;
+    text-align: center;
+  }
 </style>
 <template>
   <div class="page">
@@ -151,7 +159,7 @@
           </div>
           <div class="weui-flex__item">
             <div class="placeholder">
-              <text class="iconfont icon-faqiren"></text>组织者：{{ activity.user.name }}<text class="iconfont icon-weixin" v-if=" activity.is_show_wechat && activity.wechat " @tap="copyWechat" data-wechat="{{ activity.wechat }}"></text>
+              <text class="iconfont icon-faqiren"></text>组织者：{{ activity.duty ? activity.duty : activity.user.name }}<text class="iconfont icon-weixin" v-if=" activity.is_show_wechat && activity.wechat " @tap="copyWechat" data-wechat="{{ activity.wechat }}"></text>
             </div>
           </div>
         </div>
@@ -251,7 +259,7 @@
       </div>
       <div class="weui-cells__title"><text class="iconfont icon-Customermanagement"></text><text v-if="!activity.is_double_place">已报:{{ activity.joined_count }}/{{ activity.count }}</text> <text v-if="activity.is_double_place"> 已报:{{ activity.joined_count }}/{{ activity.joined_count >= activity.count ? activity.joined_count : activity.count }}</text>  <text v-if="activity.is_double_place && activity.count - remainNormalCount > 0"> 常规：{{ activity.count - remainNormalCount }}；</text> <text v-if="activity.is_double_place && activity.double_counts"> 连场：{{ activity.double_counts }}；</text> <text v-if="activity.is_double_place"> 加场:{{ activity.joined_double_count }}/{{ activity.double_count }}</text><text class="iconfont icon-jinggao" v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 "></text><text v-if=" platform !== 'ios' && activity.pay_type === 1 && activity.fee_type === 1 ">未支付的订单,取消主订单,会将一起报名的都取消</text> </div>
       <div class="weui-cells__title weui-cell_warn" v-if="activity.is_double_place">备注:<text class="iconfont icon-B"></text>代表参加连场<text class="iconfont icon-tianjia"></text>代表仅参加加时场</div>
-      <div class="weui-cells weui-cells_after-title">
+      <div class="weui-cells weui-cells_=after-title">
         <activity-user-list v-if="activity.activity_users" :activity_users="activity.activity_users" :platform="platform" :user="user" :activity="activity" :isJoinedActivity="is_joined_activity" :is_admin="is_admin"></activity-user-list>
         <div v-if=" activity.substitute_activity_users.length " class="weui-cell_warn">候补名单:</div>
         <activity-user-list v-if=" activity.substitute_activity_users.length " :activity_users="activity.substitute_activity_users" :platform="platform" :user="user" :activity="activity" :isJoinedActivity="is_joined_activity" :is_admin="is_admin"></activity-user-list>
@@ -259,29 +267,29 @@
     </div>
     <!-- 报名框 -->
     <modal class="modal" hidden="{{ joinModalHidden }}" bindcancel="cancelJoin"  bindconfirm="joinActivity">
+      <div class="weui-cell_warn">
+        <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
+      </div>
+      <div class="page__desc">{{ activity.title }}</div>
       <div v-if=" errors.captchaValue " class="weui-cells__tips error-message">{{ errors.captchaValue[0] }}</div>
       <div v-if=" errors.message " class="weui-cells__tips error-message">{{ errors.message[0] }}</div>
       <div v-if="info.add_count" class="weui-cells__tips error-message">外挂已报名{{ info.add_count }}人</div>
       <div v-if="isJoin" class="weui-cells__tips error-message">您本人已报名</div>
       <div class="weui-cells weui-cells_after-title">
-        <div class="weui-cell weui-cell_switch">
-          <div class="weui-cell__bd">本人报名</div>
-          <div class="weui-cell__ft">
+        <div class="weui-cell weui-cell_switch weui-cell_warn">
+          <div class="weui-cell__bd myself-name">本人报名</div>
+          <div class="weui-cell">
             <switch name="myself" value="{{ myself }}" checked="{{ myself }}" bindchange="bindSelf" disabled="{{ isJoin }}" />
           </div>
         </div>
-        <div class="weui-cell weui-cell_input">
-          <div class="weui-cell__hd">
-            <div class="weui-label">男外挂</div>
-          </div>
+        <div class="weui-cell weui-cell_switch">
+          <div class="weui-cell__hd weui-cells__center">男外挂</div>
           <div class="weui-cell__bd">
             <button @tap="man_count_sub">-</button> {{ man_add_count }} <button @tap="man_count_add">+</button>
           </div>
         </div>
-        <div class="weui-cell weui-cell_input">
-          <div class="weui-cell__hd">
-            <div class="weui-label">女外挂</div>
-          </div>
+        <div class="weui-cell weui-cell_switch">
+          <div class="weui-cell__hd weui-cells__center">女外挂</div>
           <div class="weui-cell__bd">
             <button @tap="lady_count_sub">-</button> {{ lady_add_count }} <button @tap="lady_count_add">+</button>
           </div>
@@ -880,7 +888,6 @@
             }
           }
         } catch (err) {
-          util.error('系统繁忙,请稍后重试')
         }
       },
       async reload(id) {
