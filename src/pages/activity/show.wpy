@@ -271,6 +271,7 @@
         <activity-datetime-diff :action_day="activity.action_day" :start_time="activity.start_time" :end_time="activity.end_time"></activity-datetime-diff>
       </div>
       <div class="page__desc">{{ activity.title }}</div>
+      <div class="page__desc">球场：{{ activity.place ? activity.place : '待定' }}</div>
       <div v-if=" errors.captchaValue " class="weui-cells__tips error-message">{{ errors.captchaValue[0] }}</div>
       <div v-if=" errors.message " class="weui-cells__tips error-message">{{ errors.message[0] }}</div>
       <div v-if="info.add_count" class="weui-cells__tips error-message">外挂已报名{{ info.add_count }}人</div>
@@ -315,7 +316,7 @@
         <form class="weui-search-bar__form">
           <div  class="weui-search-bar__box">
             <i class="weui-icon-search"></i>
-            <input type="text" class="weui-search-bar__input" placeholder="搜索用户昵称" value="{{keyword}}" focus="{{inputShowed}}" bindinput="inputTyping" />
+            <input type="text" class="weui-search-bar__input" placeholder="搜索俱乐部成员用户昵称" value="{{keyword}}" focus="{{inputShowed}}" bindinput="inputTyping" />
             <span class="weui-icon-clear" v-if="keyword.length > 0" bindtap="clearInput"></span>
           </div>
           <label class="weui-search-bar__label" @tap="showInput">

@@ -145,6 +145,7 @@
           <switch name="is_show_phone" checked="{{ is_show_phone }}" bindchange="bindShowPhone" />
         </div>
       </div>
+      <div class="weui-cells__tips">是否在俱乐部详情以及活动中显示手机号</div>
     </div>
     <div v-if=" errors.is_show_phone " class="weui-cells__tips error-message">{{ errors.is_show_phone[0] }}</div>
     <!-- 填写 显示手机号 end -->
@@ -172,6 +173,7 @@
           <switch name="is_show_wechat" checked="{{ is_show_wechat }}" bindchange="bindShowWechat" />
         </div>
       </div>
+      <div class="weui-cells__tips">是否在俱乐部详情以及活动中显示微信号</div>
     </div>
     <div v-if=" errors.is_show_wechat " class="weui-cells__tips error-message">{{ errors.is_show_wechat[0] }}</div>
     <!-- 填写 显示微信号 end -->

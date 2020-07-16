@@ -56,8 +56,8 @@
       <div class="topic-title">
         <div class="page__title">{{ club.title }}</div>
         <div><text class="iconfont icon-dingwei1"></text>地址：{{ club.address }}<text class="iconfont icon-dingwei" @tap="map"></text></div>
-        <div wx:if="{{ club.phone }}"><text class="iconfont icon-icon_phone"></text>手机：{{  club.phone }}</div>
-        <div wx:if="{{ club.wechat }}"><text class="iconfont icon-weixin"></text>微信：{{  club.wechat }}</div>
+        <div v-if="club.is_show_phone && club.phone " @tap="copyPhone" data-phone="{{ club.phone }}"><text class="iconfont icon-icon_phone"></text>手机：{{  club.phone }}</div>
+        <div v-if=" club.is_show_wechat && club.wechat " @tap="copyWechat" data-wechat="{{ club.wechat }}"><text class="iconfont icon-weixin"></text>微信：{{  club.wechat }}</div>
         <div><text class="iconfont icon-chengshi"></text>城市：{{  club.city_index }}</div>
         <div><text class="iconfont icon-yumaoqiuchang1"></text>球场：{{ club.place ? club.place : '待定' }}</div>
         <div><text class="iconfont icon-auto"></text>交通：{{ club.traffic_info }}</div>
@@ -129,6 +129,28 @@
       }
     },
     methods: {
+      upper(e) {
+      },
+      lower(e) {
+      },
+      scroll(e) {
+      },
+      copyWechat(e) {
+        let wechat = e.$wx.currentTarget.dataset.wechat
+        wx.setClipboardData({
+          data: wechat,
+          success(res) {
+          }
+        })
+      },
+      copyPhone(e) {
+        let phone = e.$wx.currentTarget.dataset.phone
+        wx.setClipboardData({
+          data: phone,
+          success(res) {
+          }
+        })
+      },
       async goHome(e) {
         wx.switchTab({
           url: '/pages/club/index'
