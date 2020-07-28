@@ -31,7 +31,7 @@
 	"miniprogramRoot": "weapp/",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
-	"libVersion": "2.11.3",
+	"libVersion": "2.11.1",
 	"condition": {
 		"search": {
 			"current": -1,
@@ -77,10 +77,10 @@
 					"scene": null
 				},
 				{
-					"id": -1,
-					"name": "pages/activity/create",
-					"pathName": "pages/activity/create",
-					"query": "id=1",
+					"id": 3,
+					"name": "pages/activity/new",
+					"pathName": "pages/activity/new",
+					"query": "id=2",
 					"scene": null
 				},
 				{

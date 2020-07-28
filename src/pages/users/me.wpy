@@ -30,7 +30,7 @@
             <image class="avatar" :src="user.avatar"/>
           </div>
           <div class="weui-cell__bd">
-            <div>{{ user.name }}</div>
+            <div>{{ user.nickname ? user.nickname : user.name }}</div>
             <div class="page__desc">{{ user.introduction || '' }}</div>
           </div>
           <div class="weui-cell__ft weui-cell__ft_in-access"></div>

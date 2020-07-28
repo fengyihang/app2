@@ -123,7 +123,7 @@
 <!--              <text class="iconfont icon-geren-copy-copy" @tap="copyLink" data-link="{{ 'https://app.xiwenkeji.com/activities/' + activity.id + '?pid=' + syncCurrentUser.id }}">复制链接</text>-->
               <text class="iconfont icon-reeor" v-if=" activity.status === 0 && activity.status === 1 && activity.status === 2 && activity.status === 3 " @tap="cancelActivity" data-id="{{ activity.id }}">取消活动</text>
             </div>
-            <div>
+            <div v-if=" activity.status > 4 && activity.status < 10 ">
               <text class="iconfont icon-zhifu" @tap="copyFeeInfo" data-fee_info="{{  activity.activity_fee_info }}">复制费用信息</text>
             </div>
             <div v-if=" activity.status === 1 || activity.status === 0 ">
@@ -131,6 +131,9 @@
             </div>
             <div v-if=" activity.status === 3 ">
               <text class="iconfont icon-zanting" @tap="continueActivity" data-id="{{ activity.id }}">继续报名</text>
+            </div>
+            <div v-if=" activity.status < 4 ">
+              <text class="iconfont icon-quxiao1" @tap="cancelActivity" data-id="{{ activity.id }}">取消活动</text>
             </div>
             <div v-if=" syncPlatform !== 'ios' && activity.status === 5 && activity.fee_type === 2">
               <text class="iconfont icon-jiesuan" @tap="showCleanActivity" data-id="{{ activity.id }}" data-pay_type="{{ activity.pay_type }}" data-ball_money="{{ activity.ball_money }}" data-place_money="{{ activity.place_money }}">结算</text>

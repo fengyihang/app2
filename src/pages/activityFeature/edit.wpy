@@ -175,7 +175,6 @@
         this.editorCtx.blur()
       },
       format(e) {
-        console.log('format')
         let { name, value } = e.$wx.target.dataset
         if (!name) return
         // console.log('format', name, value)

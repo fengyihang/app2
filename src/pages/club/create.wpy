@@ -413,6 +413,12 @@
           text: formatDate
         })
       },
+      undo(e) {
+        this.editorCtx.undo()
+      },
+      redo(e) {
+        this.editorCtx.redo()
+      },
       async insertImage() {
         const that = this
         let image = await wepy.wx.chooseImage({count: 1})

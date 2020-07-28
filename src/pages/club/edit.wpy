@@ -127,7 +127,7 @@
     <div class="weui-cells weui-cells_after-title">
       <div class="weui-cell weui-cell_input">
         <div class="weui-cell__bd">
-          <input class="weui-input" placeholder="请输入手机号" name="phone" value="{{ club.phone }}" />
+          <input class="weui-input" placeholder="请输入手机号" name="phone" value="{{ club.phone }}" disabled="disabled"/>
         </div>
         <div v-if=" errors.phone " class="weui-cell__ft">
           <icon type="warn" size="23" color="#E64340"></icon>
@@ -260,7 +260,8 @@
           <icon type="warn" size="23" color="#E64340"></icon>
         </div>
       </div>
-      <div class="weui-cells__tips">选择线上支付方式，提现时，平台会收取1%的手续费。AA制的情况会平摊到每个人</div>
+      <div class="weui-cells__tips">选择线上支付方式，提现时，平台会收取1%的手续费。AA制的情况会平摊到每个人。</div>
+      <div class="weui-cells__tips weui-cell_warn">选择线上支付方式，请先到个人中心编辑个人与微信绑定的实名。否则会出现活动结束时无法自动提现到账。</div>
     </div>
     <!-- 填写 支付方式 end -->
 

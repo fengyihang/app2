@@ -37,7 +37,7 @@ export function createActivity(data) {
 }
 // 取消活动
 export function cancelActivity(id) {
-  return authRequest('activities/' + id, {
+  return authRequest('activities/' + id + '/cancel', {
     method: 'PUT'
   })
 }

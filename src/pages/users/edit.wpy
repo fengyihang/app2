@@ -29,7 +29,7 @@
       <div class="weui-cells weui-cells_after-title">
         <div class="weui-cell weui-cell_input" :class="{'weui-cell_warn': errors.name}">
           <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="请输入姓名" name="name" v-model="form.name" />
+            <input class="weui-input" placeholder="请输入昵称" name="name" v-model="form.name" disabled/>
           </div>
           <div v-if="errors.name" class="weui-cell__ft">
             <icon type="warn" size="23" color="#E64340"></icon>
@@ -38,6 +38,21 @@
       </div>
       <!-- 姓名错误信息 -->
       <div v-if="errors.name" class="weui-cells__tips error-message">{{ errors.name[0] }}</div>
+
+      <!-- 填写备注昵称 -->
+      <div class="weui-cells__title" :class="{'weui-cell_warn': errors.nickname}">备注昵称</div>
+      <div class="weui-cells weui-cells_after-title">
+        <div class="weui-cell weui-cell_input" :class="{'weui-cell_warn': errors.nickname}">
+          <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="请输入备注昵称" name="nickname" v-model="form.nickname" />
+          </div>
+          <div v-if="errors.nickname" class="weui-cell__ft">
+            <icon type="warn" size="23" color="#E64340"></icon>
+          </div>
+        </div>
+      </div>
+      <!-- 备注昵称错误信息 -->
+      <div v-if="errors.nickname" class="weui-cells__tips error-message">{{ errors.nickname[0] }}</div>
 
       <!-- 填写真实姓名 -->
       <div class="weui-cells__title" :class="{'weui-cell_warn': errors.true_name}">真实姓名</div>

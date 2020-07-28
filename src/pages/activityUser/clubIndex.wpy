@@ -40,8 +40,8 @@
     data: {
       winHeight: 0,
       totalCount: 0,
-      tabList: ['全部', '待开始', '待结束', '已结束', '待收款'],
-      orderStatus: 'a',
+      tabList: ['待收款', '待开始', '报名中', '进行中', '已结束', '全部'],
+      orderStatus: 5,
       currentTab: 0,
       city_index: '',
       longitude: 0,
@@ -59,9 +59,6 @@
     async onLoad(options) {
       this.clubId = options.id
       this.platform = wx.getStorageSync('platform')
-      if (this.platform === 'ios') {
-        this.tabList = ['全部', '待开始', '待结束', '已结束']
-      }
       await this.loadData()
       eventHub.$on('activity-reload', (activity) => {
         this.page = 1
@@ -80,26 +77,31 @@
         that.currentTab = cur
         this.page = 1
         if (cur === 0) {
-          console.log('所有订单类型')
-          that.orderStatus = 'a'
+          console.log('待支付')
+          that.orderStatus = 5
           this.loadData(true)
         } else if (cur === 1) {
           console.log('待开始')
           that.orderStatus = 1
           this.loadData(true)
         } else if (cur === 2) {
-          console.log('待结算')
+          console.log('报名中')
           that.orderStatus = 2
           that.receiveFlg = 2
           this.loadData(true)
         } else if (cur === 3) {
+          console.log('待结算')
+          that.orderStatus = 3
+          that.receiveFlg = 3
+          this.loadData(true)
+        } else if (cur === 4) {
           console.log('已完成订单类型')
           that.orderStatus = 4
           that.receiveFlg = 4
           this.loadData(true)
-        } else if (cur === 4) {
-          console.log('待支付')
-          that.orderStatus = 4
+        } else if (cur === 5) {
+          console.log('所有订单类型')
+          that.orderStatus = 'a'
           that.receiveFlg = 4
           this.loadData(true)
         }

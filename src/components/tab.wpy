@@ -20,7 +20,7 @@
   .dotbig {
     position: absolute;
     display: flex;
-    width: 50rpx;
+    width: 40rpx;
     height: 35rpx;
     line-height: 40rpx;
     text-align: center;
@@ -47,7 +47,7 @@
   .swiper-tab-list {
     font-size: 30rpx;
     color: #777777;
-    padding: 0 20rpx;
+    padding: 0 14rpx;
     position: relative;
   }
   .active {

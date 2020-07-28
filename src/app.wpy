@@ -223,6 +223,7 @@ wepy.app({
     'pages/activity/index',
     'pages/activity/show',
     'pages/activity/create',
+    'pages/activity/new',
     'pages/activity/edit',
     'pages/auth/weappLogin',
     'pages/club/show',

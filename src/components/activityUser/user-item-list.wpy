@@ -81,7 +81,7 @@
         <image src="{{ activity_user.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
       </div>
       <div class="weui-cell__bd">
-        {{activity_user.user.name}}
+        {{ activity_user.user.nickname ? activity_user.user.nickname : activity_user.user.name }}
         <text v-if=" activity_user.sex === 2 " class="iconfont icon-nv"></text>
         <text v-else class="iconfont icon-nan"></text>
         <text v-if="activity_user.is_double_place === 1 " class="iconfont icon-B"></text>

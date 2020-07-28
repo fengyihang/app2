@@ -395,7 +395,8 @@
               <icon type="warn" size="23" color="#E64340"></icon>
             </div>
           </div>
-          <div class="weui-cells__tips">选择线上支付方式，提现时，平台会收取1%的手续费。AA制的情况会平摊到每个人</div>
+          <div class="weui-cells__tips">选择线上支付方式，提现时，平台会收取1%的手续费。AA制的情况会平摊到每个人。</div>
+          <div class="weui-cells__tips weui-cell_warn">选择线上支付方式，请先到个人中心编辑个人与微信绑定的实名。否则会出现活动结束时无法自动提现到账。</div>
         </div>
         <!-- 填写 支付方式 end -->
 

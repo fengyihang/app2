@@ -649,6 +649,7 @@
 
         <div class="weui-btn-area">
           <button class="weui-btn" type="primary" formType="submit">提交</button>
+          <button class="weui-btn" type="default" plain="true" @tap="createActivity">使用此模板发布活动</button>
         </div>
       </form>
     </div>
@@ -718,6 +719,7 @@
   wepy.page({
     store,
     data: {
+      id: 0,
       helpModalHidden: true,
       inputShowed: false,
       keyword: '',
@@ -806,12 +808,18 @@
     },
     async onLoad(options) {
       this.platform = wx.getStorageSync('platform')
+      this.id = options.id
       await this.loadActivityTemplate(options.id)
       wx.setNavigationBarTitle({
         title: '编辑' + this.activityTemplate.title
       })
     },
     methods: {
+      createActivity (e) {
+        wx.navigateTo({
+          url: '/pages/activity/new?id=' + this.id
+        })
+      },
       // 表单提交
       async submit (e) {
         this.errors = null
