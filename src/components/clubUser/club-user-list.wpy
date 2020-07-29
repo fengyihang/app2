@@ -15,11 +15,13 @@
       <div v-for="clubUser in clubUsers" :key="clubUser.id">
         <div class="weui-cells weui-cells_after-title">
           <div class="weui-cell">
-            <div class="weui-cell__hd">
+            <navigator class="weui-cell__hd" url="/pages/users/detail?id={{ clubUser.user_id }}">
               <image src="{{ clubUser.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
-            </div>
+            </navigator>
             <div class="weui-cell__bd">
-              {{ clubUser.nickname || clubUser.user.name }}
+              <navigator class="format-inline" url="/pages/users/detail?id={{ clubUser.user_id }}">
+                {{ clubUser.nickname || clubUser.user.name }}
+              </navigator>
               <text v-if=" clubUser.sex === 2 " class="iconfont icon-nv"></text>
               <text v-else class="iconfont icon-nan"></text>
               <text v-if=" clubUser.is_admin " class="iconfont icon-guanliyuan"></text>

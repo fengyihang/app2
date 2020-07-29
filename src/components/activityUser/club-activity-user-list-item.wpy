@@ -72,11 +72,13 @@
 <template>
   <div v-for=" item in activityUsers" :key="item.id" class="weui-cells weui-cells_after-title">
     <div class="weui-cell">
-      <div class="weui-cell__hd">
+      <navigator class="weui-cell__hd" url="/pages/users/detail?id={{ item.user.id }}">
         <image src="{{ item.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
-      </div>
+      </navigator>
       <div class="weui-cell__bd">
-        {{ item.user.nickname ? item.user.nickname : item.user.name }}
+        <navigator class="format-inline" url="/pages/users/detail?id={{ item.user.id }}">
+          {{ item.user.nickname || item.user.name }}
+        </navigator>
         <text v-if=" item.sex === 2 " class="iconfont icon-nv"></text>
         <text v-else class="iconfont icon-nan"></text>
         <text v-if="item.is_double_place === 1 " class="iconfont icon-B"></text>

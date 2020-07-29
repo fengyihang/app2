@@ -86,11 +86,13 @@
 <template>
   <div class="weui-cells weui-cells_after-title">
     <div class="weui-cell">
-      <div class="weui-cell__hd">
-        <image src="{{ activityUser.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
-      </div>
+      <navigator class="weui-cell__hd" url="/pages/users/detail?id={{ activityUser.user.id }}">
+      <image src="{{ activityUser.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
+      </navigator>
       <div class="weui-cell__bd">
-        {{ activityUser.user.nickname ? activityUser.user.nickname : activityUser.user.name }}
+        <navigator class="format-inline" url="/pages/users/detail?id={{ activityUser.user.id }}">
+          {{ activityUser.user.nickname || activityUser.user.name }}
+        </navigator>
         <text v-if=" activityUser.sex === 2 " class="iconfont icon-nv"></text>
         <text v-else class="iconfont icon-nan"></text>
         <text v-if="activityUser.is_double_place === 1 " class="iconfont icon-B"></text>

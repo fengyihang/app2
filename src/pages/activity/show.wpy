@@ -159,7 +159,7 @@
           </div>
           <div class="weui-flex__item">
             <div class="placeholder">
-              <text class="iconfont icon-faqiren"></text>组织者：{{ activity.duty ? activity.duty : activity.user.name }}<text class="iconfont icon-weixin" v-if=" activity.is_show_wechat && activity.wechat " @tap="copyWechat" data-wechat="{{ activity.wechat }}"></text>
+              <text class="iconfont icon-faqiren"></text>组织者：{{ activity.duty || activity.user.nickname || activity.user.name }}<text class="iconfont icon-weixin" v-if=" activity.is_show_wechat && activity.wechat " @tap="copyWechat" data-wechat="{{ activity.wechat }}"></text>
             </div>
           </div>
         </div>

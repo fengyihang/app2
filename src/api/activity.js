@@ -41,6 +41,12 @@ export function cancelActivity(id) {
     method: 'PUT'
   })
 }
+// 完成活动
+export function finishActivity(id) {
+  return authRequest('activities/' + id + '/finish', {
+    method: 'PUT'
+  })
+}
 // 停止加入活动
 export function stopJoinActivity(id, data) {
   return authRequest('activities/' + id + '/stop_join_activity', {

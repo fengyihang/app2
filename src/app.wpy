@@ -62,6 +62,9 @@
   display: inline;
   font-size: 12px;
 }
+.format-inline{
+  display: inline;
+}
 </style>
 
 <script>
@@ -213,6 +216,7 @@ wepy.app({
     'pages/users/me',
     'pages/users/edit',
     'pages/users/show',
+    'pages/users/detail',
     'pages/auth/login',
     'pages/auth/register',
     'pages/auth/phone',

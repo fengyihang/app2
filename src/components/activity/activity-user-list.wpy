@@ -5,11 +5,13 @@
 </style>
 <template>
   <div class="weui-cell" v-for="activity_user in activity_users" :key="activity_user.id">
-    <div class="weui-cell__hd">
+    <navigator class="weui-cell__hd" url="/pages/users/detail?id={{ activity_user.user.id }}">
       <image src="{{ activity_user.user.avatar }}" style="margin-right: 5px;vertical-align: middle;width:20px; height: 20px;"/>
-    </div>
+    </navigator>
     <div class="weui-cell__bd">
-      {{ activity_user.user.nickname ? activity_user.user.nickname : activity_user.user.name }}
+      <navigator class="format-inline" url="/pages/users/detail?id={{ activity_user.user.id }}">
+        {{ activity_user.user.nickname || activity_user.user.name }}
+      </navigator>
       <text v-if="activity_user.remark">({{ activity_user.remark }})</text>
       <text v-if="activity_user.sex === 2 " class="iconfont icon-nv"></text>
       <text v-else class="iconfont icon-nan"></text>

@@ -33,7 +33,7 @@
           <div class="weui-media-box__title topic-title">{{ club.title }}</div>
 
           <div class="weui-media-box__info">
-            <div class="weui-media-box__info__meta">{{ club.user.name }} • </div>
+            <div class="weui-media-box__info__meta">{{ club.user.nickname || club.user.name }} • </div>
             <div class="weui-media-box__info__meta"><datetime-diff :datetime="club.created_at"></datetime-diff></div>
           </div>
         </div>

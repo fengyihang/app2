@@ -120,10 +120,8 @@
               <navigator url="/pages/activity/edit?id={{ activity.id }}">
                 <text class="iconfont icon-bianji">编辑</text>
               </navigator>
-<!--              <text class="iconfont icon-geren-copy-copy" @tap="copyLink" data-link="{{ 'https://app.xiwenkeji.com/activities/' + activity.id + '?pid=' + syncCurrentUser.id }}">复制链接</text>-->
-              <text class="iconfont icon-reeor" v-if=" activity.status === 0 && activity.status === 1 && activity.status === 2 && activity.status === 3 " @tap="cancelActivity" data-id="{{ activity.id }}">取消活动</text>
             </div>
-            <div v-if=" activity.status > 4 && activity.status < 10 ">
+            <div v-if=" activity.status > 5 && activity.status < 10 ">
               <text class="iconfont icon-zhifu" @tap="copyFeeInfo" data-fee_info="{{  activity.activity_fee_info }}">复制费用信息</text>
             </div>
             <div v-if=" activity.status === 1 || activity.status === 0 ">
@@ -131,6 +129,9 @@
             </div>
             <div v-if=" activity.status === 3 ">
               <text class="iconfont icon-zanting" @tap="continueActivity" data-id="{{ activity.id }}">继续报名</text>
+            </div>
+            <div v-if=" activity.status === 5 ">
+              <text class="iconfont icon-queren" @tap="finishActivity" data-id="{{ activity.id }}">完成</text>
             </div>
             <div v-if=" activity.status < 4 ">
               <text class="iconfont icon-quxiao1" @tap="cancelActivity" data-id="{{ activity.id }}">取消活动</text>
@@ -318,7 +319,15 @@
   import wepy from '@wepy/core'
   import util from '../../utils/util'
   import eventHub from '@/common/eventHub'
-  import { cancelActivity, continueJoinActivity, stopJoinActivity, cleanActivity, confirmCleanActivity, withdrawActivity } from '../../api/activity'
+  import {
+    cancelActivity,
+    continueJoinActivity,
+    stopJoinActivity,
+    cleanActivity,
+    confirmCleanActivity,
+    withdrawActivity,
+    finishActivity
+  } from '../../api/activity'
 
   wepy.component({
     options: {
@@ -384,6 +393,20 @@
         try {
           // 请求接口，传入参数
           let response = await continueJoinActivity(this.id)
+          if (response.statusCode === 200) {
+            await util.success('成功')
+            eventHub.$emit('activity-reload', response.data)
+          }
+        } catch (err) {
+          util.error('系统繁忙,请稍后重试')
+        }
+      },
+      async finishActivity(e) {
+        this.id = e.$wx.currentTarget.dataset.id
+        await util.confirm('完成活动不涉及费用等操作，只修改为已完成状态，将无法进行结算操作，确定要完成活动吗？')
+        try {
+          // 请求接口，传入参数
+          let response = await finishActivity(this.id)
           if (response.statusCode === 200) {
             await util.success('成功')
             eventHub.$emit('activity-reload', response.data)

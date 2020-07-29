@@ -167,10 +167,6 @@
 </config>
 <script>
   import wepy from '@wepy/core'
-  import { pay } from '../../api/activityUser'
-  import util from '../../utils/util'
-  import eventHub from '@/common/eventHub'
-  import { cancelActivity, continueJoinActivity, stopJoinActivity, cleanActivity, confirmCleanActivity } from '../../api/activity'
 
   wepy.component({
     options: {

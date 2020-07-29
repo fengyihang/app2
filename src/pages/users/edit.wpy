@@ -50,6 +50,7 @@
             <icon type="warn" size="23" color="#E64340"></icon>
           </div>
         </div>
+        <div class="weui-cells__tips">备注昵称，优先展示</div>
       </div>
       <!-- 备注昵称错误信息 -->
       <div v-if="errors.nickname" class="weui-cells__tips error-message">{{ errors.nickname[0] }}</div>
